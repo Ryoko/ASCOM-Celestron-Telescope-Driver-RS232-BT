@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestASCOM_Driver", "TestASCOM_Driver\TestASCOM_Driver.csproj", "{64308775-BD4A-469C-BCAB-3ED830B811AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDriverForm", "TestDriverForm\TestDriverForm.csproj", "{8E8D406C-1838-4914-867D-AB602D0EAF3E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{3C876D88-DE6F-4DEC-96BA-9621F48FE528}"
+	ProjectSection(SolutionItems) = preProject
+		Commands.txt = Commands.txt
+		C:\Program Files (x86)\Common Files\ASCOM\Telescope\Source\Celestron Driver\Common.bas = C:\Program Files (x86)\Common Files\ASCOM\Telescope\Source\Celestron Driver\Common.bas
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{64308775-BD4A-469C-BCAB-3ED830B811AF}.Release|x86.ActiveCfg = Release|Any CPU
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Debug|x86.ActiveCfg = Debug|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Debug|x86.Build.0 = Debug|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Release|Any CPU.ActiveCfg = Release|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Release|Mixed Platforms.Build.0 = Release|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Release|x86.ActiveCfg = Release|x86
+		{8E8D406C-1838-4914-867D-AB602D0EAF3E}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
