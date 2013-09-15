@@ -9,7 +9,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
     public enum TelescopeModel { GPSSeries = 1, iSeries = 3, iSeriesSE, CGE, AdvancedGT, SLT, CPC = 9, GT, SE45, SE68 }
     public enum TrackingMode { Off, AltAzm, EQN, EQS };
 
-    interface ICelestroneTelescopeWorker
+    interface ITelescopeInteraction
     {
         //ICelestroneTelescopeWorker(IDeviceWorker dw);
 

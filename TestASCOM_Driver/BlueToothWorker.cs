@@ -85,20 +85,24 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         }
 
         public byte[] Transfer(byte[] send) {
-            this.peerStream.Write(send, 0, send.Length);
+
             byte[] receive = new byte[1024];
-
             int offset = 0;
-            var begin = -1;
-            for (int i = 0; i < 10; i++)
-            {
-                Thread.Sleep(10);
-                var lenRepl = this.peerStream.Read(receive, offset, 1024 - offset);
-                offset += lenRepl;
-                if (receive[offset - 1] == 35) break;
 
-                if (begin < 0) begin = Environment.TickCount;
-                if (Environment.TickCount > begin + TIMEOUT) break;
+            lock (peerStream)
+            {
+                this.peerStream.Write(send, 0, send.Length);
+                var begin = -1;
+                for (int i = 0; i < 10; i++)
+                {
+                    Thread.Sleep(10);
+                    var lenRepl = this.peerStream.Read(receive, offset, 1024 - offset);
+                    offset += lenRepl;
+                    if (receive[offset - 1] == 35) break;
+
+                    if (begin < 0) begin = Environment.TickCount;
+                    if (Environment.TickCount > begin + TIMEOUT) break;
+                }
             }
             return receive.Take(offset).ToArray();
         }

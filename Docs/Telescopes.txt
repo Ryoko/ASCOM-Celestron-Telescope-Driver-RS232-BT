@@ -1,0 +1,111 @@
+        .AddItem "NexStar 60GT or SLT"     ' 60, 700, Fork, No
+        .ItemData(.NewIndex) = EncodeData(60, 700, False, False, False)
+        m_Obstruction(.NewIndex) = 0
+        .AddItem "NexStar 76GT"     ' 76, 700, Fork, No
+        .ItemData(.NewIndex) = EncodeData(76, 700, False, False, False)
+        m_Obstruction(.NewIndex) = 28
+        .AddItem "NexStar 80GT"     ' 80, 400, Fork, No
+        .ItemData(.NewIndex) = EncodeData(80, 400, False, False, False)
+        m_Obstruction(.NewIndex) = 0
+        .AddItem "NexStar 80SLT"     ' 80, 900, Fork, No
+        .ItemData(.NewIndex) = EncodeData(80, 900, False, False, False)
+        m_Obstruction(.NewIndex) = 0
+        .AddItem "NexStar 102GT"    ' 102, 500, Fork, No
+        .ItemData(.NewIndex) = EncodeData(102, 500, False, False, False)
+        m_Obstruction(.NewIndex) = 0
+        .AddItem "NexStar 102SLT"    ' 102, 660, Fork, No
+        .ItemData(.NewIndex) = EncodeData(102, 660, False, False, False)
+        m_Obstruction(.NewIndex) = 0
+        .AddItem "NexStar 114GT or SLT"    ' 114, 1000, Fork, No
+        .ItemData(.NewIndex) = EncodeData(114, 1000, False, False, False)
+        m_Obstruction(.NewIndex) = 36
+        .AddItem "NexStar 130GT or SLT"    ' 130, 650, Fork, No
+        .ItemData(.NewIndex) = EncodeData(130, 650, False, False, False)
+        m_Obstruction(.NewIndex) = 29
+        .AddItem "NexStar 4GT"      ' 102, 1325, Fork, No
+        .ItemData(.NewIndex) = EncodeData(102, 1325, False, False, False)
+        m_Obstruction(.NewIndex) = 35
+        .AddItem "NexStar 5"        ' 127, 1250, Fork, No
+        .ItemData(.NewIndex) = EncodeData(127, 1250, False, False, False)
+        m_Obstruction(.NewIndex) = 35
+        .AddItem "NexStar 8"        ' 203, 2032, Fork, No
+        .ItemData(.NewIndex) = EncodeData(203, 2032, False, False, False)
+        m_Obstruction(.NewIndex) = 31
+        .AddItem "NexStar 5i"       ' 127, 1250, Fork, Maybe
+        .ItemData(.NewIndex) = EncodeData(127, 1250, False, True, False, True, True)
+        m_Obstruction(.NewIndex) = 35
+        .AddItem "NexStar 6SE"       ' 150, 1500, Fork, Maybe
+        .ItemData(.NewIndex) = EncodeData(150, 1500, False, True, False, True, True)
+        m_Obstruction(.NewIndex) = 37
+        .AddItem "NexStar 8i or 8i SE"       ' 203, 2032, Fork, Maybe
+        .ItemData(.NewIndex) = EncodeData(203, 2032, False, True, False, True, True)
+        m_Obstruction(.NewIndex) = 31
+        .AddItem "NexStar 8 GPS or CPC"    ' 203, 2032, Fork, Yes
+        .ItemData(.NewIndex) = EncodeData(203, 2032, False, False, True, True, True)
+        m_Obstruction(.NewIndex) = 34
+        .AddItem "NexStar 9.25 GPS or CPC" ' 235, 2350, Fork, Yes
+        .ItemData(.NewIndex) = EncodeData(235, 2350, False, False, True, True, True)
+        m_Obstruction(.NewIndex) = 36
+        .AddItem "NexStar 11 GPS or CPC"   ' 280, 2800, Fork, Yes
+        .ItemData(.NewIndex) = EncodeData(280, 2800, False, False, True, True, True)
+        m_Obstruction(.NewIndex) = 34
+        .AddItem "CGE 800"          ' 203, 2032, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(203, 2032, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 34
+        .AddItem "CGE or CGE Pro 925"          ' 235, 2350, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(235, 2350, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 36
+        .AddItem "CGE or CGE Pro 1100"         ' 280, 2800, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(280, 2800, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 34
+        .AddItem "CGE or CGE Pro 1400"         ' 356, 3910, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(356, 3910, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 32
+        .AddItem "Advanced C5-SGT"  ' 127, 1250, Gem, maybe
+        .ItemData(.NewIndex) = EncodeData(127, 1250, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 35
+        .AddItem "Advanced C6-NGT"  ' 150, 750, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(150, 750, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 29
+        .AddItem "Advanced C6-RGT"  ' 150, 1200, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(150, 1200, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 0
+        .AddItem "Advanced C6-SGT"  ' 150, 1500, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(150, 1500, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 31
+        .AddItem "Advanced C8-SGT"  ' 203, 2032, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(203, 2032, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 31
+        .AddItem "Advanced C8-NGT"  ' 200, 1000, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(200, 1000, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 28
+        .AddItem "Advanced C9 1/4-SGT"  ' 235, 2350, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(235, 2350, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 36
+        .AddItem "Advanced C10-NGT" ' 254, 1200, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(254, 1200, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 23
+        .AddItem "Advanced C11-SGT" ' 279, 2800, Gem, Maybe
+        .ItemData(.NewIndex) = EncodeData(280, 2800, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 34
+        .AddItem "CGEM 800"
+        .ItemData(.NewIndex) = EncodeData(200, 2032, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 31
+        .AddItem "CGEM 925"
+        .ItemData(.NewIndex) = EncodeData(235, 2350, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 36
+        .AddItem "CGEM 1100"
+        .ItemData(.NewIndex) = EncodeData(280, 2800, True, True, False, True, True)
+        m_Obstruction(.NewIndex) = 34
+        .AddItem "C20" ' 500, 3454, Fork, Maybe
+        .ItemData(.NewIndex) = EncodeData(500, 3454, False, True, False, True, True)
+        m_Obstruction(.NewIndex) = 39
+        .AddItem "Ultima 2000"      ' 203, 2032, Fork, No
+        .ItemData(.NewIndex) = EncodeData(203, 2032, False, False, False, True)
+        m_Obstruction(.NewIndex) = 34
+        .AddItem "Synta SkyWatcher Mount"      ' 80, 500, gem, No
+        .ItemData(.NewIndex) = EncodeData(80, 500, True, False, False, True, True)
+        m_Obstruction(.NewIndex) = 0
+        .AddItem "Advanced VX Mount"
+        .ItemData(.NewIndex) = EncodeData(80, 500, True, True, False, True, True, 0)
+        m_Obstruction(.NewIndex) = 0

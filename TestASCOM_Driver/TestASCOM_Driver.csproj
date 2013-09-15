@@ -83,13 +83,13 @@
     <Compile Include="Driver.cs" />
     <Compile Include="DriverTelescope.cs" />
     <Compile Include="DriverWorker.cs" />
-    <Compile Include="TelescopeWorker\CelestroneWorker12.cs" />
-    <Compile Include="TelescopeWorker\CelestroneWorker16.cs" />
-    <Compile Include="TelescopeWorker\CelestroneWorker22.cs" />
-    <Compile Include="TelescopeWorker\CelestroneWorker23.cs" />
-    <Compile Include="TelescopeWorker\CelestroneWorker31.cs" />
-    <Compile Include="TelescopeWorker\CelestroneWorker41.cs" />
-    <Compile Include="TelescopeWorker\ICelestroneTelescopeWorker.cs" />
+    <Compile Include="TelescopeWorker\CelestroneInteraction12.cs" />
+    <Compile Include="TelescopeWorker\CelestroneInteraction16.cs" />
+    <Compile Include="TelescopeWorker\CelestroneInteraction22.cs" />
+    <Compile Include="TelescopeWorker\CelestroneInteraction23.cs" />
+    <Compile Include="TelescopeWorker\CelestroneInteraction31.cs" />
+    <Compile Include="TelescopeWorker\CelestroneInteraction41.cs" />
+    <Compile Include="TelescopeWorker\ITelescopeInteraction.cs" />
     <Compile Include="IDeviceWorker.cs" />
     <Compile Include="ITAdvancedGT.cs" />
     <Compile Include="ITelescopeWorker.cs" />
@@ -111,6 +111,8 @@
     <Compile Include="SetupDialogForm.designer.cs">
       <DependentUpon>SetupDialogForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TelescopeWorker\TelescopeProperties.cs" />
+    <Compile Include="TelescopeWorker\TelescopeWorker.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

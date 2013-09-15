@@ -38,3 +38,78 @@ Private Const NS_GET_LOCATION As Byte = &H77    ' w Get location
 Private Const NS_HIBERNATE As Byte = &H78       ' x Hibernate, 4.21 onwards
 Private Const NS_WAKEUP As Byte = &H79          ' y Wake up, parameter 0 or 1, 4.21 onwards
 Private Const NS_GET_ALTAZ_HP As Byte = &H7A    ' z Get Alt Az High precision
+
+
+' AUX commands for the NexStar scopes
+Public Enum E_DEVICE_ID
+    ID_MAIN = 1
+    ID_HC = 4
+    ID_AZM = 16
+    ID_ALT = 17
+    ID_GPS = 176
+    ID_RTC = &HB2
+End Enum
+
+Private Enum E_MESSAGE_ID
+'                                   Send    Receive
+'   motor controller commands
+    MC_GET_POSITION = 1         '    n/a    24 bits
+    MC_GOTO_FAST = 2            '   16/24 bits Ack
+    
+    MC_SET_AXIS = 4             '   24 bits Ack     24 bits for a rotation
+
+    ' continuously variable move rate in units of 0.25 arc sec per second
+    MC_SET_POS_GUIDERATE = 6    '   24 bits n/a
+    MC_SET_NEG_GUIDERATE = 7    '   24 bits n/a
+    
+    MC_SEEK_SWITCH = &HB        '   n/a     Ack     Start the move to the switch position
+    MC_PEC_RECORD_START = &HC   '   n/a     Ack     Start recording PEC position
+    MC_PEC_PLAYBACK = &HD       '   8 bits  Ack     Start(01)/stop(00) PEC playback
+    
+    MC_AT_SWITCH = &H12         '   n/a     8 bits, FFH is seek switch completed
+    MC_SLEW_DONE = &H13         '    n/a    8 bits, FFH is slew completed
+    
+    MC_PEC_RECORD_DONE = &H15   '   n/a     8 bits  FFH ia PEC record completed
+    MC_PEC_RECORD_STOP = &H16   '   n/a     n/a     Stop PEC recording
+    
+    MC_GOTO_SLOW = &H17
+    MC_AT_INDEX = &H18          '   n/a     8 bits  FFH at index, 00H not
+    MC_SEEK_INDEX = &H19        '   n/a     n/a     Seek PEC Index
+    
+    ' emulate the HC buttons, value is rate 0-9 where 0 is stop
+    MC_MOVE_POS = &H24          '      8    n/a     move positive (up/right)
+    MC_MOVE_NEG = &H25          '      8    n/a     Move negative (down/left)
+    
+    ' the new hardware based guide commands
+    MTR_AUX_GUIDE = &H26
+'        Command is followed by a signed char: velocity [% sidereal]; and
+'        unsigned char: duration [10 ms units].
+
+    MTR_IS_AUX_GUIDE_ACTIVE = &H27
+        'MC returns TRUE(1) if last AUX_GUIDE command's is still in effect.
+        'MC returns FALSE(0) if last AUX_GUIDE command has expired.
+
+    ' set/get the autoguide rates as a percentage of sidereal
+    MC_SET_AUTOGUIDE_RATE = &H46 ' 8    n/a     Set percentage of sidereal
+    MC_GET_AUTOGUIDE_RATE = &H47 ' 8    n/a     % = 100 * val/256
+    
+'   GPS commands
+    GPS_GET_LAT = 1         '   n/a     24 Bits
+    GPS_GET_LONG = 2        '   n/a     24 Bits
+    GPS_GET_DATE = 3        '   n/a     16 Bits month|day
+    GPS_GET_YEAR = 4        '   n/a     16 Bits
+    GPS_GET_TIME = &H33     '   n/a     24 bits hours|minutes|seconds
+    GPS_TIME_VALID = &H36   '   n/a     8 bits  0=False, 1=True
+    GPS_LINKED = &H37       '   n/a     8 bits  0=False, 1=True
+    
+'   All modules
+    GET_VER = &HFE          '   n/a     16 bits major|minor
+End Enum
+
+Private Enum E_TRACK_RATES
+    ' 16 bit guide rates are for special rates, these are for the Az axis in an EQ mode only
+    ' use MC_SET_POS_GUIDERATE for EQ_N or MC_SET_NEG_GUIDERATE for EQ_S
+    RATE_SIDEREAL = &HFFFF
+    RATE_SOLAR = &HFFFE
+    RATE_LUNAR = &HFFFD
+End Enum

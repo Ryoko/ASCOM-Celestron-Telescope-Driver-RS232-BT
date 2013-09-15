@@ -7,8 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDriverForm", "TestDrive
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{3C876D88-DE6F-4DEC-96BA-9621F48FE528}"
 	ProjectSection(SolutionItems) = preProject
-		Commands.txt = Commands.txt
-		C:\Program Files (x86)\Common Files\ASCOM\Telescope\Source\Celestron Driver\Common.bas = C:\Program Files (x86)\Common Files\ASCOM\Telescope\Source\Celestron Driver\Common.bas
+		Docs\Commands.txt = Docs\Commands.txt
+		Docs\Common.bas = Docs\Common.bas
+		Docs\Telescopes.txt = Docs\Telescopes.txt
 	EndProjectSection
 EndProject
 Global

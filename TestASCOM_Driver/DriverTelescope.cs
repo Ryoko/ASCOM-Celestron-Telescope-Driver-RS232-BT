@@ -298,6 +298,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 if (tw.CanSlewVariableRate) throw new ASCOM.InvalidOperationException("Error setting declination rate");
                 tl.LogMessage("DeclinationRate Set", value.ToString());
                 tw.SlewVariableRate(value > 0 ? Direction.Positive : Direction.Negative, SlewAxes.DecAlt, Math.Abs(value));
+                declinationRate = value;
             }
         }
 
@@ -420,18 +421,21 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
         }
 
+        private double rightAscensionRate = double.NaN;
         public double RightAscensionRate
         {
             get
             {
-                double rightAscensionRate = 0.0;
-                tl.LogMessage("RightAscensionRate", "Get - " + rightAscensionRate.ToString());
+                if (rightAscensionRate.Equals(double.NaN)) throw new ASCOM.InvalidOperationException("Error geting rightAscensionRate rate");
+                tl.LogMessage("AscensionRateRate", "Get - " + rightAscensionRate.ToString());
                 return rightAscensionRate;
             }
             set
             {
-                tl.LogMessage("RightAscensionRate Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("RightAscensionRate", true);
+                if (tw.CanSlewVariableRate) throw new ASCOM.InvalidOperationException("Error setting right ascesion rate");
+                tl.LogMessage("Right Ascesion Rate Set", value.ToString());
+                tw.SlewVariableRate(value > 0 ? Direction.Positive : Direction.Negative, SlewAxes.RaAzm, Math.Abs(value));
+                rightAscensionRate = value;
             }
         }
 
@@ -477,6 +481,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 tl.LogMessage("SiteElevation Set", value.ToString());
                 Telescope.elevation = (int) value;
+                WriteProfile();
             }
         }
 
@@ -484,13 +489,18 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("SiteLatitude Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SiteLatitude", false);
+                tl.LogMessage("SiteLatitude Get", latitude.ToString());
+                if (tw.CanWorkLocation)
+                {
+                    Telescope.latitude = (decimal)tw.TelescopeLocation.Lat;
+                    return tw.TelescopeLocation.Lat;
+                }
+                return (double)Telescope.latitude;
             }
             set
             {
-                tl.LogMessage("SiteLatitude Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SiteLatitude", true);
+                tl.LogMessage("SiteLatitude Set", value.ToString());
+                Telescope.latitude = (decimal)value;
             }
         }
 

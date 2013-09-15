@@ -128,7 +128,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         private TraceLogger tl;
 
         private DriverWorker driverWorker;
-        private ICelestroneTelescopeWorker tw;    
+        private ITelescopeInteraction tw;    
         /// <summary>
         /// Initializes a new instance of the <see cref="CelestronAdvancedBlueTooth"/> class.
         /// Must be public for COM registration.
@@ -149,7 +149,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             //TODO: Implement your additional construction here
 
             driverWorker = new DriverWorker(this.CheckConnected, dw);
-            tw = new CelestroneWorker41(driverWorker);
+            tw = new CelestroneInteraction41(driverWorker);
             tl.LogMessage("Telescope", "Completed initialisation");
         }
 
