@@ -47,6 +47,26 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
+        public override TrackingMode TrackingMode
+        {
+            get
+            {
+                var mode = base.TrackingMode;
+                if (_telescopeModel == TelescopeModel.AdvancedGT || _telescopeModel == TelescopeModel.CGE)
+                    if(_firmwareVersion >= 3.01 && _firmwareVersion <= 3.04)
+                        if (mode > TrackingMode.Off) mode = mode + 1;
+                return mode;
+            }
+            set
+            {
+                var mode = value;
+                if (_telescopeModel == TelescopeModel.AdvancedGT || _telescopeModel == TelescopeModel.CGE)
+                    if (_firmwareVersion >= 3.01 && _firmwareVersion <= 3.04)
+                        if (mode > TrackingMode.Off) mode = mode - 1;
+                base.TrackingMode = mode;
+            }
+        }
+
         public override double VersionRequired
         {
             get { return 3.01; }

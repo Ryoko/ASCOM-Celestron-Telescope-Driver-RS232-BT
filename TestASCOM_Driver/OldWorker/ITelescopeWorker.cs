@@ -3,7 +3,7 @@ using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
-    internal interface ITelescopeWorker
+    internal interface ITelescopeOperator
     {
         void AbortSlew();
         AlignmentModes AlignmentMode { get; }

@@ -6,13 +6,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
     public enum Direction { Positive, Negative };
     public enum SlewAxes { RaAzm, DecAlt };
     public enum DeviceID { RaAzmMotor = 16, DecAltMotor = 17, GPSUnit = 176, RTC = 178}
-    public enum TelescopeModel { GPSSeries = 1, iSeries = 3, iSeriesSE, CGE, AdvancedGT, SLT, CPC = 9, GT, SE45, SE68 }
-    public enum TrackingMode { Off, AltAzm, EQN, EQS };
+    public enum TelescopeModel { Unknown = 0, GPSSeries = 1, iSeries = 3, iSeriesSE, CGE, AdvancedGT, SLT, CPC = 9, GT, SE45, SE68 }
+    public enum TrackingMode { Unknown = -1, Off = 0, AltAzm, EQN, EQS };
 
-    interface ITelescopeInteraction
+    public interface ITelescopeInteraction
     {
         //ICelestroneTelescopeWorker(IDeviceWorker dw);
-
+        bool isConnected { get; set; }
         AltAzm AltAzm { get; set; }
         Coordinates RaDec { get; set; }
         void SyncAltAz(AltAzm coordinates);

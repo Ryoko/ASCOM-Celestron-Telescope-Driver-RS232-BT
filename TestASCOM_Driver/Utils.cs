@@ -38,6 +38,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
         {
             Deg = deg;
         }
+        
+        public DMS(double deg)
+        {
+            Deg = (decimal)deg;
+        }
 
         public DMS(int d, int m, decimal s)
         {
@@ -48,7 +53,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
 
         public static bool TryParse(string coordinates, out DMS value)
         {
-            value = new DMS(0);
+            value = new DMS(0m);
             decimal val;
 
             //Regex r = new Regex(@"(\d+)[°\s]+(\d+)['\s]+(\d+)[\.\,]?(\d*)['\s]*");
@@ -88,6 +93,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
         override public string ToString()
         {
             return string.Format("{0:d2}°{1:d2}'{2,2:f1}\"", this.D, this.M, this.S);
+        }
+        
+        public string ToString(string del)
+        {
+            return string.Format("{0:d2}{3}{1:d2}{3}{2,2:f1}", this.D, this.M, this.S, del);
+        }
+        
+        public string ToString(string del1, string del2)
+        {
+            return string.Format("{0:d2}{3}{1:d2}{4}{2,2:f1}", this.D, this.M, this.S, del1, del2);
         }
     }
 
@@ -133,6 +148,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
         {
             Lat = lat;
             Lon = lon;
+        }
+        public LatLon(decimal lat, decimal lon)
+        {
+            Lat = (double)lat;
+            Lon = (double)lon;
         }
         public double Lat { get; set; }
         public double Lon { get; set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.Utilities;
@@ -21,7 +22,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 int Ra, Dec;
                 if (driverWorker.GetPairValues("e", out Ra, out Dec))
                 {
-                    return new Coordinates((Ra / 4294967296) * 360, (Dec / 4294967296) * 360);
+                    return new Coordinates(((double)Ra / 4294967296) * 360, ((double)Dec / 4294967296) * 360);
                 }
                 throw new Exception("Error getting parameters");
             }
@@ -42,7 +43,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             set
             {
                 var com = new[] {(byte)'T', (byte)value};
-                SendCommand(com);
+                SendBytes(com);
             }
         }
 
@@ -65,14 +66,30 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new byte[] { (byte)'P', 1, 176, 55, 0, 0, 0, 1 };
-                var res = SendCommand(com);
+                var res = SendBytes(com);
+                if (res.Length < 2 || res[res.Length - 1] != '#') throw new ProtocolViolationException("Error receiving isGPS property");
                 return res[0] > 0;
             }
         }
 
         public override DateTime GpsDateTime
         {
-            get { throw new System.NotImplementedException(); }
+            get
+            {
+                var com = new byte[] { (byte)'P', 1, 176, 3, 0, 0, 0, 2 };
+                var res = SendCommand(com); 
+                var month = (int)res[0];
+                var day = (int)res[1];
+
+                com = new byte[] { (byte)'P', 1, 176, 4, 0, 0, 0, 2 };
+                res = SendCommand(com); 
+                var year = (int)res[0] * 256 + res[1];
+
+                com = new byte[] { (byte)'P', 1, 176, 51, 0, 0, 0, 3 };
+                res = SendCommand(com);
+
+                return new DateTime(year, month, day, res[2], res[1], res[0]);
+            }
         }
 
         public override LatLon GPSLocation
