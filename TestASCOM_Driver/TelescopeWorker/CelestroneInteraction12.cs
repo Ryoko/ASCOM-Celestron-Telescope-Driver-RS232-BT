@@ -8,22 +8,20 @@ using ASCOM.Utilities.Interfaces;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
-    class CelestroneInteraction12 : ITelescopeInteraction
+    internal class CelestroneInteraction12 : ATelescopeInteraction
     {
-        protected IDriverWorker driverWorker;
-        public CelestroneInteraction12(IDriverWorker _driverWorker)
+        public CelestroneInteraction12(IDriverWorker _driverWorker) : base(_driverWorker)
         {
-            driverWorker = _driverWorker;
         }
 
-        public virtual AltAzm AltAzm
+        public override AltAzm AltAzm
         {
             get
             {
                 int Alt, Azm;
                 if (driverWorker.GetPairValues("Z", out Alt, out Azm))
                 {
-                    return new AltAzm((Alt / 65536) * 360, (Azm / 65536) *360);
+                    return new AltAzm(((double)Alt/65536)*360, ((double)Azm/65536)*360);
                 }
                 throw new Exception("Error getting parameters");
             }
@@ -38,14 +36,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
-        public virtual Coordinates RaDec
+        public override Coordinates RaDec
         {
             get
             {
                 int Ra, Dec;
                 if (driverWorker.GetPairValues("E", out Ra, out Dec))
                 {
-                    return new Coordinates((Ra / 65536) * 360, (Dec / 65536) * 360);
+                    return new Coordinates(((double)Ra/65536)*360, ((double)Dec/65536)*360);
                 }
                 throw new Exception("Error getting parameters");
             }
@@ -60,187 +58,48 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
-        public virtual void SyncAltAz(AltAzm coordinates)
-        {
-            throw new System.NotImplementedException();
-        }
 
-        public virtual void SyncRaDec(Coordinates coordinates)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public virtual TrackingMode TrackingMode
-        {
-            get { throw new System.NotImplementedException(); }
-            set { throw new System.NotImplementedException(); }
-        }
-
-        public virtual void SlewFixedRate(Direction dir, SlewAxes axis, int rate)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public virtual void SlewVariableRate(Direction dir, SlewAxes axis, double rate)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public virtual DateTime TelescopeDateTime
-        {
-            get { throw new System.NotImplementedException(); }
-            set { throw new System.NotImplementedException(); }
-        }
-
-        public virtual LatLon TelescopeLocation
-        {
-            get { throw new System.NotImplementedException(); }
-            set { throw new System.NotImplementedException(); }
-        }
-
-        public virtual bool IsGPS
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public virtual DateTime GpsDateTime
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public virtual LatLon GPSLocation
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public virtual DateTime RTCDateTime
-        {
-            get { throw new System.NotImplementedException(); }
-            set { throw new System.NotImplementedException(); }
-        }
-        public double FirmwareVersion
+        public override double FirmwareVersion
         {
             get
             {
-                var com = new[] { (byte)'V' };
-                var res = SendCommand(com);
-                return res[0] + (double) res[1]/10;
+                //var com = new[] {(byte) 'V'};
+                var res = driverWorker.CommandString("V", false);// SendCommand(com);
+                _firmwareVersion = res[0] + (double)res[1] / 10;
+                return _firmwareVersion;
             }
         }
 
-        public virtual double GetDeviceVersion(DeviceID device)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public virtual TelescopeModel GetModel
-        {
-            get { throw new System.NotImplementedException(); }
-        }
-
-        public bool IsAlignmentComplete
+        public override bool IsAlignmentComplete
         {
             get
             {
-                var com = new[] {(byte) 'J'};
-                var res = SendCommand(com);
+                //var com = new[] {(byte) 'J'};
+                var res = driverWorker.CommandString("J", false);//SendCommand(com);
                 return res[0] == 1;
             }
         }
 
-        public bool IsGoToInProgress
+        public override bool IsGoToInProgress
         {
             get
             {
-                var com = new[] { (byte)'L' };
-                var res = SendCommand(com);
-                return res[0] == (byte)'1';
+                //var com = new[] {(byte) 'L'};
+                var res = driverWorker.CommandString("L", false);//SendCommand(com);
+                return res[0] == (byte) '1';
             }
         }
 
-        public void CancelGoTo()
+        public override void CancelGoTo()
         {
-            var com = new[] { (byte)'M' };
-            SendCommand(com);
+            //var com = new[] {(byte) 'M'};
+            driverWorker.CommandString("M", false);//SendCommand(com);
         }
 
-        public virtual double VersionRequired
+        public override double VersionRequired
         {
             get { return 1.2; }
         }
 
-        public virtual bool CanSyncAltAzm
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanSyncRaDec
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanSetTracking
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanGetTracking
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanSlewFixedRate
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanSlewVariableRate
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanWorkDateTime
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanWorkLocation
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanWorkGPS
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanGetRTC
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanSetRTC
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanGetModel
-        {
-            get { return false; }
-        }
-
-        public virtual bool CanGetDeviceVersion
-        {
-            get { return false; }
-        }
-
-        protected byte[] SendCommand(byte[] com)
-        {
-            var len = com[com.Length - 1] + 1;
-            var res = driverWorker.CommandString(com.ToString(), false);
-            if (res.Length < len || !res[len - 1].Equals('#'))
-                throw new Exception("Error in protocol");
-            return res.ToCharArray().Cast<byte>().ToArray();
-        }
     }
 }

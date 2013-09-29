@@ -21,7 +21,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 int Alt, Azm;
                 if (driverWorker.GetPairValues("z", out Alt, out Azm))
                 {
-                    return new AltAzm((Alt / 4294967296) * 360, (Azm / 4294967296) * 360);
+                    return new AltAzm(((double)Alt / 4294967296) * 360, ((double)Azm / 4294967296) * 360);
                 }
                 throw new Exception("Error getting parameters");
             }
@@ -41,8 +41,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new[] { (byte)'m' };
-                var res = SendCommand(com);
-                return (TelescopeModel)res[0];
+                var res = driverWorker.CommandString("m", false);//SendCommand(com);
+                _telescopeModel = (TelescopeModel) res[0];
+                return _telescopeModel;
             }
         }
 

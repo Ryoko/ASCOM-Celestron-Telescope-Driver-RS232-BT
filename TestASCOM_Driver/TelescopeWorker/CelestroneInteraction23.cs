@@ -7,7 +7,7 @@ using ASCOM.CelestronAdvancedBlueTooth.Utils;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
-    class CelestroneInteraction23 : CelestroneInteractin22
+    class CelestroneInteraction23 : CelestroneInteraction22
     {
         public CelestroneInteraction23(IDriverWorker _driverWorker) : base(_driverWorker)
         {
@@ -18,13 +18,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new[] { (byte)'t' };
-                var res = SendCommand(com);
+                var res = SendBytes(com);
                 return (TrackingMode) res[0];
             }
             set
             {
                 var com = new[] { (byte)'T', (byte)value };
-                SendCommand(com);
+                SendBytes(com);
             }
         }
 
@@ -33,8 +33,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new[] { (byte)'h' };
-                var res = SendCommand(com);
-                var dt = new DateTime(res[5] + 2000, res[4], res[3], res[0], res[1], res[2], DateTimeKind.Unspecified);
+                var res = SendBytes(com);
+                if (res.Length < 6) throw new DriverException("Wrong answer");
+                var dt = new DateTime(res[5] + 2000, res[3], res[4], res[0], res[1], res[2], DateTimeKind.Unspecified);
                 var offset = res[6] < 100 ? res[6] : 256 - res[6];
                 var dtUTC = DateTime.SpecifyKind(dt.AddHours(-offset).AddHours(-res[7]), DateTimeKind.Utc);
                 return dtUTC.ToLocalTime();
@@ -52,7 +53,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     (byte)dt.Month, (byte)dt.Day, (byte)(dt.Year - 2000),
                     (byte)tz, (byte)dlst
                 };
-                SendCommand(com);
+                SendBytes(com);
             }
         }
 
@@ -61,7 +62,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new[] { (byte)'w' };
-                var res = SendCommand(com);
+                var res = SendBytes(com);
+                if (res.Length < 8) return null;
                 var lat = new DMS(res[0], res[1], res[2]) { Sign = res[3] == 0 ? 1 : -1 };
                 var lon = new DMS(res[4], res[5], res[6]) { Sign = res[7] == 0 ? 1 : -1 };
                 return new LatLon((double)lat.Deg, (double)lon.Deg);
@@ -76,7 +78,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     (byte)lat.D, (byte)lat.M, (byte)(lat.S + .5M), (byte)(lat.Sign > 0 ? 0 : 1),
                     (byte)lon.D, (byte)lon.M, (byte)(lon.S + .5M), (byte)(lon.Sign > 0 ? 0 : 1)
                 };
-                SendCommand(com);
+                SendBytes(com);
             }
         }
 

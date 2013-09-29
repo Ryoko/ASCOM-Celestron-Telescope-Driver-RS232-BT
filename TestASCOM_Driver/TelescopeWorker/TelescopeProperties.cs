@@ -6,24 +6,25 @@ using ASCOM.CelestronAdvancedBlueTooth.Utils;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
-    enum SlewState { InitSlew = -1, NoSlew = 0, Slewing, SlewRest, MoveAxis };
-    enum TelescopeType { Unknown, NextStar, NextStar58, GT, Ultima }
+    public enum SlewState { InitSlew = -1, NoSlew = 0, Slewing, SlewRest, MoveAxis };
+    public enum TelescopeType { Unknown, NextStar, NextStar58, GT, Ultima }
 
 
-    class TelescopeProperties
+    public class TelescopeProperties
     {
-        private static TelescopeProperties _properties = new TelescopeProperties();
+        //private static readonly TelescopeProperties _properties = new TelescopeProperties();
+        private ITelescopeInteraction _ti;
 
         public bool IsReady { get; private set; }
         public string TelescopeName { get; set; }
         public string TelescopeType { get; set; }
+        public TelescopeModel TelescopeModel { get; set; }
         public Coordinates RaDec { get; set; }
         public AltAzm AltAzm { get; set; }
         public DateTime DateTime { get; set; }
         public SlewState SlewState { get; set; }
         public LatLon Location { get; set; }
         public double Elevation { get; set; }
-        public ITelescopeWorker TelescopeWorker { get; set; }
         public double Apperture { get; set; }
         public double FocalLength { get; set; }
         public double AppertureArea { get; set; }
@@ -31,12 +32,39 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public Coordinates TargetCoordinates { get; set; }
         public AltAzm TargetAltAzm { get; set; }
         public double FirmwareVersion { get; set; }
+        public double MotorsFirmvareVersion { get; set; }
+        public TrackingMode TrackingMode { get; set; }
+        public DateTime TelescopeTime { get; set; }
+        public int SlewSteeleTime { get; set; }
+        public bool HasGPS { get; set; }
 
-        public static TelescopeProperties GetProperties(ITelescopeWorker tw)
+        //public static TelescopeProperties Properties { get { return _properties; } }
+
+        public TelescopeProperties(ITelescopeInteraction ti)
         {
-            
+            _ti = ti;
         }
 
-        public static TelescopeProperties Properties { get { return _properties; } }
+        public void GetTelescopeProperties()
+        {
+            this.FirmwareVersion = _ti.FirmwareVersion;
+            if (_ti.CanGetModel) this.TelescopeModel = _ti.GetModel;
+            if (_ti.CanGetDeviceVersion) this.MotorsFirmvareVersion = _ti.GetDeviceVersion(DeviceID.DecAltMotor);
+            if (_ti.CanGetTracking) this.TrackingMode = _ti.TrackingMode;
+            this.Location = _ti.CanWorkLocation ? 
+                _ti.TelescopeLocation 
+                : _ti.CanWorkGPS ? 
+                    _ti.GPSLocation 
+                    : new LatLon(Telescope.latitude, Telescope.longitude);
+            this.TelescopeTime = _ti.CanWorkDateTime ? _ti.TelescopeDateTime : DateTime.Now;
+            this.HasGPS = (_ti.CanWorkGPS) && _ti.IsGPS;
+
+            this.SlewState = _ti.IsGoToInProgress ? SlewState.Slewing : SlewState.NoSlew;
+            this.Elevation = Telescope.elevation;
+            this.Apperture = Telescope.apperture;
+            this.FocalLength = Telescope.focal;
+            this.ObstructionPercent = Telescope.obstruction;
+            this.IsReady = true;
+        }
     }
 }

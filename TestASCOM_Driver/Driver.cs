@@ -94,7 +94,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
 
         internal static string comPort; // Variables to hold the currrent device configuration
-        internal static bool traceState;
+        internal static bool traceState = true;
         internal static bool isBluetooth;
         internal static BluetoothAddress bluetoothDevice;
         internal static decimal longitude;
@@ -107,6 +107,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         internal static int obstruction;
         internal static Coordinates target;
 
+        private static Telescope _telescopeV3;
+        public static ITelescopeV3 TelescopeV3 {get { return _telescopeV3; }}
+        
         /// <summary>
         /// Private variable to hold the connected state
         /// </summary>
@@ -128,7 +131,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         private TraceLogger tl;
 
         private DriverWorker driverWorker;
-        private ITelescopeInteraction tw;    
+        private ITelescopeInteraction tw;
+        private TelescopeWorker.TelescopeWorker telescopeWorker;
+        private TelescopeProperties telescopeProperties;
+        public static TelescopeProperties TelescopeProperties {get { return _telescopeV3.telescopeProperties; }}
         /// <summary>
         /// Initializes a new instance of the <see cref="CelestronAdvancedBlueTooth"/> class.
         /// Must be public for COM registration.
@@ -136,23 +142,44 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public Telescope()
         {
             ReadProfile(); // Read device configuration from the ASCOM Profile store
+            _telescopeV3 = this;
 
             tl = new TraceLogger("", "CelestronAdvancedBlueTooth");
-            tl.Enabled = traceState;
+            tl.Enabled = true;// traceState;
             tl.LogMessage("Telescope", "Starting initialisation");
 
             connectedState = false; // Initialise connected to false
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
-
-            dw = isBluetooth ? new BluetoothWorker() : null;
-            //TODO: Implement your additional construction here
-
-            driverWorker = new DriverWorker(this.CheckConnected, dw);
-            tw = new CelestroneInteraction41(driverWorker);
+            Initialize();
             tl.LogMessage("Telescope", "Completed initialisation");
         }
 
+        public void Initialize()
+        {
+            StopWorking();
+            dw = isBluetooth ? new BluetoothWorker() : null;
+            //TODO: Implement your additional construction here
+            if (dw != null)
+            {
+                driverWorker = new DriverWorker(this.CheckConnected, dw);
+                tw = new CelestroneInteraction41(driverWorker);
+                telescopeWorker = TelescopeWorker.TelescopeWorker.Worker;
+                TelescopeWorker.TelescopeWorker.TelescopeInteraction = tw;
+                telescopeProperties = TelescopeWorker.TelescopeWorker.TelescopeProperties;
+
+            }
+        }
+
+        private void StopWorking()
+        {
+            TelescopeWorker.TelescopeWorker.Worker.Disconnect();
+            if (dw != null)
+            {
+                dw.Disconnect();
+                dw = null;
+            }            
+        }
 
         //
         // PUBLIC COM INTERFACE ITelescopeV3 IMPLEMENTATION
@@ -220,6 +247,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public void Dispose()
         {
             // Clean up the tracelogger and util objects
+            StopWorking();
             tl.Enabled = false;
             tl.Dispose();
             tl = null;
@@ -247,13 +275,21 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     connectedState = true;
                     tl.LogMessage("Connected Set", "Connecting to port " + comPort);
                     dw.Connect(Telescope.bluetoothDevice);
+                    tw.isConnected = true;
+                    while (true)
+                    {
+                        Thread.Sleep(100);
+                        if (telescopeProperties.IsReady) break;
+                    }
                     // TODO connect to the device
                 }
                 else
                 {
+                    tw.isConnected = false;
                     connectedState = false;
                     tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);
-                    dw.Disconnect();
+                    TelescopeWorker.TelescopeWorker.TelescopeInteraction.isConnected = false;
+                    StopWorking();
                     // TODO disconnect from the device
                 }
             }
@@ -448,7 +484,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         /// <summary>
         /// Write the device configuration to the  ASCOM  Profile store
         /// </summary>
-        internal void WriteProfile()
+        public void WriteProfile()
         {
             using (Profile driverProfile = new Profile())
             {

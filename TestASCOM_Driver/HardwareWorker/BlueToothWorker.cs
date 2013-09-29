@@ -53,6 +53,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         private BluetoothClient cli;
         private Stream peerStream;
         private BluetoothDeviceInfo di;
+        private object lockObj = new object();
 
         public bool Connect(object connectionInfo)
         {
@@ -84,12 +85,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             return true;
         }
 
-        public byte[] Transfer(byte[] send) {
+        public byte[] Transfer(byte[] send)
+        {
 
+            if (peerStream == null) return new byte[0];
             byte[] receive = new byte[1024];
             int offset = 0;
 
-            lock (peerStream)
+
+            lock (lockObj)
             {
                 this.peerStream.Write(send, 0, send.Length);
                 var begin = -1;
@@ -122,7 +126,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
         public void Disconnect()
         {
+            if (this.peerStream != null) this.peerStream.Dispose();
+            //if (this.ep != null) this.ep.
             this.cli.Close();
+            this.cli.Dispose();
         }
 
     }

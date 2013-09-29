@@ -20,7 +20,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public delegate void CheckConnectedDelegate(string message);
         public CheckConnectedDelegate CheckConnected { get; set; }
         public IDeviceWorker dw { get; set; }
-        private object _lockConnection
+        private object _lockConnection;
 
         public DriverWorker(CheckConnectedDelegate checkConnected, IDeviceWorker deviceWorker)
         {

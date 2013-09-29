@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
+using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
@@ -33,7 +34,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 try
                 {
-                    var alt = tw.AltAzm.Alt;
+                    if (telescopeProperties == null || telescopeProperties.AltAzm == null) return 0;
+                    var alt = telescopeProperties.AltAzm.Alt;
                     tl.LogMessage("Altitude Get", alt.ToString());
                     return alt;
                 }
@@ -49,8 +51,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("ApertureArea Get", "Not implemented");
-                return Telescope.apperture;
+                tl.LogMessage("ApertureArea Get", telescopeProperties.Apperture.ToString());
+                return telescopeProperties.Apperture;
             }
         }
 
@@ -58,8 +60,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("ApertureDiameter Get", "Not implemented");
-                return Telescope.apperture;
+                var appArea = Math.Pow(telescopeProperties.Apperture/2, 2)*Math.PI;
+                tl.LogMessage("ApertureDiameter Get", appArea.ToString());
+                return appArea;
             }
         }
 
@@ -94,8 +97,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 try
                 {
-                    var azm = tw.AltAzm.Alt;
-                    tl.LogMessage("Azimuth Get", azm.ToString());
+                    if (telescopeProperties == null || telescopeProperties.AltAzm == null) return 0;
+                    var azm = telescopeProperties.AltAzm.Azm;
+                    tl.LogMessage("Azimuth Get", new DMS(azm).ToString(":"));
                     return azm;
                 }
                 catch (Exception err)
@@ -272,7 +276,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 try
                 {
-                    var dec = tw.RaDec.Dec;
+                    if (telescopeProperties == null || telescopeProperties.RaDec == null) return 0;
+                    var dec = telescopeProperties.RaDec.Dec;
                     tl.LogMessage("Declination Get", dec.ToString());
                     return dec;
                 }
@@ -342,8 +347,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("FocalLength Get", Telescope.focal.ToString());
-                return Telescope.focal;
+                var fLen = telescopeProperties.FocalLength;
+                tl.LogMessage("FocalLength Get", fLen.ToString());
+                return fLen;
             }
         }
 
@@ -409,15 +415,18 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                int Ra, Dec;
-                if (GetPairValues("e", out Ra, out Dec))
+                try
                 {
-                    double val = (Ra/4294967296)*360;
-                    tl.LogMessage("RightAscension", "Get - " + utilities.DegreesToDMS(val, ":", ":"));
+                    if (telescopeProperties == null || telescopeProperties.RaDec == null) return 0;
+                    var val = telescopeProperties.RaDec.Ra;
+                    tl.LogMessage("RightAscension", "Get - " + new DMS(val).ToString(":"));
                     return val;
                 }
-                tl.LogMessage("RightAscension Get", "Error getting RightAscension");
-                throw new ASCOM.DriverException("Error getting RightAscension");
+                catch (Exception err)
+                {
+                    tl.LogMessage("RightAscension Get", "Error getting RightAscension");
+                    throw new ASCOM.DriverException("Error getting RightAscension");
+                }
             }
         }
 
@@ -474,12 +483,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("SiteElevation Get", Telescope.elevation.ToString());
-                return Telescope.elevation;
+                var val = telescopeProperties.Elevation;
+                tl.LogMessage("SiteElevation Get", val.ToString());
+                return val;
             }
             set
             {
                 tl.LogMessage("SiteElevation Set", value.ToString());
+                telescopeProperties.Elevation = value;
                 Telescope.elevation = (int) value;
                 WriteProfile();
             }
@@ -489,18 +500,22 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("SiteLatitude Get", latitude.ToString());
-                if (tw.CanWorkLocation)
-                {
-                    Telescope.latitude = (decimal)tw.TelescopeLocation.Lat;
-                    return tw.TelescopeLocation.Lat;
-                }
-                return (double)Telescope.latitude;
+                if (telescopeProperties == null || telescopeProperties.Location == null) return 0;
+                var val = telescopeProperties.Location.Lat;
+                tl.LogMessage("SiteLatitude Get", new DMS(val).ToString(":"));
+                return val;
             }
             set
             {
-                tl.LogMessage("SiteLatitude Set", value.ToString());
+                if (tw.CanWorkLocation)
+                {
+                    if (telescopeProperties == null || telescopeProperties.Location == null) return;
+                    telescopeProperties.Location.Lat = value;
+                    tw.TelescopeLocation = telescopeProperties.Location;
+                }
+                tl.LogMessage("SiteLatitude Set", new DMS(value).ToString(":"));
                 Telescope.latitude = (decimal)value;
+                WriteProfile();
             }
         }
 
@@ -508,13 +523,22 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("SiteLongitude Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SiteLongitude", false);
+                if (telescopeProperties == null || telescopeProperties.Location == null) return 0;
+                var val = telescopeProperties.Location.Lon;
+                tl.LogMessage("SiteLongitude Get", new DMS(val).ToString(":"));
+                return val;
             }
             set
             {
-                tl.LogMessage("SiteLongitude Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SiteLongitude", true);
+                if (tw.CanWorkLocation)
+                {
+                    if (telescopeProperties == null || telescopeProperties.Location == null) return;
+                    telescopeProperties.Location.Lon = value;
+                    tw.TelescopeLocation = telescopeProperties.Location;
+                }
+                tl.LogMessage("SiteLongitude Set", new DMS(value).ToString(":"));
+                Telescope.longitude = (decimal)value;
+                WriteProfile();
             }
         }
 
@@ -522,32 +546,32 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("SlewSettleTime Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SlewSettleTime", false);
+                var val = (short)(telescopeProperties.SlewSteeleTime/1000); 
+                tl.LogMessage("SlewSettleTime Get", val.ToString());
+                return val;
             }
             set
             {
-                tl.LogMessage("SlewSettleTime Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SlewSettleTime", true);
+                telescopeProperties.SlewSteeleTime = value*1000;
+                tl.LogMessage("SlewSettleTime Set", value.ToString());
             }
         }
 
         public void SlewToAltAz(double Azimuth, double Altitude)
         {
+            
             SlewToAltAzAsync(Azimuth, Altitude);
             while (true)
             {
                 Thread.Sleep(100);
-                var r = CommandString("L", false);
-                if (r.Equals("0#")) break;
+                if (!telescopeWorker.IsSlewing) break;
             }
             tl.LogMessage("SlewingToAltAz", string.Format("Alt:{0}, Azm:{1}", Altitude, Azimuth));
         }
 
         public void SlewToAltAzAsync(double Azimuth, double Altitude)
         {
-            if (CommandBool(string.Format("b{0},{1}#",
-                Utils.Utils.Deg2HEX32(Azimuth), Utils.Utils.Deg2HEX32(Altitude)), false))
+            if (telescopeWorker.Slew(new AltAzm(Altitude, Azimuth)))
             {
                 tl.LogMessage("SlewingToAltAz", string.Format("Alt:{0}, Azm:{1}", Altitude, Azimuth));
             }
@@ -563,16 +587,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             while (true)
             {
                 Thread.Sleep(100);
-                var r = CommandString("L", false);
-                if (r.Equals("0#")) break;
+                if(!telescopeWorker.IsSlewing) break;
             }
             tl.LogMessage("Slewed ToToCoordinates", string.Format("RA:{0}, Dec:{1}", RightAscension, Declination));
         }
 
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
-            if (CommandBool(string.Format("b{0},{1}#",
-                Utils.Utils.Deg2HEX32(RightAscension), Utils.Utils.Deg2HEX32(Declination)), false))
+            if (telescopeWorker.Slew(new Coordinates(RightAscension, Declination)))
             {
                 tl.LogMessage("Slewing ToToCoordinates", string.Format("RA:{0}, Dec:{1}", RightAscension, Declination));
             }
@@ -599,10 +621,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                var r = CommandString("L", false);
-                if (r.Equals("0#")) return false;
-                if (r.Equals("1#")) return true;
-                throw new ASCOM.DriverException("Error getting slewing state");
+                return telescopeWorker.IsSlewing;
             }
         }
 
@@ -654,35 +673,38 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
         }
 
-        private int TrackingMode = -1;
+        private TrackingMode lastTrackingMode = TrackingMode.Unknown;
 
         public bool Tracking
         {
             get
             {
-                bool tracking = true;
-                var res = dw.Transfer("t");
-                var trMode = Encoding.ASCII.GetBytes(res)[0];
-                tl.LogMessage("Tracking", "Get - " + trMode.ToString());
-                if (trMode > 0) TrackingMode = trMode;
-                return trMode > 0;
+                if (!tw.CanGetTracking) throw new NotSupportedException("Getting tracking mode is not supported");
+                var tm = telescopeProperties.TrackingMode;
+                if (tm > TrackingMode.Off) lastTrackingMode = tm;
+                return tm > TrackingMode.AltAzm;
             }
+
             set
             {
-                int trMode = -1;
+                //TrackingMode trMode = TrackingMode.Unknown;
+                if (!tw.CanSetTracking) throw new NotSupportedException("Setting tracking mode is not supported");
                 if (value)
                 {
-                    if (TrackingMode < 0)
-                    {
-                        var ct = this.Tracking;
-                    }
-                    if (TrackingMode < 1) throw new ASCOM.InvalidOperationException("Tracking mode not set yet");
+                    if (lastTrackingMode <= TrackingMode.AltAzm)
+                        lastTrackingMode = (telescopeProperties.Location.Lat > 0) ? TrackingMode.EQN : TrackingMode.EQS;
+                    //    throw new ASCOM.InvalidOperationException("Tracking mode not set yet");
+                    telescopeProperties.TrackingMode = lastTrackingMode;
+                    tw.TrackingMode = lastTrackingMode;
                 }
-                trMode = value ? TrackingMode : 0;
-                var command = new[] {(byte) 'T', (byte) trMode};
-                var res = dw.Transfer(command);
-                if (res[0] != (byte) '#') throw new ASCOM.InvalidOperationException("Execution Error");
-                tl.LogMessage("Tracking Set", trMode.ToString());
+                else
+                {
+                    var tm = telescopeProperties.TrackingMode;
+                    if (tm > TrackingMode.AltAzm) lastTrackingMode = tm;
+                    tw.TrackingMode = TrackingMode.Off;
+                    telescopeProperties.TrackingMode = TrackingMode.Off;
+                }
+                tl.LogMessage("Tracking Set", telescopeProperties.TrackingMode.ToString());
             }
         }
 
@@ -690,6 +712,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
+                //if (tw.Ca)
                 tl.LogMessage("TrackingRate Get", "Not implemented");
                 throw new ASCOM.PropertyNotImplementedException("TrackingRate", false);
             }
