@@ -13,6 +13,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
         }
 
+        
         public override TrackingMode TrackingMode
         {
             get
