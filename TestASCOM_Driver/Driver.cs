@@ -276,8 +276,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     tl.LogMessage("Connected Set", "Connecting to port " + comPort);
                     dw.Connect(Telescope.bluetoothDevice);
                     tw.isConnected = true;
+                    var tBegin = Environment.TickCount;
                     while (true)
                     {
+                        if (tBegin + 60000 < Environment.TickCount) throw new DriverException("Unable to get telescope parameters");
                         Thread.Sleep(100);
                         if (telescopeProperties.IsReady) break;
                     }

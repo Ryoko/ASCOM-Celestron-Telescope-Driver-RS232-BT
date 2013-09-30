@@ -255,6 +255,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 var tBegin = Environment.TickCount;
                 while (!Telescope.TelescopeProperties.IsReady)
                 {
+                    Thread.Sleep(100);
                     if (tBegin + 60000 < Environment.TickCount) break;
                 }
                 scope.Connected = false;

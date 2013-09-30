@@ -21,14 +21,17 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 int Alt, Azm;
                 if (driverWorker.GetPairValues("Z", out Alt, out Azm))
                 {
-                    return new AltAzm(((double)Alt/65536)*360, ((double)Azm/65536)*360);
+                    var az = ((double) Alt/65536)*360;
+                    if (az < 0) az += 360;
+                    return new AltAzm(az, ((double)Azm/65536)*360);
                 }
                 throw new Exception("Error getting parameters");
             }
             set
             {
+                var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
                 if (driverWorker.CommandBool(string.Format("B{0},{1}#",
-                    Utils.Utils.Deg2HEX16(value.Azm), Utils.Utils.Deg2HEX16(value.Alt)), false))
+                    Utils.Utils.Deg2HEX16(az), Utils.Utils.Deg2HEX16(value.Alt)), false))
                 {
                     return;
                 }
@@ -43,14 +46,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 int Ra, Dec;
                 if (driverWorker.GetPairValues("E", out Ra, out Dec))
                 {
-                    return new Coordinates(((double)Ra/65536)*360, ((double)Dec/65536)*360);
+                    return new Coordinates(((double)Ra/65536)*24, ((double)Dec/65536)*360);
                 }
                 throw new Exception("Error getting parameters");
             }
             set
             {
                 if (driverWorker.CommandBool(string.Format("R{0},{1}#",
-                    Utils.Utils.Deg2HEX16(value.Ra), Utils.Utils.Deg2HEX16(value.Dec)), false))
+                    Utils.Utils.RADeg2HEX16(value.Ra), Utils.Utils.Deg2HEX16(value.Dec)), false))
                 {
                     return;
                 }

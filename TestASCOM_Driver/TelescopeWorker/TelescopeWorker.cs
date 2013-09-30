@@ -176,7 +176,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 }
                 CheckCoordinates(true);
             }
-            if (slewEndTime + tp.SlewSteeleTime > Environment.TickCount)
+            if (slewEndTime + tp.SlewSteeleTime < Environment.TickCount)
             {
                 isSlewSetteled = false;
                 telescopeMode = TelescopeMode.Normal;

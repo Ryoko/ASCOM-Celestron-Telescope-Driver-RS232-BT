@@ -13,6 +13,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
         public int M { get; set; }
         public decimal S { get; set; }
         public int Sign { get; set; }
+        public bool isRA { get; set; }
         public decimal Deg
         {
             set 
@@ -39,7 +40,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
             Deg = deg;
         }
         
-        public DMS(double deg)
+        public DMS(double deg, bool isRA = false)
         {
             Deg = (decimal)deg;
         }
@@ -119,6 +120,17 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
             return v.ToString("X");
 
         }
+        static public string RADeg2HEX32(double val)
+        {
+            var v = (Int32)((val / 24) * 4294967296);
+            return v.ToString("X");
+        }
+        static public string RADeg2HEX16(double val)
+        {
+            var v = (Int16)((val / 24) * 65536);
+            return v.ToString("X");
+
+        }
 
     }
 
@@ -126,8 +138,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
     {
         public Coordinates(double ra, double dec)
         {
-            Ra = Ra;
-            Dec = Dec;
+            Ra = ra;
+            Dec = dec;
         }
         public double Ra { get; set; }
         public double Dec { get; set; }

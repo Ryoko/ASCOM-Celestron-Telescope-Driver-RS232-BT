@@ -128,8 +128,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             if (this.peerStream != null) this.peerStream.Dispose();
             //if (this.ep != null) this.ep.
-            this.cli.Close();
-            this.cli.Dispose();
+            if (this.cli != null)
+            {
+                this.cli.Close();
+                this.cli.Dispose();
+            }
         }
 
     }

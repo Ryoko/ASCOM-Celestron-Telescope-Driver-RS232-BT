@@ -22,14 +22,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 int Ra, Dec;
                 if (driverWorker.GetPairValues("e", out Ra, out Dec))
                 {
-                    return new Coordinates(((double)Ra / 4294967296) * 360, ((double)Dec / 4294967296) * 360);
+                    return new Coordinates(((double)Ra / 4294967296) * 24, ((double)Dec / 4294967296) * 360);
                 }
                 throw new Exception("Error getting parameters");
             }
             set
             {
                 if (driverWorker.CommandBool(string.Format("r{0},{1}#",
-                    Utils.Utils.Deg2HEX32(value.Ra), Utils.Utils.Deg2HEX32(value.Dec)), false))
+                    Utils.Utils.RADeg2HEX32(value.Ra), Utils.Utils.Deg2HEX32(value.Dec)), false))
                 {
                     return;
                 }

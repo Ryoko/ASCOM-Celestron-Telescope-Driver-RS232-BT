@@ -278,7 +278,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 {
                     if (telescopeProperties == null || telescopeProperties.RaDec == null) return 0;
                     var dec = telescopeProperties.RaDec.Dec;
-                    tl.LogMessage("Declination Get", dec.ToString());
+                    tl.LogMessage("Declination Get", new DMS(dec).ToString());
                     return dec;
                 }
                 catch (Exception err)
@@ -419,7 +419,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 {
                     if (telescopeProperties == null || telescopeProperties.RaDec == null) return 0;
                     var val = telescopeProperties.RaDec.Ra;
-                    tl.LogMessage("RightAscension", "Get - " + new DMS(val).ToString(":"));
+                    tl.LogMessage("RightAscension Get", new DMS(val).ToString());
                     return val;
                 }
                 catch (Exception err)
@@ -589,18 +589,18 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 Thread.Sleep(100);
                 if(!telescopeWorker.IsSlewing) break;
             }
-            tl.LogMessage("Slewed ToToCoordinates", string.Format("RA:{0}, Dec:{1}", RightAscension, Declination));
+            tl.LogMessage("Slewed ToToCoordinates Complete", string.Format("RA:{0}, Dec:{1}", new DMS(RightAscension).ToString(), new DMS(Declination).ToString()));
         }
 
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
             if (telescopeWorker.Slew(new Coordinates(RightAscension, Declination)))
             {
-                tl.LogMessage("Slewing ToToCoordinates", string.Format("RA:{0}, Dec:{1}", RightAscension, Declination));
+                tl.LogMessage("Slewing ToToCoordinates", string.Format("RA:{0}, Dec:{1}", new DMS(RightAscension).ToString(), new DMS(Declination).ToString()));
             }
             else
             {
-                tl.LogMessage("Error SlewToToCoordinates", string.Format("RA:{0}, Dec:{1}", RightAscension, Declination));
+                tl.LogMessage("Error SlewToToCoordinates", string.Format("RA:{0}, Dec:{1}", new DMS(RightAscension).ToString(), new DMS(Declination).ToString()));
             }
         }
 

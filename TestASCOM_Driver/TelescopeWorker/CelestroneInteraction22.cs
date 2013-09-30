@@ -21,14 +21,18 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 int Alt, Azm;
                 if (driverWorker.GetPairValues("z", out Alt, out Azm))
                 {
-                    return new AltAzm(((double)Alt / 4294967296) * 360, ((double)Azm / 4294967296) * 360);
+                    var az = ((double) Azm/4294967296)*360;
+                    var al = ((double) Alt/4294967296)*360;
+                    //if (az < 0) az += 360;
+                    return new AltAzm(al, az);
                 }
                 throw new Exception("Error getting parameters");
             }
             set
             {
+                var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
                 if (driverWorker.CommandBool(string.Format("b{0},{1}#",
-                    Utils.Utils.Deg2HEX32(value.Azm), Utils.Utils.Deg2HEX32(value.Alt)), false))
+                    Utils.Utils.Deg2HEX32(az), Utils.Utils.Deg2HEX32(value.Alt)), false))
                 {
                     return;
                 }
