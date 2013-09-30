@@ -8,47 +8,69 @@ using ASCOM.Utilities.Interfaces;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
+    /// <summary>
+    /// The celestrone interaction 12.
+    /// </summary>
     internal class CelestroneInteraction12 : ATelescopeInteraction
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CelestroneInteraction12"/> class.
+        /// </summary>
+        /// <param name="_driverWorker">
+        /// The _driver worker.
+        /// </param>
         public CelestroneInteraction12(IDriverWorker _driverWorker) : base(_driverWorker)
         {
         }
 
+        /// <summary>
+        /// Gets or sets the alt azm.
+        /// </summary>
+        /// <exception cref="Exception">
+        /// </exception>
         public override AltAzm AltAzm
         {
             get
             {
-                int Alt, Azm;
-                if (driverWorker.GetPairValues("Z", out Alt, out Azm))
-                {
-                    var az = ((double) Alt/65536)*360;
-                    if (az < 0) az += 360;
-                    return new AltAzm(az, ((double)Azm/65536)*360);
-                }
-                throw new Exception("Error getting parameters");
+                var res = this.GetValues("Z", 4);
+                var alt = res[0] * 360d;
+                var azm = res[1] * 360d;
+                if (alt > 180) alt -= 360;
+                if (azm < 0) azm += 360;
+                return new AltAzm(alt, azm);
             }
+
             set
             {
                 var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
-                if (driverWorker.CommandBool(string.Format("B{0},{1}#",
-                    Utils.Utils.Deg2HEX16(az), Utils.Utils.Deg2HEX16(value.Alt)), false))
+                var al = (value.Alt < 0) ? value.Alt + 360 : value.Alt;
+                if (
+                    driverWorker.CommandBool(
+                        string.Format("B{0},{1}#", Utils.Utils.Deg2HEX16(az), Utils.Utils.Deg2HEX16(al)), false))
                 {
                     return;
                 }
+
                 throw new Exception("Error setting parameters");
             }
         }
 
+        /// <summary>
+        /// Gets or sets the ra dec.
+        /// </summary>
+        /// <exception cref="Exception">
+        /// </exception>
         public override Coordinates RaDec
         {
             get
             {
-                int Ra, Dec;
-                if (driverWorker.GetPairValues("E", out Ra, out Dec))
-                {
-                    return new Coordinates(((double)Ra/65536)*24, ((double)Dec/65536)*360);
-                }
-                throw new Exception("Error getting parameters");
+                var res = this.GetValues("E", 4);
+                var ra = res[0] * 24;
+                var dec = res[1] * 360;
+
+                if (dec > 180) dec -= 360;
+
+                return new Coordinates(ra, dec);
             }
             set
             {

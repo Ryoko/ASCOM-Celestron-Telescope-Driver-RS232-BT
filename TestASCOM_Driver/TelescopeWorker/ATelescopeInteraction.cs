@@ -187,18 +187,43 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         protected byte[] SendCommand(byte[] com)
         {
             var len = com[com.Length - 1] + 1;
-            var res = driverWorker.CommandString(Encoding.ASCII.GetString(com), false);
+            var res = this.driverWorker.CommandString(Encoding.ASCII.GetString(com), false);
             if (res.Length < len || !res[len - 1].Equals('#'))
+            {
                 throw new Exception("Error in protocol");
-            return Encoding.ASCII.GetBytes(res);//res.ToCharArray().Cast<byte>().ToArray();
+            }
+
+            return Encoding.ASCII.GetBytes(res); //res.ToCharArray().Cast<byte>().ToArray();
         }
 
         protected byte[] SendBytes(byte[] com)
         {
-            var res = driverWorker.CommandString(Encoding.ASCII.GetString(com), false);
+            var res = this.driverWorker.CommandString(Encoding.ASCII.GetString(com), false);
             if (res.Length == 0 || !res[res.Length - 1].Equals('#'))
+            {
                 throw new Exception("Error in protocol");
-            return Encoding.ASCII.GetBytes(res);//  res.ToCharArray().Cast<byte>().ToArray();
+            }
+
+            return Encoding.ASCII.GetBytes(res); //  res.ToCharArray().Cast<byte>().ToArray();
+        }
+
+        protected double[] GetValues(string command, int nOfDigits)
+        {
+            var res = this.driverWorker.CommandString(command, false);
+            if (res.Length == 0 || !res[res.Length - 1].Equals('#'))
+            {
+                throw new Exception("Error in protocol");
+            }
+
+            var vals = res.TrimEnd('#').Split(new[] { ',' });
+            if (vals.Length != 2)
+            {
+                throw new Exception("Error in protocol");
+            }
+
+            var coeff = 1 / Math.Pow(2, nOfDigits * 4);
+            var outs = vals.Select(val => val.Length > nOfDigits ? val.Substring(0, nOfDigits) : val).Select(v => Convert.ToInt32(v, 16) * coeff).ToArray();
+            return outs;
         }
     }
 }
