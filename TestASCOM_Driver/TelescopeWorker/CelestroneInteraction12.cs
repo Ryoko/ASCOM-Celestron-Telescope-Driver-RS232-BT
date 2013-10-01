@@ -32,26 +32,33 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             get
             {
-                var res = this.GetValues("Z", 4);
-                var alt = res[0] * 360d;
-                var azm = res[1] * 360d;
-                if (alt > 180) alt -= 360;
-                if (azm < 0) azm += 360;
-                return new AltAzm(alt, azm);
+                try
+                {
+                    var res = this.GetValues("Z", 4);
+                    var alt = res[0];
+                    var azm = res[1];
+                    if (alt > 180) alt -= 360;
+                    if (azm < 0) azm += 360;
+                    return new AltAzm(alt, azm);
+                }
+                catch (Exception err)
+                {
+                    throw new Exception("Error getting Alt/Azm values", err);
+                }
             }
 
             set
             {
-                var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
-                var al = (value.Alt < 0) ? value.Alt + 360 : value.Alt;
-                if (
-                    driverWorker.CommandBool(
-                        string.Format("B{0},{1}#", Utils.Utils.Deg2HEX16(az), Utils.Utils.Deg2HEX16(al)), false))
+                try
                 {
-                    return;
+                    var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
+                    var al = (value.Alt < 0) ? value.Alt + 360 : value.Alt;
+                    SetValues("B", new[]{az, al}, 4);
                 }
-
-                throw new Exception("Error setting parameters");
+                catch (Exception err)
+                {
+                    throw new Exception("Error setting Alt/Azm values", err);
+                }
             }
         }
 
@@ -64,22 +71,33 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             get
             {
-                var res = this.GetValues("E", 4);
-                var ra = res[0] * 24;
-                var dec = res[1] * 360;
+                try
+                {
+                    var res = this.GetValues("E", 4);
+                    var ra = res[0]/15d;
+                    var dec = res[1];
 
-                if (dec > 180) dec -= 360;
+                    if (dec > 180) dec -= 360;
 
-                return new Coordinates(ra, dec);
+                    return new Coordinates(ra, dec);
+                }
+                catch (Exception err)
+                {
+                    throw new Exception("Error getting Ra/Dec values", err);
+                }
             }
             set
             {
-                if (driverWorker.CommandBool(string.Format("R{0},{1}#",
-                    Utils.Utils.RADeg2HEX16(value.Ra), Utils.Utils.Deg2HEX16(value.Dec)), false))
+                try
                 {
-                    return;
+                    var ra = value.Ra * 15d;
+                    var dec = value.Dec < 0 ? value.Dec + 360 : value.Dec;
+                    SetValues("R", new []{ra, dec}, 4);
                 }
-                throw new Exception("Error setting parameters");
+                catch (Exception err)
+                {
+                    throw new Exception("Error setting Ra/Dec values", err);
+                }
             }
         }
 

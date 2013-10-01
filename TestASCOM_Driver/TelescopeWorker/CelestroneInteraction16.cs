@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using ASCOM.Astrometry.Exceptions;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
+using ASCOM.DeviceInterface;
 using ASCOM.Utilities;
 using ASCOM.Utilities.Interfaces;
 
@@ -15,25 +17,42 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
         }
 
+        /// <summary>
+        /// Gets or sets the ra dec.
+        /// </summary>
+        /// <exception cref="Exception">
+        /// </exception>
         public override Coordinates RaDec
         {
             get
             {
-                int Ra, Dec;
-                if (driverWorker.GetPairValues("e", out Ra, out Dec))
+                try
                 {
-                    return new Coordinates(((double)Ra / 4294967296) * 24, ((double)Dec / 4294967296) * 360);
+                    var res = this.GetValues("e", 6);
+                    var ra = res[0] / 15d;
+                    var dec = res[1];
+
+                    if (dec > 180) dec -= 360;
+
+                    return new Coordinates(ra, dec);
                 }
-                throw new Exception("Error getting parameters");
+                catch (Exception err)
+                {
+                    throw new Exception("Error getting Ra/Dec values", err);
+                }
             }
             set
             {
-                if (driverWorker.CommandBool(string.Format("r{0},{1}#",
-                    Utils.Utils.RADeg2HEX32(value.Ra), Utils.Utils.Deg2HEX32(value.Dec)), false))
+                try
                 {
-                    return;
+                    var ra = value.Ra * 15d;
+                    var dec = value.Dec < 0 ? value.Dec + 360 : value.Dec;
+                    SetValues("r", new[] { ra, dec }, 6, 8);
                 }
-                throw new Exception("Error setting parameters");
+                catch (Exception err)
+                {
+                    throw new Exception("Error setting Ra/Dec values", err);
+                }
             }
         }
 
@@ -59,6 +78,28 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             var r = (int)(rate * 4);
             var com = new byte[] { (byte)'P', 3, (byte)axis, (byte)dir, (byte) (r/256), (byte) (r%256), 0, 0 };
             SendCommand(com);
+        }
+
+        public override bool SetTrackingRate(DriveRates rate, TrackingMode mode)
+        {
+            int hRate;
+            switch (rate)
+            {
+                case DriveRates.driveSidereal:
+                    hRate = 0xffff;
+                    break;
+                case DriveRates.driveSolar:
+                    hRate = 0xfffe;
+                    break;
+                case DriveRates.driveLunar:
+                    hRate = 0xfffd;
+                    break;
+                default:
+                    throw new ValueNotAvailableException("Wring tracking rate value");
+            }
+            var dir = mode == TrackingMode.EQS ? Direction.Negative : Direction.Positive;
+            SlewVariableRate(dir, SlewAxes.RaAzm, hRate);
+            return true;
         }
 
         public override bool IsGPS
@@ -171,6 +212,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         }
 
         public override bool CanGetDeviceVersion
+        {
+            get { return true; }
+        }
+
+        public override bool CanSetTrackingRates
         {
             get { return true; }
         }

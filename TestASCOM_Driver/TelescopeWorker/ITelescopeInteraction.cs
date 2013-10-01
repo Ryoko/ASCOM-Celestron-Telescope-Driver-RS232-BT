@@ -1,5 +1,6 @@
 ﻿using System;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
+using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
@@ -38,7 +39,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         bool IsAlignmentComplete { get; }
         bool IsGoToInProgress { get; }
         void CancelGoTo();
-
+        bool SetTrackingRate(DriveRates rate, TrackingMode mode);
         double VersionRequired { get; }
         bool CanSyncAltAzm { get; }
         bool CanSyncRaDec { get; }
@@ -53,7 +54,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         bool CanSetRTC { get; }
         bool CanGetModel { get; }
         bool CanGetDeviceVersion { get; }
-
+        bool CanSetTrackingRates { get; }
 
 
     }

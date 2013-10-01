@@ -10,6 +10,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using ASCOM.CelestronAdvancedBlueTooth.SetupProperties;
+using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
 using ASCOM.DeviceInterface;
 using ASCOM.Utilities;
 using ASCOM.CelestronAdvancedBlueTooth;
@@ -18,6 +19,7 @@ using InTheHand.Net;
 using InTheHand.Net.Sockets;
 using System.Diagnostics;
 using System.Runtime.Serialization.Formatters;
+using TelescopeModel = ASCOM.CelestronAdvancedBlueTooth.SetupProperties.TelescopeModel;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
@@ -27,6 +29,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         private BluetoothAddress selDeviceAddress;
         private BluetoothDeviceInfo selDeviceInfo;
         private TelescopeModels models = new TelescopeModels();
+        private bool isInit = false;
+        private bool isHasGPSsetted = false;
 
         public SetupDialogForm()
         {
@@ -57,58 +61,52 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 Longitude.Text = longitude.ToString();
                 LonSuff.SelectedIndex = longitude.Sign > 0 ? 0 : 1;
             }
-            Altitude.Text = Telescope.elevation.ToString();
+            Elevation.Value = (decimal)Telescope.elevation*1000;
+
+            Apperture.Value = (decimal)Telescope.apperture*1000;
+            Focal.Value = (decimal)Telescope.focal * 1000;
+            Obstruction.Value = (decimal)Telescope.obstruction;
             
-            Apperture.Text = Telescope.apperture.ToString();
-            Focal.Text = Telescope.focal.ToString();
-            Obstruction.Text = Telescope.obstruction.ToString();
             TrackingMode.SelectedIndex = Telescope.traceMode;
             HasGPS.Checked = Telescope.hasGPS;
-
+            
             ScopeSelection.Items.Clear();
             foreach (var model in models)
             {
                 ScopeSelection.Items.Add(model);
+                if (model.Name.Equals(Telescope.TelescopeModel))
+                    ScopeSelection.SelectedIndex = ScopeSelection.Items.Count - 1;
             }
+
+            isInit = true;
+            setButtons();
         }
 
         private void cmdOK_Click(object sender, EventArgs e) // OK button event handler
         {
             // Place any validation constraint checks here
-
-            Telescope.comPort = SelectedComPort.Text; // Update the state variables with results from the dialogue
+            var ts = new TelescopeSettings();
+            if (!GetFromForm(ts))
+            {
+                throw new Exception("Error(s) in value(s)");
+            }
+            Telescope.comPort = ts.ComPort; // Update the state variables with results from the dialogue
             Telescope.traceState = chkTrace.Checked;
 
-            Telescope.bluetoothDevice = selDeviceInfo.DeviceAddress;
-            //var memoryStream = new MemoryStream();
-            //var binaryFormatter = new BinaryFormatter();
-            //binaryFormatter.Serialize(memoryStream, selDeviceInfo);
+            Telescope.bluetoothDevice = ts.BluetoothAddr;
+            Telescope.isBluetooth = ts.IsBluetooth;
 
-            //String base64String = Convert.ToBase64String(memoryStream.ToArray());
-            Telescope.isBluetooth = tabControl1.SelectedIndex > 0;
+            Telescope.latitude = ts.Latitude;
+            Telescope.longitude = ts.Longitude;
+            Telescope.elevation = ts.Elevation;
 
-            DMS lat, lon;
+            Telescope.apperture = ts.Apperture;
+            Telescope.focal = ts.FocalRate;
+            Telescope.obstruction = ts.Obstruction;
 
-            if (DMS.TryParse(Latitude.Text, out lat) && DMS.TryParse(Longitude.Text, out lon))
-            {
-                lat.Sign = LatSuff.SelectedIndex > 0 ? -1 : 1;
-                Telescope.latitude = lat.Deg;
-                lon.Sign = LonSuff.SelectedIndex > 0 ? -1 : 1;
-                Telescope.longitude = lon.Deg;
-            }
-            else
-            {
-                Telescope.latitude = -1000;
-                Telescope.longitude = -1000;
-            }
-            int val;
-            if (int.TryParse(Altitude.Text, out val)) { Telescope.elevation = val; }
-            if (int.TryParse(Apperture.Text, out val)) { Telescope.apperture = val; }
-            if (int.TryParse(Focal.Text, out val)) { Telescope.focal = val; }
-            if (int.TryParse(ObstructionLabel.Text, out val)) { Telescope.obstruction = val; }
-            Telescope.traceMode = TrackingMode.SelectedIndex;
-            Telescope.hasGPS = HasGPS.Checked;
-
+            Telescope.TelescopeModel = ts.ModelName;
+            Telescope.traceMode = ts.TrackingMode;
+            Telescope.hasGPS = ts.HasGPS;
         }
 
         private void cmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
@@ -138,8 +136,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             SelectedBluetooth_Click(sender, e);
         }
 
-        private void Latitude_Validated(object sender, EventArgs e)
+        private void GPS_Validated(object sender, EventArgs e)
         {
+            if (!isInit) return;
+            isInit = false;
             if (!(sender is TextBox)) return;
             var tb = sender as TextBox;
             Utils.DMS val;
@@ -147,15 +147,18 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 tb.Text = val.ToString();
             }
-            
+            isInit = true;
+            setButtons();            
         }
 
         private void ScopeSelection_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!isInit) return;
             var model = (TelescopeModel) ScopeSelection.SelectedItem;
-            Apperture.Text = model.Apperture.ToString();
-            Focal.Text = model.FocalLenth.ToString();
-            Obstruction.Text = model.ObstructionPercent.ToString();
+            isInit = false;
+            Apperture.Value = (decimal)model.Apperture;
+            Focal.Value = (decimal)model.FocalLenth;
+            Obstruction.Value = (decimal)model.ObstructionPercent;
             switch (model.GPS)
             {
                 case GPSmode.No:
@@ -167,10 +170,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     HasGPS.Enabled = false;
                     break;
                 default:
-                    HasGPS.CheckState = CheckState.Indeterminate;
+                    if (!isHasGPSsetted)
+                    {
+                        HasGPS.CheckState = CheckState.Indeterminate;
+                    }
                     HasGPS.Enabled = true;
                     break;
             }
+            isInit = true;
             setButtons();
         }
 
@@ -178,6 +185,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             selDeviceInfo = BlueToothDiscover.GetDeviceDialog();
             SelectedBluetooth.Text = selDeviceInfo.DeviceName;
+            setButtons();
         }
 
         private void tabControl1_Selected(object sender, TabControlEventArgs e)
@@ -189,12 +197,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             setButtons();
         }
-
+        
+        private TelescopeSettings ts = new TelescopeSettings();
         private void setButtons()
         {
-            cmdOK.Enabled = (tabControl1.SelectedIndex != 1) || !string.IsNullOrEmpty(SelectedBluetooth.Text);
+            if (!isInit) return;
+            //cmdOK.Enabled = (tabControl1.SelectedIndex != 1) || !string.IsNullOrEmpty(SelectedBluetooth.Text);
             CheckScope.Enabled = ((tabControl1.SelectedIndex != 1) || !string.IsNullOrEmpty(SelectedBluetooth.Text)) && ScopeSelection.SelectedIndex >= 0;
-            
+            cmdOK.Enabled = GetFromForm(ts);
         }
 
         private AutoResetEvent lockEvent = new AutoResetEvent(false);
@@ -234,10 +244,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             var prop = Telescope.TelescopeProperties;
             if (prop.IsReady)
             {
+                isInit = false;
                 Latitude.Text = new DMS(prop.Location.Lat).ToString();
                 Longitude.Text = new DMS(prop.Location.Lon).ToString();
                 TrackingMode.SelectedIndex = (int)prop.TrackingMode;
                 HasGPS.Checked = prop.HasGPS;
+                isInit = true;
+                setButtons();
             }
         }
 
@@ -269,5 +282,71 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 //                bgWorker.Dispose();
             }
         }
+
+        private void HasGPS_CheckedChanged(object sender, EventArgs e)
+        {
+            isHasGPSsetted = true;
+        }
+
+        public bool GetFromForm(TelescopeSettings set)
+        {
+            bool res = true;
+            set.ComPort = SelectedComPort.Text; // Update the state variables with results from the dialogue
+
+            set.BluetoothAddr = selDeviceInfo != null ? selDeviceInfo.DeviceAddress : null;
+            set.IsBluetooth = tabControl1.SelectedIndex > 0;
+
+            DMS lat, lon;
+
+            if (DMS.TryParse(Latitude.Text, out lat) && DMS.TryParse(Longitude.Text, out lon))
+            {
+                lat.Sign = LatSuff.SelectedIndex > 0 ? -1 : 1;
+                set.Latitude = (double)lat.Deg;
+                lon.Sign = LonSuff.SelectedIndex > 0 ? -1 : 1;
+                set.Longitude = (double)lon.Deg;
+                res &= set.Latitude > 0 && set.Longitude > 0;
+            }
+            else
+            {
+                res = false;
+                set.Latitude = -1000;
+                set.Longitude = -1000;
+            }
+            double val;
+            set.Elevation = (double)Elevation.Value / 1000;
+            res &= !(set.Apperture = (double)Apperture.Value / 1000).Equals(0);
+            res &= !(set.FocalRate = (double)Focal.Value / 1000).Equals(0);
+            set.Obstruction = (double)Obstruction.Value;
+            if (ScopeSelection.SelectedIndex >= 0) { set.ModelName = ScopeSelection.Text; } else { res = false; }
+            if (TrackingMode.SelectedIndex >= 0) {set.TrackingMode = TrackingMode.SelectedIndex;} else { res = false; }
+            if (HasGPS.CheckState != CheckState.Indeterminate) {set.HasGPS = HasGPS.Checked;} else { res = false; }
+            if (set.IsBluetooth && selDeviceInfo == null) res = false;
+            return res;
+        }
+
+        private void Field_ValueChanged(object sender, EventArgs e)
+        {
+            setButtons();
+        }
+
+    
+    }
+
+    public class TelescopeSettings
+    {
+        public string ModelName;
+        public double Apperture;
+        public double FocalRate;
+        public double Obstruction;
+        public bool HasGPS;
+        public double Latitude;
+        public double Longitude;
+        public double Elevation;
+        public int TrackingMode;
+        public bool IsBluetooth;
+        public BluetoothAddress BluetoothAddr;
+        public string ComPort;
+
+
     }
 }

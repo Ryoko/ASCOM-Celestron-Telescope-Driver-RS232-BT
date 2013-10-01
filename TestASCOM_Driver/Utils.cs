@@ -7,7 +7,30 @@ using System.Threading;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.Utils
 {
-    class DMS 
+    public class Const
+    {
+        /// <summary>
+        /// UTC seconds in sidereal second
+        /// </summary>
+        public const double SiderealRate = 0.9972695677;
+        
+        /// <summary>
+        /// UTC seconds in UTC day
+        /// </summary>
+        public const double SecPerDay = 86400;
+        
+        /// <summary>
+        /// Sidereal rate (deg per sec)
+        /// </summary>
+        public const double SiderealRateDegPerSec = 360/(SecPerDay*SiderealRate);
+        
+        /// <summary>
+        /// Maximum Drive Rate (deg per sec)
+        /// </summary>
+        public const double MaxAxisRate = 4.5;
+    }
+
+    public class DMS 
     {
         public int D { get; set; }
         public int M { get; set; }

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading;
 using System.Windows.Forms;
+using ASCOM.CelestronAdvancedBlueTooth.Utils;
+using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBluetooth
 {
@@ -38,6 +41,8 @@ namespace ASCOM.CelestronAdvancedBluetooth
             {
                 driver = new ASCOM.DriverAccess.Telescope(Properties.Settings.Default.DriverId);
                 driver.Connected = true;
+                if (!backgroundWorker1.IsBusy)
+                    backgroundWorker1.RunWorkerAsync();
             }
             SetUIState();
         }
@@ -47,6 +52,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
             buttonConnect.Enabled = !string.IsNullOrEmpty(Properties.Settings.Default.DriverId);
             buttonChoose.Enabled = !IsConnected;
             buttonConnect.Text = IsConnected ? "Disconnect" : "Connect";
+            Coordinates.Enabled = IsConnected;
         }
 
         private bool IsConnected
@@ -55,6 +61,71 @@ namespace ASCOM.CelestronAdvancedBluetooth
             {
                 return ((this.driver != null) && (driver.Connected == true));
             }
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            while (!backgroundWorker1.CancellationPending)
+            {
+                if (this.driver != null && this.driver.Connected)
+                {
+                    backgroundWorker1.ReportProgress(50, driver);
+                }
+                Thread.Sleep(100);
+            }
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage == 50)
+            {
+                Ra.Text = new DMS(driver.RightAscension, true).ToString();
+                Dec.Text = new DMS(driver.Declination).ToString();
+                Alt.Text = new DMS(driver.Altitude).ToString();
+                Azm.Text = new DMS(driver.Azimuth).ToString();
+            }
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, System.ComponentModel.RunWorkerCompletedEventArgs e)
+        {
+
+        }
+
+        private void Control_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (!(sender is Button)) return;
+            var b = (Button) sender;
+            TelescopeAxes axis;
+            var rate = 0d;
+            switch (b.Text)
+            {
+                case "Ra_p":
+                    axis = TelescopeAxes.axisPrimary;
+                    rate = 1d;
+                    break;
+                case "Ra_n":
+                    axis = TelescopeAxes.axisPrimary;
+                    rate = -1d;
+                    break;
+                case "Dec_p":
+                    axis = TelescopeAxes.axisSecondary;
+                    rate = 1d;
+                    break;
+                case "dec_n":
+                    axis = TelescopeAxes.axisSecondary;
+                    rate = -1d;
+                    break;
+                default:
+                    return;
+            }
+
+            if (driver == null || !driver.Connected) return;
+            driver.MoveAxis(axis, rate);
+        }
+
+        private void Control_MouseUp(object sender, MouseEventArgs e)
+        {
+            
         }
     }
 }

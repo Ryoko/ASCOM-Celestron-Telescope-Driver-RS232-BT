@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
+using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
@@ -114,6 +115,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public abstract void CancelGoTo();
 
+        public virtual bool SetTrackingRate(DriveRates rate, TrackingMode mode)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public virtual double VersionRequired
         {
             get { return 0; }
@@ -184,6 +190,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get { return false; }
         }
 
+        public virtual bool CanSetTrackingRates
+        {
+            get { return false; }
+        }
+
         protected byte[] SendCommand(byte[] com)
         {
             var len = com[com.Length - 1] + 1;
@@ -221,9 +232,25 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 throw new Exception("Error in protocol");
             }
 
-            var coeff = 1 / Math.Pow(2, nOfDigits * 4);
+            var coeff = 360d / Math.Pow(2, nOfDigits * 4);
             var outs = vals.Select(val => val.Length > nOfDigits ? val.Substring(0, nOfDigits) : val).Select(v => Convert.ToInt32(v, 16) * coeff).ToArray();
             return outs;
+        }
+
+        protected void SetValues(string command, IEnumerable<double> values, int nOfDigits, int nDigitsInParam = 0)
+        {
+            string com = command;
+            foreach (var val in values)
+            {
+                var iVal = (int)(val*(Math.Pow(2, nOfDigits*4)/360) + 0.5);
+                var format = string.Format("{{0:X{0}}}", nOfDigits);
+                var v = string.Format(format, iVal);
+                if (nDigitsInParam > nOfDigits) v += new string('0', nDigitsInParam - nOfDigits);
+                com += com.Length > command.Length ? "," + v : v;
+            }
+            com += "#";
+
+            driverWorker.CommandBool(com, false);
         }
     }
 }

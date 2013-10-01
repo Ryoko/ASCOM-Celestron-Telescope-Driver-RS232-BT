@@ -14,29 +14,42 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
         }
 
+        /// <summary>
+        /// Gets or sets the alt azm.
+        /// </summary>
+        /// <exception cref="Exception">
+        /// </exception>
         public override AltAzm AltAzm
         {
             get
             {
-                int Alt, Azm;
-                if (driverWorker.GetPairValues("z", out Alt, out Azm))
+                try
                 {
-                    var az = ((double) Azm/4294967296)*360;
-                    var al = ((double) Alt/4294967296)*360;
-                    //if (az < 0) az += 360;
-                    return new AltAzm(al, az);
+                    var res = this.GetValues("z", 6);
+                    var alt = res[0];
+                    var azm = res[1];
+                    if (alt > 180) alt -= 360;
+                    if (azm < 0) azm += 360;
+                    return new AltAzm(alt, azm);
                 }
-                throw new Exception("Error getting parameters");
+                catch (Exception err)
+                {
+                    throw new Exception("Error getting Alt/Azm values", err);
+                }
             }
+
             set
             {
-                var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
-                if (driverWorker.CommandBool(string.Format("b{0},{1}#",
-                    Utils.Utils.Deg2HEX32(az), Utils.Utils.Deg2HEX32(value.Alt)), false))
+                try
                 {
-                    return;
+                    var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
+                    var al = (value.Alt < 0) ? value.Alt + 360 : value.Alt;
+                    SetValues("b", new[] { az, al }, 6, 8);
                 }
-                throw new Exception("Error setting parameters");
+                catch (Exception err)
+                {
+                    throw new Exception("Error setting Alt/Azm values", err);
+                }
             }
         }
 

@@ -43,9 +43,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
             set
             {
-                var dt = value.ToUniversalTime();
-                var tz = (int)(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalHours + 0.5);
+//                var tz = (int)(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalHours + 0.5);
+//                var dlst = TimeZone.CurrentTimeZone.IsDaylightSavingTime(DateTime.Now) ? 1 : 0;
+                DateTime dt = value;
+                if (value.Kind == DateTimeKind.Utc)
+                {
+                    dt = value.ToLocalTime();
+                }
+                var tz = (int)(TimeZone.CurrentTimeZone.GetUtcOffset(dt).TotalHours + 0.5);
                 var dlst = TimeZone.CurrentTimeZone.IsDaylightSavingTime(DateTime.Now) ? 1 : 0;
+                
                 if (tz < 0) tz = 256 + tz;
                 var com = new byte[]
                 {

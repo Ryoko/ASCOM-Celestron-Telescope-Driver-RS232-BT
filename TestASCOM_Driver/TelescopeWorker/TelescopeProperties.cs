@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
+using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
@@ -37,12 +38,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public DateTime TelescopeTime { get; set; }
         public int SlewSteeleTime { get; set; }
         public bool HasGPS { get; set; }
+        public DriveRates TrackingRate { get; set; }
 
         //public static TelescopeProperties Properties { get { return _properties; } }
 
         public TelescopeProperties(ITelescopeInteraction ti)
         {
             _ti = ti;
+            TrackingRate = DriveRates.driveSidereal;
         }
 
         public void GetTelescopeProperties()

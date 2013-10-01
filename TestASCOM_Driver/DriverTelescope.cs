@@ -317,6 +317,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
+
                 tl.LogMessage("DoesRefraction Get", "Not implemented");
                 throw new ASCOM.PropertyNotImplementedException("DoesRefraction", false);
             }
@@ -514,7 +515,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     tw.TelescopeLocation = telescopeProperties.Location;
                 }
                 tl.LogMessage("SiteLatitude Set", new DMS(value).ToString(":"));
-                Telescope.latitude = (decimal)value;
+                Telescope.latitude = value;
                 WriteProfile();
             }
         }
@@ -537,7 +538,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     tw.TelescopeLocation = telescopeProperties.Location;
                 }
                 tl.LogMessage("SiteLongitude Set", new DMS(value).ToString(":"));
-                Telescope.longitude = (decimal)value;
+                Telescope.longitude = value;
                 WriteProfile();
             }
         }
@@ -708,18 +709,23 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
         }
 
+        //private DriveRates currentDriveRate = DriveRates.driveSidereal; 
         public DriveRates TrackingRate
         {
             get
             {
-                //if (tw.Ca)
-                tl.LogMessage("TrackingRate Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("TrackingRate", false);
+                tl.LogMessage("TrackingRate Get", telescopeProperties.TrackingRate.ToString());
+                return telescopeProperties.TrackingRate;
             }
             set
             {
-                tl.LogMessage("TrackingRate Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("TrackingRate", true);
+                if (tw.CanSetTrackingRates)
+                {
+                    telescopeProperties.TrackingRate = value;
+                    tw.SetTrackingRate(value, telescopeProperties.TrackingMode);
+                    tl.LogMessage("TrackingRate Set", value.ToString());
+                }
+                throw new NotSupportedException("TrackingRate");
             }
         }
 
@@ -741,12 +747,41 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                DateTime utcDate = DateTime.UtcNow;
-                tl.LogMessage("TrackingRates", "Get - " + String.Format("MM/dd/yy HH:mm:ss", utcDate));
+                DateTime utcDate;
+                if (tw.CanWorkDateTime)
+                {
+                    try
+                    {
+                        utcDate = tw.TelescopeDateTime.ToUniversalTime();
+                        tl.LogMessage("Telescope UTCDate", "Get - " + utcDate.ToString("MM/dd/yy HH:mm:ss"));
+                        return utcDate;
+                    }
+                    catch (Exception err)
+                    {
+                        throw new DriverException("Error gettingtime from telescope", err);
+                    }
+                }
+                utcDate = DateTime.UtcNow;
+                tl.LogMessage("Computer UTCDate", "Get - " + utcDate.ToString("MM/dd/yy HH:mm:ss"));
                 return utcDate;
+
             }
             set
             {
+                
+                if (tw.CanWorkDateTime)
+                {
+                    try
+                    {
+                        tw.TelescopeDateTime = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+                        tl.LogMessage("Telescope UTCDate", "Set - " + value.ToString("MM/dd/yy HH:mm:ss"));
+                        return;
+                    }
+                    catch (Exception err)
+                    {
+                        throw new DriverException("Error settingtime to telescope", err);
+                    }
+                }
                 tl.LogMessage("UTCDate Set", "Not implemented");
                 throw new ASCOM.PropertyNotImplementedException("UTCDate", true);
             }

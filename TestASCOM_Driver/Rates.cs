@@ -98,11 +98,30 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 case TelescopeAxes.axisPrimary:
                     // TODO Initialize this array with any Primary axis rates that your driver may provide
                     // Example: m_Rates = new Rate[] { new Rate(10.5, 30.2), new Rate(54.0, 43.6) }
-                    this.rates = new Rate[] { new Rate(0, 3), };
+                    var sid = Utils.Const.SiderealRateDegPerSec;
+                    this.rates = new Rate[]
+                    {
+                        new Rate(0, Utils.Const.MaxAxisRate),
+/*                        
+                        new Rate(sid / 2, sid / 2),     //Rate 1
+                        new Rate(sid, sid),             //Rate 2
+                        new Rate(sid * 2, sid * 2),     //Rate 3
+                        new Rate(sid * 4, sid * 4),     //Rate 4
+                        new Rate(sid * 8, sid * 8),     //Rate 5
+                        new Rate(sid * 16, sid * 16),   //Rate 6
+                        new Rate(sid * 64, sid * 64),   //Rate 6
+                        new Rate(0.5, 0.5),             //Rate 7
+                        new Rate(2, 2),                 //Rate 8
+                        new Rate(3, 3),                 //Rate 9
+ */ 
+                    };
                     break;
                 case TelescopeAxes.axisSecondary:
                     // TODO Initialize this array with any Secondary axis rates that your driver may provide
-                    this.rates = new Rate[] {new Rate(1, 9), };
+                    this.rates = new Rate[]
+                    {
+                        new Rate(0, Utils.Const.MaxAxisRate),
+                    };
                     break;
                 case TelescopeAxes.axisTertiary:
                     // TODO Initialize this array with any Tertiary axis rates that your driver may provide

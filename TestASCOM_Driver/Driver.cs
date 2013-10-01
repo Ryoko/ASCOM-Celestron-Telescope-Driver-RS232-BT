@@ -97,14 +97,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         internal static bool traceState = true;
         internal static bool isBluetooth;
         internal static BluetoothAddress bluetoothDevice;
-        internal static decimal longitude;
-        internal static decimal latitude;
-        internal static int elevation;
+        internal static double longitude;
+        internal static double latitude;
+        internal static double elevation;
         internal static bool hasGPS;
         internal static int traceMode;
-        internal static int apperture;
-        internal static int focal;
-        internal static int obstruction;
+        internal static double apperture;
+        internal static double focal;
+        internal static double obstruction;
+        internal static string TelescopeModel;
         internal static Coordinates target;
 
         private static Telescope _telescopeV3;
