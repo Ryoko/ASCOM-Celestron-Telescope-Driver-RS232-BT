@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ASCOM.Astrometry.Exceptions;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.DeviceInterface;
 
@@ -46,12 +47,17 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             set { throw new System.NotImplementedException(); }
         }
 
-        public virtual void SlewFixedRate(Direction dir, SlewAxes axis, int rate)
+        public virtual void SlewFixedRate(SlewAxes axis, int rate)
         {
             throw new System.NotImplementedException();
         }
 
-        public virtual void SlewVariableRate(Direction dir, SlewAxes axis, double rate)
+        public virtual void SlewVariableRate(SlewAxes axis, double rate)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public virtual void SlewHighRate(SlewAxes axis, double rate)
         {
             throw new System.NotImplementedException();
         }
@@ -195,6 +201,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get { return false; }
         }
 
+        public virtual bool CanSlewHighRate
+        {
+            get { return false; }
+        }
+
         protected byte[] SendCommand(byte[] com)
         {
             var len = com[com.Length - 1] + 1;
@@ -237,6 +248,24 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             return outs;
         }
 
+        public virtual byte[] SendCommandToDevice(DeviceID DeviceId, DeviceCommands Command, byte NoOfAnsvers, params byte[] args)
+        {
+            var argLen = (byte)(args.Length + 1);
+            if (argLen > 4) argLen = 4;
+            var argums = new byte[] {(byte) 'P', 0, (byte) DeviceId, (byte) Command, 0, 0, 0, NoOfAnsvers};
+            for (var i = 0; i < 3; i++)
+            {
+                if (args.Length <= i) continue;
+                argums[i + 4] = args[i];
+                if (args[i] == 0x3B) argLen = 4;
+            }
+            argums[1] = argLen;
+            var res = SendBytes(argums);
+            if (res.Length < NoOfAnsvers + 1) 
+                throw new Exception(string.Format("Error in protocol: {0} bytes reply expected, {1} bytes recived", NoOfAnsvers, res.Length - 1));
+            return res;
+        }
+
         protected void SetValues(string command, IEnumerable<double> values, int nOfDigits, int nDigitsInParam = 0)
         {
             string com = command;
@@ -251,6 +280,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             com += "#";
 
             driverWorker.CommandBool(com, false);
+        }
+
+        protected DeviceID GetDeviceId(SlewAxes axis)
+        {
+            if (axis == SlewAxes.DecAlt) return DeviceID.DecAltMotor;
+            if (axis == SlewAxes.RaAzm) return DeviceID.RaAzmMotor;
+            throw new ValueNotAvailableException("Wrong axis value: " + axis.ToString());
         }
     }
 }

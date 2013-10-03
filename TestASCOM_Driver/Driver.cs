@@ -77,35 +77,54 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         
         internal static string comPortProfileName = "COM Port"; // Constants used for Profile persistence
         internal static string comPortDefault = "COM1";
+        internal static string comPort; // Variables to hold the currrent device configuration
+
         internal static string traceStateProfileName = "Trace Level";
         internal static string traceStateDefault = "false";
+        internal static bool   traceState = true;
+
         internal static string decimalSeparator = Thread.CurrentThread.CurrentUICulture.NumberFormat.CurrencyDecimalSeparator;
+
         internal static string bluetoothDeviceProfileName = "BlueTooth Device";
+        internal static BluetoothAddress bluetoothDevice;
         
         internal static string isBluetoothProfileName = "IsBluetooth";
+        internal static bool   isBluetooth;
+
+        internal static string coordinateDefaultValue = "-1000";
+
         internal static string longitudeProfileName = "Longitude";
-        internal static string latitudeProfileName = "Latitude";
-        internal static string elevationProfileName = "Elevation Level";
-        internal static string hasGPSProfileName = "Telescope has GPS";
-        internal static string appertureProfileName = "Telescope Apperture";
-        internal static string focalProfileName = "Telescope Focal Length";
-        internal static string obstructionProfileName = "Telescope Obstruction Percent";
-
-
-
-        internal static string comPort; // Variables to hold the currrent device configuration
-        internal static bool traceState = true;
-        internal static bool isBluetooth;
-        internal static BluetoothAddress bluetoothDevice;
         internal static double longitude;
+        internal static string latitudeProfileName = "Latitude";
         internal static double latitude;
+
+        internal static string elevationProfileName = "Elevation Level";
         internal static double elevation;
-        internal static bool hasGPS;
-        internal static int traceMode;
+
+        internal static string hasGPSProfileName = "Telescope has GPS";
+        internal static string hasGPSDefault = "-1";
+        internal static int    hasGPS;
+
+        internal static string defaultDouble = "0";
+        internal static string appertureProfileName = "Telescope Apperture";
         internal static double apperture;
+        
+        internal static string focalProfileName = "Telescope Focal Length";
         internal static double focal;
+        
+        internal static string obstructionProfileName = "Telescope Obstruction Percent";
         internal static double obstruction;
+        
+        internal static string TelescopeModelProfileName = "Telescope Model";
         internal static string TelescopeModel;
+
+        internal static string TrackingModeProfileName = "Tracking Mode";
+        internal static int    TrackingModeDefault = -1;
+        internal static int    trackingMode;
+
+        internal static string showControlProfileName = "Show Control OnConnect";
+        internal static bool showControl = false;
+
         internal static Coordinates target;
 
         private static Telescope _telescopeV3;
@@ -288,6 +307,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 }
                 else
                 {
+                    if (telescopeProperties.MovingAltAxes)
+                    {
+                        telescopeWorker.MoveAxis(SlewAxes.DecAlt, 0);
+                    }
+                    if (telescopeProperties.MovingAzmAxes)
+                    {
+                        telescopeWorker.MoveAxis(SlewAxes.RaAzm, 0);
+                    }
+
                     tw.isConnected = false;
                     connectedState = false;
                     tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);
@@ -471,15 +499,26 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 var val = driverProfile.GetValue(driverID, bluetoothDeviceProfileName, string.Empty, string.Empty);
                 BluetoothAddress.TryParse(val, out bluetoothDevice);
                 val = driverProfile.GetValue(driverID, isBluetoothProfileName, string.Empty, "false");
-                bool.TryParse(val, out Telescope.isBluetooth);
-                //Telescope.latitude = -1000;
-                //Telescope.longitude = -1000;
-                //Telescope.elevation = val; 
-                //Telescope.apperture = val;
-                //Telescope.focal = val;
-                //Telescope.obstruction = val;
-                //Telescope.traceMode = TrackingMode.SelectedIndex;
-                //Telescope.hasGPS = HasGPS.Checked;
+                bool.TryParse(val, out isBluetooth);
+                val = driverProfile.GetValue(driverID, latitudeProfileName, string.Empty, coordinateDefaultValue);
+                double.TryParse(val, out latitude);
+                val = driverProfile.GetValue(driverID, longitudeProfileName, string.Empty, coordinateDefaultValue);
+                double.TryParse(val, out longitude);
+                val = driverProfile.GetValue(driverID, TrackingModeProfileName, string.Empty, TrackingModeDefault.ToString());
+                int.TryParse(val, out trackingMode);
+                TelescopeModel = driverProfile.GetValue(driverID, TelescopeModelProfileName, string.Empty, string.Empty);
+                val = driverProfile.GetValue(driverID, hasGPSProfileName, string.Empty, hasGPSDefault);
+                int.TryParse(val, out hasGPS);
+                val = driverProfile.GetValue(driverID, elevationProfileName, string.Empty, defaultDouble);
+                double.TryParse(val, out elevation);
+                val = driverProfile.GetValue(driverID, appertureProfileName, string.Empty, defaultDouble);
+                double.TryParse(val, out apperture);
+                val = driverProfile.GetValue(driverID, focalProfileName, string.Empty, defaultDouble);
+                double.TryParse(val, out focal);
+                val = driverProfile.GetValue(driverID, obstructionProfileName, string.Empty, defaultDouble);
+                double.TryParse(val, out obstruction);
+                val = driverProfile.GetValue(driverID, showControlProfileName, string.Empty, "false");
+                bool.TryParse(val, out showControl);
 
             }
         }
@@ -493,10 +532,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 driverProfile.DeviceType = "Telescope";
                 driverProfile.WriteValue(driverID, traceStateProfileName, traceState.ToString());
-                driverProfile.WriteValue(driverID, comPortProfileName, comPort.ToString());
+                driverProfile.WriteValue(driverID, comPortProfileName, comPort);
                 driverProfile.WriteValue(driverID, bluetoothDeviceProfileName, bluetoothDevice != null ? bluetoothDevice.ToString() : string.Empty);
                 driverProfile.WriteValue(driverID, isBluetoothProfileName, isBluetooth.ToString());
-
+                driverProfile.WriteValue(driverID, TrackingModeProfileName, trackingMode.ToString());
+                driverProfile.WriteValue(driverID, TelescopeModelProfileName, TelescopeModel);
+                driverProfile.WriteValue(driverID, hasGPSProfileName, hasGPS.ToString());
+                driverProfile.WriteValue(driverID, latitudeProfileName, latitude.ToString());
+                driverProfile.WriteValue(driverID, longitudeProfileName, longitude.ToString());
+                driverProfile.WriteValue(driverID, elevationProfileName, elevation.ToString());
+                driverProfile.WriteValue(driverID, appertureProfileName, apperture.ToString());
+                driverProfile.WriteValue(driverID, focalProfileName, focal.ToString());
+                driverProfile.WriteValue(driverID, obstructionProfileName, obstruction.ToString());
+                driverProfile.WriteValue(driverID, showControlProfileName, showControl.ToString());
             }
 
         }

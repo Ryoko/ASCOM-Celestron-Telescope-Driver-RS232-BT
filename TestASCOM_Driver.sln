@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{3C876D88-DE6
 		Docs\Commands.txt = Docs\Commands.txt
 		Docs\Common.bas = Docs\Common.bas
 		IdentifyScope.bas = IdentifyScope.bas
+		..\Celestron Driver\Telescope.cls = ..\Celestron Driver\Telescope.cls
 		Docs\Telescopes.txt = Docs\Telescopes.txt
 	EndProjectSection
 EndProject

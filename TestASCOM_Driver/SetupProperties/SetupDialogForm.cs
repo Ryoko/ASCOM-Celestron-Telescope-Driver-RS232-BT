@@ -67,8 +67,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             Focal.Value = (decimal)Telescope.focal * 1000;
             Obstruction.Value = (decimal)Telescope.obstruction;
             
-            TrackingMode.SelectedIndex = Telescope.traceMode;
-            HasGPS.Checked = Telescope.hasGPS;
+            TrackingMode.SelectedIndex = Telescope.trackingMode;
+            HasGPS.CheckState = Telescope.hasGPS < 0 ? CheckState.Indeterminate : Telescope.hasGPS > 0 ? CheckState.Checked : CheckState.Unchecked;
             
             ScopeSelection.Items.Clear();
             foreach (var model in models)
@@ -105,7 +105,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             Telescope.obstruction = ts.Obstruction;
 
             Telescope.TelescopeModel = ts.ModelName;
-            Telescope.traceMode = ts.TrackingMode;
+            Telescope.trackingMode = ts.TrackingMode;
             Telescope.hasGPS = ts.HasGPS;
         }
 
@@ -319,7 +319,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             set.Obstruction = (double)Obstruction.Value;
             if (ScopeSelection.SelectedIndex >= 0) { set.ModelName = ScopeSelection.Text; } else { res = false; }
             if (TrackingMode.SelectedIndex >= 0) {set.TrackingMode = TrackingMode.SelectedIndex;} else { res = false; }
-            if (HasGPS.CheckState != CheckState.Indeterminate) {set.HasGPS = HasGPS.Checked;} else { res = false; }
+            set.HasGPS = HasGPS.CheckState == CheckState.Indeterminate ? -1 : HasGPS.Checked ? 1 : 0;
+            res &= set.HasGPS >= 0;
             if (set.IsBluetooth && selDeviceInfo == null) res = false;
             return res;
         }
@@ -338,7 +339,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public double Apperture;
         public double FocalRate;
         public double Obstruction;
-        public bool HasGPS;
+        public int HasGPS;
         public double Latitude;
         public double Longitude;
         public double Elevation;

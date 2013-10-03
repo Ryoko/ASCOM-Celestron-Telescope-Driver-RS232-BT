@@ -66,39 +66,56 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
-        public override void SlewFixedRate(Direction dir, SlewAxes axis, int rate)
+        public override void SlewFixedRate(SlewAxes axis, int rate)
         {
             if (rate < 0 || rate > 9) throw new Exception("Wrong parameter");
-            var com = new byte[] {(byte) 'P', 2, (byte) axis, (byte) dir, (byte) rate, 0, 0, 0};
-            SendCommand(com);
+            var r = (byte)Math.Abs(rate);
+            var devId = GetDeviceId(axis);
+            var command = rate < 0 ? DeviceCommands.MC_SET_NEG_FIXED_GUIDERATE : DeviceCommands.MC_SET_POS_FIXED_GUIDERATE;
+            //var com = new byte[] { (byte)'P', 2, DevId, (byte)dir, (byte)rate, 0, 0, 0 };
+            SendCommandToDevice(devId, command, 0, r);
         }
 
-        public override void SlewVariableRate(Direction dir, SlewAxes axis, double rate)
+        public override void SlewVariableRate(SlewAxes axis, double rate)
         {
-            var r = (int)(rate * 4);
-            var com = new byte[] { (byte)'P', 3, (byte)axis, (byte)dir, (byte) (r/256), (byte) (r%256), 0, 0 };
-            SendCommand(com);
+            var r = (int)Math.Abs(rate * 4);
+            var devId = GetDeviceId(axis);
+            //var com = new byte[] { (byte)'P', 3, devId, (byte)dir, (byte) (r/256), (byte) (r%256), 0, 0 };
+            //SendCommand(com);
+            var command = rate < 0 ? DeviceCommands.MC_SET_NEG_VARIABLE_GUIDERATE : DeviceCommands.MC_SET_POS_VARIABLE_GUIDERATE;
+            SendCommandToDevice(devId, command, 0, (byte) (r/256), (byte) (r%256));
+        }
+
+        public override void SlewHighRate(SlewAxes axis, double rate)
+        {
+            var r = Math.Abs((long)rate*1024);
+            var h = (byte) ((r/0x10000) & 0xff);
+            var m = (byte) ((r/0x100) & 0xff);
+            var l = (byte) (r & 0xff);
+            var devId = GetDeviceId(axis);
+            var command = rate < 0 ? DeviceCommands.MC_SET_NEG_VARIABLE_GUIDERATE : DeviceCommands.MC_SET_POS_VARIABLE_GUIDERATE;
+            SendCommandToDevice(devId, command, 0, h, m, l);
         }
 
         public override bool SetTrackingRate(DriveRates rate, TrackingMode mode)
         {
-            int hRate;
+            byte hRate;
             switch (rate)
             {
                 case DriveRates.driveSidereal:
-                    hRate = 0xffff;
+                    hRate = 0xff;
                     break;
                 case DriveRates.driveSolar:
-                    hRate = 0xfffe;
+                    hRate = 0xfe;
                     break;
                 case DriveRates.driveLunar:
-                    hRate = 0xfffd;
+                    hRate = 0xfd;
                     break;
                 default:
                     throw new ValueNotAvailableException("Wring tracking rate value");
             }
-            var dir = mode == TrackingMode.EQS ? Direction.Negative : Direction.Positive;
-            SlewVariableRate(dir, SlewAxes.RaAzm, hRate);
+            var command = mode == TrackingMode.EQS ? DeviceCommands.MC_SET_NEG_VARIABLE_GUIDERATE : DeviceCommands.MC_SET_POS_VARIABLE_GUIDERATE;
+            SendCommandToDevice(GetDeviceId(SlewAxes.RaAzm), command, 0, 0xff, hRate);
             return true;
         }
 
@@ -217,6 +234,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         }
 
         public override bool CanSetTrackingRates
+        {
+            get { return true; }
+        }
+
+        public override bool CanSlewHighRate
         {
             get { return true; }
         }

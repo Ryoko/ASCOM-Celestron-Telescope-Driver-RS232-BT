@@ -58,7 +58,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             get
             {
-                return telescopeMode == TelescopeMode.Slewing;
+                return telescopeMode == TelescopeMode.Slewing || telescopeMode == TelescopeMode.MovingAxis;
             }
         }
 
@@ -78,11 +78,48 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             return true;
         }
 
-        public void MoveAxis(AxisRates rate)
+        public void SetTracking(bool value)
         {
-            if (telescopeMode != TelescopeMode.Normal) return;
-            ti.SlewVariableRate(Direction.Negative, SlewAxes.DecAlt, 1);
-            telescopeMode = TelescopeMode.MovingAxis;
+            if (!ti.CanSetTracking) throw new NotSupportedException("Setting tracking mode is not supported");
+            if (value)
+            {
+                if (tp.TrackingMode > TrackingMode.AltAzm) return;
+                tp.TrackingMode = tp.DefaultTrackingMode;
+                ti.TrackingMode = tp.TrackingMode;
+            }
+            else
+            {
+                var tm = tp.TrackingMode;
+                if (tm > TrackingMode.AltAzm) tp.DefaultTrackingMode = tm;
+                ti.TrackingMode = TrackingMode.Off;
+                tp.TrackingMode = TrackingMode.Off;
+            }
+        }
+
+        public void MoveAxis(SlewAxes axis, double rate)
+        {
+            if (telescopeMode == TelescopeMode.Normal || telescopeMode == TelescopeMode.MovingAxis)
+            {
+                if (axis == SlewAxes.DecAlt) tp.MovingAltAxes = !rate.Equals(0);
+                if (axis == SlewAxes.RaAzm) tp.MovingAzmAxes = !rate.Equals(0);
+
+                if (!rate.Equals(0))
+                {
+                    SetTracking(false);
+                    ti.SlewHighRate(axis, rate * 3600d);
+                    telescopeMode = TelescopeMode.MovingAxis;
+                }
+                else
+                {
+                    ti.SlewHighRate(axis, 0);
+                    if (!tp.MovingAltAxes && !tp.MovingAzmAxes)
+                    {
+                        SetTracking(true);
+                        telescopeMode = TelescopeMode.Normal;
+                    }
+                }
+                
+            }
         }
 
         public void Disconnect()
@@ -147,7 +184,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         private void MovingAxisMode()
         {
-            throw new System.NotImplementedException();
+            CheckCoordinates();
         }
 
         private void NormalMode()
@@ -185,7 +222,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         private void CheckCoordinates(bool now = false)
         {
-            if (!now && lastGetCoordiante + CoordinatesGetInterval < Environment.TickCount) return;
+            if (!now && lastGetCoordiante + CoordinatesGetInterval > Environment.TickCount) return;
             
             if (now || lastGetCoordinateMode)
             {

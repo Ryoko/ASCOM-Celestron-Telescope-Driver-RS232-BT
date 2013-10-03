@@ -97,7 +97,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
             var b = (Button) sender;
             TelescopeAxes axis;
             var rate = 0d;
-            switch (b.Text)
+            switch (b.Name)
             {
                 case "Ra_p":
                     axis = TelescopeAxes.axisPrimary;
@@ -111,7 +111,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
                     axis = TelescopeAxes.axisSecondary;
                     rate = 1d;
                     break;
-                case "dec_n":
+                case "Dec_n":
                     axis = TelescopeAxes.axisSecondary;
                     rate = -1d;
                     break;
@@ -125,7 +125,26 @@ namespace ASCOM.CelestronAdvancedBluetooth
 
         private void Control_MouseUp(object sender, MouseEventArgs e)
         {
-            
+            if (!(sender is Button)) return;
+            var b = (Button)sender;
+            TelescopeAxes axis;
+            var rate = 0d;
+            switch (b.Name)
+            {
+                case "Ra_p":
+                case "Ra_n":
+                    axis = TelescopeAxes.axisPrimary;
+                    break;
+                case "Dec_p":
+                case "Dec_n":
+                    axis = TelescopeAxes.axisSecondary;
+                    break;
+                default:
+                    return;
+            }
+
+            if (driver == null || !driver.Connected) return;
+            driver.MoveAxis(axis, 0);
         }
     }
 }

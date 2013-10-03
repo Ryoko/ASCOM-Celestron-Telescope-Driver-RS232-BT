@@ -39,6 +39,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public int SlewSteeleTime { get; set; }
         public bool HasGPS { get; set; }
         public DriveRates TrackingRate { get; set; }
+        public bool IsTracking { get; set; }
+        public TrackingMode DefaultTrackingMode { get; set; }
+        public double DeclinationRateOffset { get; set; }
+        public double RightAscensionRateOffset { get; set; }
+        public bool MovingAltAxes { get; set; }
+        public bool MovingAzmAxes { get; set; }
 
         //public static TelescopeProperties Properties { get { return _properties; } }
 
@@ -53,7 +59,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             this.FirmwareVersion = _ti.FirmwareVersion;
             if (_ti.CanGetModel) this.TelescopeModel = _ti.GetModel;
             if (_ti.CanGetDeviceVersion) this.MotorsFirmvareVersion = _ti.GetDeviceVersion(DeviceID.DecAltMotor);
-            if (_ti.CanGetTracking) this.TrackingMode = _ti.TrackingMode;
+            if (_ti.CanGetTracking)
+            {
+                this.TrackingMode = _ti.TrackingMode;
+            }
+            else
+            {
+                this.TrackingMode = (TrackingMode)Telescope.trackingMode;
+            }
+            this.IsTracking = TrackingMode > TrackingMode.AltAzm;
+
             this.Location = _ti.CanWorkLocation ? 
                 _ti.TelescopeLocation 
                 : _ti.CanWorkGPS ? 
@@ -67,6 +82,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             this.Apperture = Telescope.apperture;
             this.FocalLength = Telescope.focal;
             this.ObstructionPercent = Telescope.obstruction;
+            this.AppertureArea = (Math.Pow((Apperture / 2), 2) * Math.PI) * ((100 - Telescope.obstruction) / 100);
+
+            this.RightAscensionRateOffset = 0;
+            this.DeclinationRateOffset = 0;
+            this.DefaultTrackingMode = TrackingMode > TrackingMode.Off ? TrackingMode : Location.Lat > 0 ? TrackingMode.EQN : TrackingMode.EQS;
             this.IsReady = true;
         }
     }
