@@ -108,6 +108,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             {
                 //var com = new[] {(byte) 'V'};
                 var res = driverWorker.CommandString("V", false);// SendCommand(com);
+                if (res.Length < 2) throw new Exception("Wrong answer");
                 _firmwareVersion = res[0] + (double)res[1] / 10;
                 return _firmwareVersion;
             }

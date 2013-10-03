@@ -30,8 +30,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public double FocalLength { get; set; }
         public double AppertureArea { get; set; }
         public double ObstructionPercent { get; set; }
-        public Coordinates TargetCoordinates { get; set; }
-        public AltAzm TargetAltAzm { get; set; }
+        public Target Target { get; private set; }
         public double FirmwareVersion { get; set; }
         public double MotorsFirmvareVersion { get; set; }
         public TrackingMode TrackingMode { get; set; }
@@ -45,6 +44,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public double RightAscensionRateOffset { get; set; }
         public bool MovingAltAxes { get; set; }
         public bool MovingAzmAxes { get; set; }
+        public AltAzm ParkPosition { get; set; }
+        public AltAzm HomePozition { get; set; }
+        public bool IsAtPark { get; set; }
+        public bool IsAtHome { get; set; }
 
         //public static TelescopeProperties Properties { get { return _properties; } }
 
@@ -52,6 +55,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             _ti = ti;
             TrackingRate = DriveRates.driveSidereal;
+            Target = new Target();
         }
 
         public void GetTelescopeProperties()
@@ -88,6 +92,30 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             this.DeclinationRateOffset = 0;
             this.DefaultTrackingMode = TrackingMode > TrackingMode.Off ? TrackingMode : Location.Lat > 0 ? TrackingMode.EQN : TrackingMode.EQS;
             this.IsReady = true;
+        }
+    }
+
+    public class Target
+    {
+        public DMS Ra { get; set; }
+        public DMS Dec { get; set; }
+        public DMS Alt { get; set; }
+        public DMS Azm { get; set; }
+
+        public bool IsRaDec
+        {
+            get
+            {
+                return (Ra != null && Dec != null);
+            }
+        }
+
+        public bool IsAltAzm
+        {
+            get
+            {
+                return (Alt != null && Azm != null);
+            }
         }
     }
 }

@@ -41,13 +41,13 @@
             this.Ra = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ControlButtons = new System.Windows.Forms.GroupBox();
             this.Ra_p = new System.Windows.Forms.Button();
             this.Ra_n = new System.Windows.Forms.Button();
             this.Dec_n = new System.Windows.Forms.Button();
             this.Dec_p = new System.Windows.Forms.Button();
             this.Coordinates.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.ControlButtons.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonChoose
@@ -178,18 +178,19 @@
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
-            // groupBox1
+            // ControlButtons
             // 
-            this.groupBox1.Controls.Add(this.Ra_p);
-            this.groupBox1.Controls.Add(this.Ra_n);
-            this.groupBox1.Controls.Add(this.Dec_n);
-            this.groupBox1.Controls.Add(this.Dec_p);
-            this.groupBox1.Location = new System.Drawing.Point(12, 73);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(170, 134);
-            this.groupBox1.TabIndex = 4;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Control";
+            this.ControlButtons.Controls.Add(this.Ra_p);
+            this.ControlButtons.Controls.Add(this.Ra_n);
+            this.ControlButtons.Controls.Add(this.Dec_n);
+            this.ControlButtons.Controls.Add(this.Dec_p);
+            this.ControlButtons.Enabled = false;
+            this.ControlButtons.Location = new System.Drawing.Point(12, 73);
+            this.ControlButtons.Name = "ControlButtons";
+            this.ControlButtons.Size = new System.Drawing.Size(170, 134);
+            this.ControlButtons.TabIndex = 4;
+            this.ControlButtons.TabStop = false;
+            this.ControlButtons.Text = "Control";
             // 
             // Ra_p
             // 
@@ -240,7 +241,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 219);
-            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.ControlButtons);
             this.Controls.Add(this.Coordinates);
             this.Controls.Add(this.labelDriverId);
             this.Controls.Add(this.buttonConnect);
@@ -250,7 +251,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Coordinates.ResumeLayout(false);
             this.Coordinates.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
+            this.ControlButtons.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -270,7 +271,7 @@
         private System.Windows.Forms.Label Ra;
         private System.Windows.Forms.Label label1;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox ControlButtons;
         private System.Windows.Forms.Button Ra_p;
         private System.Windows.Forms.Button Ra_n;
         private System.Windows.Forms.Button Dec_n;

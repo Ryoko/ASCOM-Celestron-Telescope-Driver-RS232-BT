@@ -69,7 +69,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             
             TrackingMode.SelectedIndex = Telescope.trackingMode;
             HasGPS.CheckState = Telescope.hasGPS < 0 ? CheckState.Indeterminate : Telescope.hasGPS > 0 ? CheckState.Checked : CheckState.Unchecked;
-            
+
+            ShowHandControl.Checked = Telescope.showControl;
+
             ScopeSelection.Items.Clear();
             foreach (var model in models)
             {
@@ -107,6 +109,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             Telescope.TelescopeModel = ts.ModelName;
             Telescope.trackingMode = ts.TrackingMode;
             Telescope.hasGPS = ts.HasGPS;
+
+            Telescope.showControl = ts.ShowHandControl;
         }
 
         private void cmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
@@ -321,6 +325,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             if (TrackingMode.SelectedIndex >= 0) {set.TrackingMode = TrackingMode.SelectedIndex;} else { res = false; }
             set.HasGPS = HasGPS.CheckState == CheckState.Indeterminate ? -1 : HasGPS.Checked ? 1 : 0;
             res &= set.HasGPS >= 0;
+            set.ShowHandControl = ShowHandControl.Checked;
             if (set.IsBluetooth && selDeviceInfo == null) res = false;
             return res;
         }
@@ -347,7 +352,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public bool IsBluetooth;
         public BluetoothAddress BluetoothAddr;
         public string ComPort;
-
+        public bool ShowHandControl;
 
     }
 }

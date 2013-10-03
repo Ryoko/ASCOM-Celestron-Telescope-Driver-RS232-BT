@@ -67,6 +67,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
+            this.ShowHandControl = new System.Windows.Forms.CheckBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -81,6 +83,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Elevation)).BeginInit();
             this.statusStrip1.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // cmdOK
@@ -133,7 +136,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // chkTrace
             // 
             this.chkTrace.AutoSize = true;
-            this.chkTrace.Location = new System.Drawing.Point(172, 186);
+            this.chkTrace.Location = new System.Drawing.Point(133, 16);
             this.chkTrace.Name = "chkTrace";
             this.chkTrace.Size = new System.Drawing.Size(69, 17);
             this.chkTrace.TabIndex = 6;
@@ -216,6 +219,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.CheckScope);
             this.panel1.Controls.Add(this.picASCOM);
             this.panel1.Controls.Add(this.cmdOK);
             this.panel1.Controls.Add(this.cmdCancel);
@@ -227,6 +231,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.groupBox4);
             this.panel2.Controls.Add(this.groupBox3);
             this.panel2.Controls.Add(this.groupBox2);
             this.panel2.Controls.Add(this.groupBox1);
@@ -238,25 +243,24 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.CheckScope);
             this.groupBox3.Controls.Add(this.TrackingMode);
             this.groupBox3.Controls.Add(this.label13);
             this.groupBox3.Controls.Add(this.HasGPS);
-            this.groupBox3.Location = new System.Drawing.Point(4, 116);
+            this.groupBox3.Location = new System.Drawing.Point(220, 136);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(210, 100);
+            this.groupBox3.Size = new System.Drawing.Size(247, 86);
             this.groupBox3.TabIndex = 18;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Settings";
+            this.groupBox3.Text = "Telescope Settings";
             // 
             // CheckScope
             // 
             this.CheckScope.Enabled = false;
-            this.CheckScope.Location = new System.Drawing.Point(127, 70);
+            this.CheckScope.Location = new System.Drawing.Point(4, 202);
             this.CheckScope.Name = "CheckScope";
-            this.CheckScope.Size = new System.Drawing.Size(75, 23);
+            this.CheckScope.Size = new System.Drawing.Size(59, 23);
             this.CheckScope.TabIndex = 16;
-            this.CheckScope.Text = "CheckScope";
+            this.CheckScope.Text = "Check";
             this.CheckScope.UseVisualStyleBackColor = true;
             this.CheckScope.Click += new System.EventHandler(this.CheckScope_Click);
             // 
@@ -269,16 +273,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             "AltAzm",
             "Eq N",
             "Eq S"});
-            this.TrackingMode.Location = new System.Drawing.Point(111, 40);
+            this.TrackingMode.Location = new System.Drawing.Point(90, 36);
             this.TrackingMode.Name = "TrackingMode";
-            this.TrackingMode.Size = new System.Drawing.Size(91, 21);
+            this.TrackingMode.Size = new System.Drawing.Size(79, 21);
             this.TrackingMode.TabIndex = 1;
             this.TrackingMode.SelectedIndexChanged += new System.EventHandler(this.Field_ValueChanged);
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(8, 43);
+            this.label13.Location = new System.Drawing.Point(8, 39);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(79, 13);
             this.label13.TabIndex = 19;
@@ -289,7 +293,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             this.HasGPS.AutoSize = true;
             this.HasGPS.Checked = true;
             this.HasGPS.CheckState = System.Windows.Forms.CheckState.Indeterminate;
-            this.HasGPS.Location = new System.Drawing.Point(111, 17);
+            this.HasGPS.Location = new System.Drawing.Point(9, 19);
             this.HasGPS.Name = "HasGPS";
             this.HasGPS.Size = new System.Drawing.Size(68, 17);
             this.HasGPS.TabIndex = 0;
@@ -303,20 +307,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             this.groupBox2.Controls.Add(this.Focal);
             this.groupBox2.Controls.Add(this.Apperture);
             this.groupBox2.Controls.Add(this.ObstructionLabel);
-            this.groupBox2.Controls.Add(this.chkTrace);
             this.groupBox2.Controls.Add(this.label10);
             this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.ScopeSelection);
             this.groupBox2.Location = new System.Drawing.Point(220, 6);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(247, 212);
+            this.groupBox2.Size = new System.Drawing.Size(247, 124);
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "`";
+            this.groupBox2.Text = "Telescope Properties";
             // 
             // Obstruction
             // 
-            this.Obstruction.Location = new System.Drawing.Point(93, 120);
+            this.Obstruction.Location = new System.Drawing.Point(90, 98);
             this.Obstruction.Name = "Obstruction";
             this.Obstruction.Size = new System.Drawing.Size(79, 20);
             this.Obstruction.TabIndex = 18;
@@ -324,7 +327,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // 
             // Focal
             // 
-            this.Focal.Location = new System.Drawing.Point(93, 94);
+            this.Focal.Location = new System.Drawing.Point(90, 72);
             this.Focal.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -337,7 +340,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // 
             // Apperture
             // 
-            this.Apperture.Location = new System.Drawing.Point(93, 68);
+            this.Apperture.Location = new System.Drawing.Point(90, 46);
             this.Apperture.Maximum = new decimal(new int[] {
             50000,
             0,
@@ -351,7 +354,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // ObstructionLabel
             // 
             this.ObstructionLabel.AutoSize = true;
-            this.ObstructionLabel.Location = new System.Drawing.Point(9, 122);
+            this.ObstructionLabel.Location = new System.Drawing.Point(6, 100);
             this.ObstructionLabel.Name = "ObstructionLabel";
             this.ObstructionLabel.Size = new System.Drawing.Size(81, 13);
             this.ObstructionLabel.TabIndex = 15;
@@ -360,7 +363,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(9, 96);
+            this.label10.Location = new System.Drawing.Point(6, 74);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(61, 13);
             this.label10.TabIndex = 12;
@@ -369,7 +372,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(9, 70);
+            this.label8.Location = new System.Drawing.Point(6, 48);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(81, 13);
             this.label8.TabIndex = 9;
@@ -384,7 +387,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             "Celestrone Advanced C6-SCT",
             "Celestrone Advanced C8-NGT",
             "Celestrone Advanced C8-SCT"});
-            this.ScopeSelection.Location = new System.Drawing.Point(7, 15);
+            this.ScopeSelection.Location = new System.Drawing.Point(6, 19);
             this.ScopeSelection.Name = "ScopeSelection";
             this.ScopeSelection.Size = new System.Drawing.Size(234, 21);
             this.ScopeSelection.TabIndex = 0;
@@ -402,7 +405,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(4, 6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(210, 104);
+            this.groupBox1.Size = new System.Drawing.Size(210, 124);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Location";
@@ -511,6 +514,27 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             this.toolStripProgressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.toolStripProgressBar1.Visible = false;
             // 
+            // ShowHandControl
+            // 
+            this.ShowHandControl.AutoSize = true;
+            this.ShowHandControl.Location = new System.Drawing.Point(11, 16);
+            this.ShowHandControl.Name = "ShowHandControl";
+            this.ShowHandControl.Size = new System.Drawing.Size(88, 17);
+            this.ShowHandControl.TabIndex = 19;
+            this.ShowHandControl.Text = "Hand Control";
+            this.ShowHandControl.UseVisualStyleBackColor = true;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.ShowHandControl);
+            this.groupBox4.Controls.Add(this.chkTrace);
+            this.groupBox4.Location = new System.Drawing.Point(4, 136);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(210, 86);
+            this.groupBox4.TabIndex = 19;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Misc";
+            // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -548,6 +572,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             ((System.ComponentModel.ISupportInitialize)(this.Elevation)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -594,5 +620,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         private System.Windows.Forms.NumericUpDown Focal;
         private System.Windows.Forms.NumericUpDown Apperture;
         private System.Windows.Forms.NumericUpDown Elevation;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.CheckBox ShowHandControl;
     }
 }

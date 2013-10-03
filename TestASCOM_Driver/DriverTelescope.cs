@@ -172,8 +172,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSetGuideRates", "Get - " + false.ToString());
-                return false;
+                tl.LogMessage("CanSetGuideRates", "Get - " + tw.CanSlewVariableRate.ToString());
+                return tw.CanSlewVariableRate;
             }
         }
 
@@ -208,7 +208,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSetTracking", "Get - " + false.ToString());
+                tl.LogMessage("CanSetTracking", "Get - " + tw.CanSetTracking.ToString());
                 return tw.CanSetTracking;
             }
         }
@@ -217,7 +217,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSlew", "Get - " + false.ToString());
+                tl.LogMessage("CanSlew", "Get - " + true.ToString());
                 return true;
             }
         }
@@ -226,7 +226,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSlewAltAz", "Get - " + false.ToString());
+                tl.LogMessage("CanSlewAltAz", "Get - " + true.ToString());
                 return true;
             }
         }
@@ -235,7 +235,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSlewAltAzAsync", "Get - " + false.ToString());
+                tl.LogMessage("CanSlewAltAzAsync", "Get - " + true.ToString());
                 return true;
             }
         }
@@ -244,7 +244,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSlewAsync", "Get - " + false.ToString());
+                tl.LogMessage("CanSlewAsync", "Get - " + true.ToString());
                 return true;
             }
         }
@@ -634,15 +634,18 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
         public void SlewToTarget()
         {
-
-            tl.LogMessage("SlewToTarget", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SlewToTarget");
+            if (!telescopeProperties.Target.IsRaDec) throw new Astrometry.Exceptions.ValueNotSetException("Target coordinate not setted");
+            tl.LogMessage("SlewToTarget", 
+                string.Format("Target Ra:{0} Dec:{1}", telescopeProperties.Target.Ra.ToString(":"), telescopeProperties.Target.Dec.ToString(":")));
+            SlewToCoordinates((double)telescopeProperties.Target.Ra.Deg, (double)telescopeProperties.Target.Dec.Deg);
         }
 
         public void SlewToTargetAsync()
         {
-            tl.LogMessage("SlewToTargetAsync", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SlewToTargetAsync");
+            if (!telescopeProperties.Target.IsRaDec) throw new Astrometry.Exceptions.ValueNotSetException("Target coordinate not setted");
+            tl.LogMessage("SlewToTargetAsync",
+                string.Format("Target Ra:{0} Dec:{1}", telescopeProperties.Target.Ra.ToString(":"), telescopeProperties.Target.Dec.ToString(":")));
+            SlewToCoordinatesAsync((double)telescopeProperties.Target.Ra.Deg, (double)telescopeProperties.Target.Dec.Deg);
         }
 
         public bool Slewing
@@ -675,14 +678,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                if (target == null) throw new ASCOM.ValueNotSetException("Target not set");
-                tl.LogMessage("TargetDeclination Get", target.Dec.ToString());
-                return target.Dec;
+                if (telescopeProperties.Target.Dec  == null) throw new ASCOM.ValueNotSetException("Target not set");
+                tl.LogMessage("TargetDeclination Get", telescopeProperties.Target.Dec.ToString(":"));
+                return (double)telescopeProperties.Target.Dec.Deg;
             }
             set
             {
-                tl.LogMessage("TargetDeclination Set", value.ToString());
-                target.Dec = value;
+                var val = new DMS(value);
+                tl.LogMessage("TargetDeclination Set - ", val.ToString(":"));
+                telescopeProperties.Target.Dec =  val;
             }
         }
 
@@ -690,14 +694,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                if (target == null) throw new ASCOM.ValueNotSetException("Target not set");
-                tl.LogMessage("TargetRightAscension Get", target.Ra.ToString());
-                return target.Dec;
+                if (telescopeProperties.Target.Ra == null) throw new ASCOM.ValueNotSetException("Target not set");
+                tl.LogMessage("TargetRightAscension Get", telescopeProperties.Target.Ra.ToString(":"));
+                return (double)telescopeProperties.Target.Ra.Deg;
             }
             set
             {
-                tl.LogMessage("TargetRightAscension Set", value.ToString());
-                target.Ra = value;
+                var val = new DMS(value, true);
+                tl.LogMessage("TargetRightAscension Set", val.ToString(":"));
+                telescopeProperties.Target.Ra = val;
             }
         }
 

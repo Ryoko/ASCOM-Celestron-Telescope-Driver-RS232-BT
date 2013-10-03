@@ -53,6 +53,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
             buttonChoose.Enabled = !IsConnected;
             buttonConnect.Text = IsConnected ? "Disconnect" : "Connect";
             Coordinates.Enabled = IsConnected;
+            ControlButtons.Enabled = IsConnected;
         }
 
         private bool IsConnected

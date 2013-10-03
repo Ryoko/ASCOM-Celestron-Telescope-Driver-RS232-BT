@@ -34,6 +34,7 @@ using System.Windows.Forms.VisualStyles;
 using ASCOM;
 using ASCOM.Astrometry;
 using ASCOM.Astrometry.AstroUtils;
+using ASCOM.CelestronAdvancedBlueTooth.HandForm;
 using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.Utilities;
@@ -125,11 +126,24 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         internal static string showControlProfileName = "Show Control OnConnect";
         internal static bool showControl = false;
 
-        internal static Coordinates target;
+        internal static string ParkAltProfileName = "Park Altitude";
+        internal static double ParkAlt = 0;
+        internal static string ParkAzmProfileName = "Park Azimuth";
+        internal static double ParkAzm = 0;
+        internal static string HomeAltProfileName = "Home Altitude";
+        internal static double HomeAlt = 0;
+        internal static string HomeAzmProfileName = "Home Alzimuth";
+        internal static double HomeAzm = 0;
+        internal static string AtParkProfileName = "Is At Park";
+        internal static bool IsAtPark;
+
+
+        //internal static Coordinates target;
 
         private static Telescope _telescopeV3;
         public static ITelescopeV3 TelescopeV3 {get { return _telescopeV3; }}
-        
+        private IHandControl _handControl;
+
         /// <summary>
         /// Private variable to hold the connected state
         /// </summary>
@@ -165,7 +179,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             _telescopeV3 = this;
 
             tl = new TraceLogger("", "CelestronAdvancedBlueTooth");
-            tl.Enabled = true;// traceState;
+            tl.Enabled = traceState;
             tl.LogMessage("Telescope", "Starting initialisation");
 
             connectedState = false; // Initialise connected to false
@@ -173,6 +187,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
             Initialize();
             tl.LogMessage("Telescope", "Completed initialisation");
+            _handControl = new HandControl();
+            _handControl.SetForm(this);
         }
 
         public void Initialize()
@@ -277,11 +293,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             astroUtilities = null;
         }
 
+
         public bool Connected
         {
             get
             {
-                tl.LogMessage("Connected Get", IsConnected.ToString());
+                if(tl != null) tl.LogMessage("Connected Get", IsConnected.ToString());
                 return IsConnected;
             }
             set
@@ -303,6 +320,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                         Thread.Sleep(100);
                         if (telescopeProperties.IsReady) break;
                     }
+                    _handControl.ShowForm(showControl);
                     // TODO connect to the device
                 }
                 else
@@ -320,6 +338,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     connectedState = false;
                     tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);
                     TelescopeWorker.TelescopeWorker.TelescopeInteraction.isConnected = false;
+                    _handControl.ShowForm(false);
                     StopWorking();
                     // TODO disconnect from the device
                 }
@@ -520,7 +539,38 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 val = driverProfile.GetValue(driverID, showControlProfileName, string.Empty, "false");
                 bool.TryParse(val, out showControl);
 
+                val = driverProfile.GetValue(driverID, HomeAltProfileName, string.Empty, defaultDouble);
+                double.TryParse(val, out HomeAlt);
+                val = driverProfile.GetValue(driverID, HomeAzmProfileName, string.Empty, defaultDouble);
+                double.TryParse(val, out HomeAzm);
+                val = driverProfile.GetValue(driverID, ParkAltProfileName, string.Empty, defaultDouble);
+                double.TryParse(val, out ParkAlt);
+                val = driverProfile.GetValue(driverID, ParkAzmProfileName, string.Empty, defaultDouble);
+                double.TryParse(val, out ParkAzm);
+                val = driverProfile.GetValue(driverID, AtParkProfileName, string.Empty, defaultDouble);
+                bool.TryParse(val, out IsAtPark);
+
             }
+#if DEBUG
+            return;
+            if (bluetoothDevice == null && TelescopeModel.Length == 0)
+            {
+                traceState = true;
+                BluetoothAddress.TryParse("001112280143", out bluetoothDevice);
+                //bluetoothDevice = new BluetoothAddress(001112280143);
+                isBluetooth = true;
+                latitude = 53.9175;
+                longitude = 27.529722222;
+                trackingMode = (int) TrackingMode.EQN;
+                TelescopeModel = "Advanced C8-NGT";
+                hasGPS = 0;
+                elevation = 295/1000;
+                apperture = 0.200;
+                focal = 1;
+                obstruction = 28;
+                showControl = true;
+            }
+#endif 
         }
 
         /// <summary>
@@ -545,6 +595,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 driverProfile.WriteValue(driverID, focalProfileName, focal.ToString());
                 driverProfile.WriteValue(driverID, obstructionProfileName, obstruction.ToString());
                 driverProfile.WriteValue(driverID, showControlProfileName, showControl.ToString());
+
+                driverProfile.WriteValue(driverID, HomeAltProfileName, HomeAlt.ToString());
+                driverProfile.WriteValue(driverID, HomeAzmProfileName, HomeAzm.ToString());
+                driverProfile.WriteValue(driverID, ParkAltProfileName, ParkAlt.ToString());
+                driverProfile.WriteValue(driverID, ParkAzmProfileName, ParkAzm.ToString());
+                driverProfile.WriteValue(driverID, AtParkProfileName, IsAtPark.ToString());
+
             }
 
         }

@@ -1,0 +1,164 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using ASCOM.CelestronAdvancedBlueTooth.Utils;
+using ASCOM.DeviceInterface;
+
+namespace ASCOM.CelestronAdvancedBlueTooth.HandForm
+{
+    public partial class HandControl : Form, IHandControl
+    {
+        private ITelescopeV3 _driver;
+
+        public HandControl()
+        {
+            InitializeComponent();
+
+        }
+
+        public void ShowForm(bool show)
+        {
+            if (show)
+            {
+                this.Show();
+                bgw.RunWorkerAsync();
+            }
+            else
+            {
+                bgw.CancelAsync();
+                this.Hide();
+            }
+        }
+
+        public void SetForm(Telescope driver)
+        {
+            _driver = driver;
+            //bgw.RunWorkerAsync();
+        }
+
+        private bool _connectionState = false;
+        private void bgw_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (!bgw.CancellationPending)
+            {
+                Thread.Sleep(100);
+                if (bgw.CancellationPending) return;
+                if (this._driver != null && this._driver.Connected)
+                {
+                    if (!_connectionState)
+                    {
+                        _connectionState = true;
+                        bgw.ReportProgress(10);
+                    }
+                    bgw.ReportProgress(50, _driver);
+                }
+                else
+                {
+                    if (_connectionState)
+                    {
+                        _connectionState = false;
+                        bgw.ReportProgress(10);
+                    }
+                }
+            }
+        }
+
+        private void bgw_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.ProgressPercentage == 50)
+            {
+                try
+                {
+                    Ra.Text = new DMS(_driver.RightAscension, true).ToString();
+                    Dec.Text = new DMS(_driver.Declination).ToString();
+                    Alt.Text = new DMS(_driver.Altitude).ToString();
+                    Azm.Text = new DMS(_driver.Azimuth).ToString();
+                }catch{}
+            }
+            if (e.ProgressPercentage == 10)
+            {
+                try
+                {
+                    SetUIState();
+                }catch{}
+            }
+
+        }
+
+        private void bgw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (!bgw.CancellationPending)
+            {
+                bgw.RunWorkerAsync();
+            }
+        }
+
+        private void SetUIState()
+        {
+            Coordinates.Enabled = _connectionState;
+            ControlButtons.Enabled = _connectionState;
+        }
+
+        private void Control_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (!(sender is Button)) return;
+            var b = (Button)sender;
+            TelescopeAxes axis;
+            var rate = 0d;
+            switch (b.Name)
+            {
+                case "Ra_p":
+                    axis = TelescopeAxes.axisPrimary;
+                    rate = 1d;
+                    break;
+                case "Ra_n":
+                    axis = TelescopeAxes.axisPrimary;
+                    rate = -1d;
+                    break;
+                case "Dec_p":
+                    axis = TelescopeAxes.axisSecondary;
+                    rate = 1d;
+                    break;
+                case "Dec_n":
+                    axis = TelescopeAxes.axisSecondary;
+                    rate = -1d;
+                    break;
+                default:
+                    return;
+            }
+
+            if (_driver == null || !_driver.Connected) return;
+            _driver.MoveAxis(axis, rate);
+        }
+
+        private void Control_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (!(sender is Button)) return;
+            var b = (Button)sender;
+            TelescopeAxes axis;
+            var rate = 0d;
+            switch (b.Name)
+            {
+                case "Ra_p":
+                case "Ra_n":
+                    axis = TelescopeAxes.axisPrimary;
+                    break;
+                case "Dec_p":
+                case "Dec_n":
+                    axis = TelescopeAxes.axisSecondary;
+                    break;
+                default:
+                    return;
+            }
+
+            if (_driver == null || !_driver.Connected) return;
+            _driver.MoveAxis(axis, 0);
+        }
+    }
+}
