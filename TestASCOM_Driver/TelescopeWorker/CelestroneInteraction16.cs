@@ -202,9 +202,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public override double GetDeviceVersion(DeviceID device)
         {
-            var com = new byte[] { (byte)'P', 1, (byte)device, 254, 0, 0, 0, 2 };
-            var res = SendCommand(com);
-            return res[0] + (double)res[1] / 10;
+//            var com = new byte[] { (byte)'P', 1, (byte)device, 254, 0, 0, 0, 2 };
+            var ans = SendCommandToDevice(device, DeviceCommands.GET_VER, 2);
+//            var res = SendCommand(com);
+            var low = (double)ans[1];
+            low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
+            return ans[0] + low;
         }
 
         public override double VersionRequired
