@@ -45,12 +45,19 @@
             this.Ra = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.bgw = new System.ComponentModel.BackgroundWorker();
+            this.RateBar = new System.Windows.Forms.TrackBar();
+            this.Stop = new System.Windows.Forms.Button();
+            this.ConstMove = new System.Windows.Forms.CheckBox();
             this.ControlButtons.SuspendLayout();
             this.Coordinates.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.RateBar)).BeginInit();
             this.SuspendLayout();
             // 
             // ControlButtons
             // 
+            this.ControlButtons.Controls.Add(this.ConstMove);
+            this.ControlButtons.Controls.Add(this.Stop);
+            this.ControlButtons.Controls.Add(this.RateBar);
             this.ControlButtons.Controls.Add(this.Ra_p);
             this.ControlButtons.Controls.Add(this.Ra_n);
             this.ControlButtons.Controls.Add(this.Dec_n);
@@ -59,18 +66,18 @@
             this.ControlButtons.Enabled = false;
             this.ControlButtons.Location = new System.Drawing.Point(0, 122);
             this.ControlButtons.Name = "ControlButtons";
-            this.ControlButtons.Size = new System.Drawing.Size(174, 134);
+            this.ControlButtons.Size = new System.Drawing.Size(174, 146);
             this.ControlButtons.TabIndex = 6;
             this.ControlButtons.TabStop = false;
             this.ControlButtons.Text = "Controls";
             // 
             // Ra_p
             // 
-            this.Ra_p.Location = new System.Drawing.Point(114, 56);
+            this.Ra_p.Location = new System.Drawing.Point(78, 56);
             this.Ra_p.Name = "Ra_p";
-            this.Ra_p.Size = new System.Drawing.Size(48, 31);
+            this.Ra_p.Size = new System.Drawing.Size(30, 30);
             this.Ra_p.TabIndex = 3;
-            this.Ra_p.Text = "Ra+";
+            this.Ra_p.Text = ">";
             this.Ra_p.UseVisualStyleBackColor = true;
             this.Ra_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Ra_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
@@ -79,31 +86,31 @@
             // 
             this.Ra_n.Location = new System.Drawing.Point(6, 56);
             this.Ra_n.Name = "Ra_n";
-            this.Ra_n.Size = new System.Drawing.Size(48, 31);
+            this.Ra_n.Size = new System.Drawing.Size(30, 30);
             this.Ra_n.TabIndex = 2;
-            this.Ra_n.Text = "Ra-";
+            this.Ra_n.Text = "<";
             this.Ra_n.UseVisualStyleBackColor = true;
             this.Ra_n.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Ra_n.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
             // 
             // Dec_n
             // 
-            this.Dec_n.Location = new System.Drawing.Point(60, 93);
+            this.Dec_n.Location = new System.Drawing.Point(42, 92);
             this.Dec_n.Name = "Dec_n";
-            this.Dec_n.Size = new System.Drawing.Size(48, 31);
+            this.Dec_n.Size = new System.Drawing.Size(30, 30);
             this.Dec_n.TabIndex = 1;
-            this.Dec_n.Text = "Dec-";
+            this.Dec_n.Text = "v";
             this.Dec_n.UseVisualStyleBackColor = true;
             this.Dec_n.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Dec_n.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
             // 
             // Dec_p
             // 
-            this.Dec_p.Location = new System.Drawing.Point(60, 19);
+            this.Dec_p.Location = new System.Drawing.Point(42, 20);
             this.Dec_p.Name = "Dec_p";
-            this.Dec_p.Size = new System.Drawing.Size(48, 31);
+            this.Dec_p.Size = new System.Drawing.Size(30, 30);
             this.Dec_p.TabIndex = 0;
-            this.Dec_p.Text = "Dec+";
+            this.Dec_p.Text = "^";
             this.Dec_p.UseVisualStyleBackColor = true;
             this.Dec_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Dec_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
@@ -226,18 +233,52 @@
             this.bgw.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgw_ProgressChanged);
             this.bgw.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgw_RunWorkerCompleted);
             // 
+            // RateBar
+            // 
+            this.RateBar.Location = new System.Drawing.Point(117, 19);
+            this.RateBar.Maximum = 9;
+            this.RateBar.Minimum = 1;
+            this.RateBar.Name = "RateBar";
+            this.RateBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.RateBar.Size = new System.Drawing.Size(45, 103);
+            this.RateBar.TabIndex = 4;
+            this.RateBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.RateBar.Value = 7;
+            // 
+            // Stop
+            // 
+            this.Stop.Location = new System.Drawing.Point(42, 56);
+            this.Stop.Name = "Stop";
+            this.Stop.Size = new System.Drawing.Size(30, 30);
+            this.Stop.TabIndex = 5;
+            this.Stop.Text = "0";
+            this.Stop.UseVisualStyleBackColor = true;
+            this.Stop.Click += new System.EventHandler(this.Stop_Click);
+            // 
+            // ConstMove
+            // 
+            this.ConstMove.AutoSize = true;
+            this.ConstMove.Location = new System.Drawing.Point(6, 123);
+            this.ConstMove.Name = "ConstMove";
+            this.ConstMove.Size = new System.Drawing.Size(75, 17);
+            this.ConstMove.TabIndex = 6;
+            this.ConstMove.Text = "Constantly";
+            this.ConstMove.UseVisualStyleBackColor = true;
+            // 
             // HandControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(174, 254);
+            this.ClientSize = new System.Drawing.Size(174, 280);
             this.Controls.Add(this.ControlButtons);
             this.Controls.Add(this.Coordinates);
             this.Name = "HandControl";
             this.Text = "HandControl";
             this.ControlButtons.ResumeLayout(false);
+            this.ControlButtons.PerformLayout();
             this.Coordinates.ResumeLayout(false);
             this.Coordinates.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.RateBar)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -261,5 +302,8 @@
         private System.Windows.Forms.Label Mode;
         private System.Windows.Forms.Label lMode;
         private System.ComponentModel.BackgroundWorker bgw;
+        private System.Windows.Forms.TrackBar RateBar;
+        private System.Windows.Forms.Button Stop;
+        private System.Windows.Forms.CheckBox ConstMove;
     }
 }

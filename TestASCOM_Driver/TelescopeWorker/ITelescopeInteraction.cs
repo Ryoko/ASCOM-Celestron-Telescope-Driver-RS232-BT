@@ -98,7 +98,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         bool IsAlignmentComplete { get; }
         bool IsGoToInProgress { get; }
         void CancelGoTo();
-        bool SetTrackingRate(DriveRates rate, TrackingMode mode);
+        //bool SetTrackingRate(DriveRates rate, TrackingMode mode);
         double VersionRequired { get; }
         bool CanSyncAltAzm { get; }
         bool CanSyncRaDec { get; }

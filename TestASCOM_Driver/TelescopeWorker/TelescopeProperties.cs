@@ -48,6 +48,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public AltAzm HomePozition { get; set; }
         public bool IsAtPark { get; set; }
         public bool IsAtHome { get; set; }
+        public bool IsRateTracked { get; set; }
+        public double PulseRateAlt { get; set; }
+        public double PulseRateAzm { get; set; }
 
         //public static TelescopeProperties Properties { get { return _properties; } }
 
@@ -56,6 +59,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             _ti = ti;
             TrackingRate = DriveRates.driveSidereal;
             Target = new Target();
+            IsRateTracked = false;
+            PulseRateAlt = PulseRateAzm = Const.TRACKRATE_SIDEREAL/2d;
         }
 
         public void GetTelescopeProperties()

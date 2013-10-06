@@ -68,8 +68,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public override void SlewFixedRate(SlewAxes axis, int rate)
         {
-            if (rate < 0 || rate > 9) throw new Exception("Wrong parameter");
             var r = (byte)Math.Abs(rate);
+            if (r > 9) throw new Exception("Wrong parameter");
             var devId = GetDeviceId(axis);
             var command = rate < 0 ? DeviceCommands.MC_SET_NEG_FIXED_GUIDERATE : DeviceCommands.MC_SET_POS_FIXED_GUIDERATE;
             //var com = new byte[] { (byte)'P', 2, DevId, (byte)dir, (byte)rate, 0, 0, 0 };
@@ -97,7 +97,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             SendCommandToDevice(devId, command, 0, h, m, l);
         }
 
-        public override bool SetTrackingRate(DriveRates rate, TrackingMode mode)
+/*        public override bool SetTrackingRate(DriveRates rate, TrackingMode mode)
         {
             byte hRate;
             switch (rate)
@@ -114,11 +114,20 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 default:
                     throw new ValueNotAvailableException("Wring tracking rate value");
             }
-            var command = mode == TrackingMode.EQS ? DeviceCommands.MC_SET_NEG_VARIABLE_GUIDERATE : DeviceCommands.MC_SET_POS_VARIABLE_GUIDERATE;
-            SendCommandToDevice(GetDeviceId(SlewAxes.RaAzm), command, 0, 0xff, hRate);
+            if (mode > TrackingMode.AltAzm)
+            {
+                var command = mode == TrackingMode.EQS
+                    ? DeviceCommands.MC_SET_NEG_VARIABLE_GUIDERATE
+                    : DeviceCommands.MC_SET_POS_VARIABLE_GUIDERATE;
+                SendCommandToDevice(GetDeviceId(SlewAxes.RaAzm), command, 0, ()0xff, hRate);
+            }
+            else
+            {
+                SendCommandToDevice(GetDeviceId(SlewAxes.RaAzm), DeviceCommands.MC_SET_POS_VARIABLE_GUIDERATE, 0, 0, 0);
+            }
             return true;
         }
-
+*/
         public override bool IsGPS
         {
             get

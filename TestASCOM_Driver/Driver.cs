@@ -34,6 +34,7 @@ using System.Windows.Forms.VisualStyles;
 using ASCOM;
 using ASCOM.Astrometry;
 using ASCOM.Astrometry.AstroUtils;
+using ASCOM.Astrometry.Exceptions;
 using ASCOM.CelestronAdvancedBlueTooth.HandForm;
 using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
@@ -148,7 +149,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         /// Private variable to hold the connected state
         /// </summary>
         private bool connectedState;
-        private IDeviceWorker dw;
+        private IDeviceWorker deviceWorker;
         /// <summary>
         /// Private variable to hold an ASCOM Utilities object
         /// </summary>
@@ -165,7 +166,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         private TraceLogger tl;
 
         private DriverWorker driverWorker;
-        private ITelescopeInteraction tw;
+        private ITelescopeInteraction telescopeInteraction;
         private TelescopeWorker.TelescopeWorker telescopeWorker;
         private TelescopeProperties telescopeProperties;
         public static TelescopeProperties TelescopeProperties {get { return _telescopeV3.telescopeProperties; }}
@@ -194,26 +195,29 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public void Initialize()
         {
             StopWorking();
-            dw = isBluetooth ? new BluetoothWorker() : null;
+            deviceWorker = isBluetooth ? new BluetoothWorker() : null;
             //TODO: Implement your additional construction here
-            if (dw != null)
+            if (deviceWorker != null)
             {
-                driverWorker = new DriverWorker(this.CheckConnected, dw);
-                tw = new CelestroneInteraction41(driverWorker);
-                telescopeWorker = TelescopeWorker.TelescopeWorker.Worker;
-                TelescopeWorker.TelescopeWorker.TelescopeInteraction = tw;
-                telescopeProperties = TelescopeWorker.TelescopeWorker.TelescopeProperties;
+                driverWorker = new DriverWorker(this.CheckConnected, deviceWorker);
+                telescopeInteraction = new CelestroneInteraction41(driverWorker);
+                telescopeWorker = TelescopeWorker.TelescopeWorker.GetWorker(this);
+                telescopeWorker.TelescopeInteraction = telescopeInteraction;
+                telescopeProperties = telescopeWorker.TelescopeProperties;
 
             }
         }
 
         private void StopWorking()
         {
-            TelescopeWorker.TelescopeWorker.Worker.Disconnect();
-            if (dw != null)
+            if (telescopeWorker != null)
             {
-                dw.Disconnect();
-                dw = null;
+                telescopeWorker.Disconnect();
+            }
+            if (deviceWorker != null)
+            {
+                deviceWorker.Disconnect();
+                deviceWorker = null;
             }            
         }
 
@@ -251,12 +255,28 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             get
             {
                 tl.LogMessage("SupportedActions Get", "Returning empty arraylist");
-                return new ArrayList();
+                return new ArrayList(){"GetTrackingMode", "SetTrackingMode"};
             }
         }
 
         public string Action(string actionName, string actionParameters)
         {
+            switch (actionName)
+            {
+                case "GetTrackingMode":
+                    return ((int)telescopeProperties.TrackingMode).ToString();
+                case "SetTrackingMode":
+                {
+                    int mode;
+                    if (int.TryParse(actionParameters, out mode))
+                    {
+                        if (mode < 0 || mode > 3) throw new ValueNotAvailableException("Wrong trackingrate: " + mode);
+                        telescopeWorker.SetTrackingRate(DriveRates.driveSidereal, (TrackingMode)mode);
+                        telescopeProperties.TrackingMode = (TrackingMode) mode;
+                    }
+                    return "";
+                }
+            }
             throw new ASCOM.ActionNotImplementedException("Action " + actionName + " is not implemented by this driver");
         }
 
@@ -311,12 +331,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 {
                     connectedState = true;
                     tl.LogMessage("Connected Set", "Connecting to port " + comPort);
-                    dw.Connect(Telescope.bluetoothDevice);
-                    tw.isConnected = true;
+                    deviceWorker.Connect(Telescope.bluetoothDevice);
+                    telescopeInteraction.isConnected = true;
                     var tBegin = Environment.TickCount;
                     while (true)
                     {
-                        if (tBegin + 60000 < Environment.TickCount) throw new DriverException("Unable to get telescope parameters");
+                        if (tBegin + 30000 < Environment.TickCount) throw new DriverException("Unable to get telescope parameters");
                         Thread.Sleep(100);
                         if (telescopeProperties.IsReady) break;
                     }
@@ -334,10 +354,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                         telescopeWorker.MoveAxis(SlewAxes.RaAzm, 0);
                     }
 
-                    tw.isConnected = false;
+                    telescopeInteraction.isConnected = false;
                     connectedState = false;
                     tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);
-                    TelescopeWorker.TelescopeWorker.TelescopeInteraction.isConnected = false;
+                    //telescopeInteraction.isConnected = false;
                     _handControl.ShowForm(false);
                     StopWorking();
                     // TODO disconnect from the device
@@ -552,22 +572,23 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
             }
 #if DEBUG
-            return;
+            //return;
             if (bluetoothDevice == null && TelescopeModel.Length == 0)
             {
                 traceState = true;
+                comPort = "COM1";
                 BluetoothAddress.TryParse("001112280143", out bluetoothDevice);
                 //bluetoothDevice = new BluetoothAddress(001112280143);
                 isBluetooth = true;
-                latitude = 53.9175;
-                longitude = 27.529722222;
                 trackingMode = (int) TrackingMode.EQN;
                 TelescopeModel = "Advanced C8-NGT";
                 hasGPS = 0;
-                elevation = 295/1000;
+                latitude = 53.9175;
+                longitude = 27.529722222;
+                elevation = 295;
                 apperture = 0.200;
-                focal = 1;
-                obstruction = 28;
+                focal = 1d;
+                obstruction = 28d;
                 showControl = true;
             }
 #endif 

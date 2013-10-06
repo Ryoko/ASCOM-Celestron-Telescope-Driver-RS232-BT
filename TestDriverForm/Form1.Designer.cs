@@ -46,6 +46,10 @@
             this.Ra_n = new System.Windows.Forms.Button();
             this.Dec_n = new System.Windows.Forms.Button();
             this.Dec_p = new System.Windows.Forms.Button();
+            this.Sidereal = new System.Windows.Forms.Button();
+            this.Solar = new System.Windows.Forms.Button();
+            this.Lunar = new System.Windows.Forms.Button();
+            this.TrMode = new System.Windows.Forms.ComboBox();
             this.Coordinates.SuspendLayout();
             this.ControlButtons.SuspendLayout();
             this.SuspendLayout();
@@ -180,14 +184,18 @@
             // 
             // ControlButtons
             // 
+            this.ControlButtons.Controls.Add(this.TrMode);
+            this.ControlButtons.Controls.Add(this.Lunar);
             this.ControlButtons.Controls.Add(this.Ra_p);
+            this.ControlButtons.Controls.Add(this.Solar);
             this.ControlButtons.Controls.Add(this.Ra_n);
+            this.ControlButtons.Controls.Add(this.Sidereal);
             this.ControlButtons.Controls.Add(this.Dec_n);
             this.ControlButtons.Controls.Add(this.Dec_p);
             this.ControlButtons.Enabled = false;
             this.ControlButtons.Location = new System.Drawing.Point(12, 73);
             this.ControlButtons.Name = "ControlButtons";
-            this.ControlButtons.Size = new System.Drawing.Size(170, 134);
+            this.ControlButtons.Size = new System.Drawing.Size(198, 214);
             this.ControlButtons.TabIndex = 4;
             this.ControlButtons.TabStop = false;
             this.ControlButtons.Text = "Control";
@@ -236,11 +244,55 @@
             this.Dec_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Dec_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
             // 
+            // Sidereal
+            // 
+            this.Sidereal.Location = new System.Drawing.Point(6, 142);
+            this.Sidereal.Name = "Sidereal";
+            this.Sidereal.Size = new System.Drawing.Size(57, 23);
+            this.Sidereal.TabIndex = 4;
+            this.Sidereal.Text = "Sidereal";
+            this.Sidereal.UseVisualStyleBackColor = true;
+            this.Sidereal.Click += new System.EventHandler(this.Rate_Click);
+            // 
+            // Solar
+            // 
+            this.Solar.Location = new System.Drawing.Point(69, 142);
+            this.Solar.Name = "Solar";
+            this.Solar.Size = new System.Drawing.Size(57, 23);
+            this.Solar.TabIndex = 5;
+            this.Solar.Text = "Solar";
+            this.Solar.UseVisualStyleBackColor = true;
+            this.Solar.Click += new System.EventHandler(this.Rate_Click);
+            // 
+            // Lunar
+            // 
+            this.Lunar.Location = new System.Drawing.Point(132, 142);
+            this.Lunar.Name = "Lunar";
+            this.Lunar.Size = new System.Drawing.Size(57, 23);
+            this.Lunar.TabIndex = 6;
+            this.Lunar.Text = "Lunar";
+            this.Lunar.UseVisualStyleBackColor = true;
+            this.Lunar.Click += new System.EventHandler(this.Rate_Click);
+            // 
+            // TrMode
+            // 
+            this.TrMode.FormattingEnabled = true;
+            this.TrMode.Items.AddRange(new object[] {
+            "Off",
+            "AltAzm",
+            "EQ-N",
+            "EQ-S"});
+            this.TrMode.Location = new System.Drawing.Point(6, 182);
+            this.TrMode.Name = "TrMode";
+            this.TrMode.Size = new System.Drawing.Size(120, 21);
+            this.TrMode.TabIndex = 7;
+            this.TrMode.SelectedIndexChanged += new System.EventHandler(this.TrackinMode_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(409, 219);
+            this.ClientSize = new System.Drawing.Size(409, 452);
             this.Controls.Add(this.ControlButtons);
             this.Controls.Add(this.Coordinates);
             this.Controls.Add(this.labelDriverId);
@@ -276,6 +328,10 @@
         private System.Windows.Forms.Button Ra_n;
         private System.Windows.Forms.Button Dec_n;
         private System.Windows.Forms.Button Dec_p;
+        private System.Windows.Forms.Button Sidereal;
+        private System.Windows.Forms.Button Solar;
+        private System.Windows.Forms.Button Lunar;
+        private System.Windows.Forms.ComboBox TrMode;
     }
 }
 

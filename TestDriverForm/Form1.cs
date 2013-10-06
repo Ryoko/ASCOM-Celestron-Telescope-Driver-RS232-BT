@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.DeviceInterface;
 
@@ -76,14 +77,23 @@ namespace ASCOM.CelestronAdvancedBluetooth
             }
         }
 
+        private bool isSetting;
         private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
             if (e.ProgressPercentage == 50)
             {
+                isSetting = true;
                 Ra.Text = new DMS(driver.RightAscension, true).ToString();
                 Dec.Text = new DMS(driver.Declination).ToString();
                 Alt.Text = new DMS(driver.Altitude).ToString();
                 Azm.Text = new DMS(driver.Azimuth).ToString();
+                var mode = driver.Action("GetTrackingMode", "");
+                int trMode;
+                if (int.TryParse(mode, out trMode) && TrMode.SelectedIndex != trMode)
+                {
+                    TrMode.SelectedIndex = trMode;
+                }
+                isSetting = false;
             }
         }
 
@@ -146,6 +156,30 @@ namespace ASCOM.CelestronAdvancedBluetooth
 
             if (driver == null || !driver.Connected) return;
             driver.MoveAxis(axis, 0);
+        }
+
+        private void Rate_Click(object sender, EventArgs e)
+        {
+            if (!(sender is Button)) return;
+            var bt = (Button) sender;
+            switch(bt.Name)
+            {
+                case "Sidereal":
+                    driver.TrackingRate = DriveRates.driveSidereal;
+                    break;
+                case "Solar":
+                    driver.TrackingRate = DriveRates.driveSolar;
+                    break;
+                case "Lunar":
+                    driver.TrackingRate = DriveRates.driveLunar;
+                    break;
+            }
+        }
+
+        private void TrackinMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (isSetting) return;
+            driver.Action("SetTrackingMode", TrMode.SelectedIndex.ToString());
         }
     }
 }

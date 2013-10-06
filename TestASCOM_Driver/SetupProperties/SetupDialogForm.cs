@@ -61,7 +61,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 Longitude.Text = longitude.ToString();
                 LonSuff.SelectedIndex = longitude.Sign > 0 ? 0 : 1;
             }
-            Elevation.Value = (decimal)Telescope.elevation*1000;
+            Elevation.Value = (decimal)Telescope.elevation;
 
             Apperture.Value = (decimal)Telescope.apperture*1000;
             Focal.Value = (decimal)Telescope.focal * 1000;
@@ -317,7 +317,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 set.Longitude = -1000;
             }
             double val;
-            set.Elevation = (double)Elevation.Value / 1000;
+            set.Elevation = (double)Elevation.Value;
             res &= !(set.Apperture = (double)Apperture.Value / 1000).Equals(0);
             res &= !(set.FocalRate = (double)Focal.Value / 1000).Equals(0);
             set.Obstruction = (double)Obstruction.Value;

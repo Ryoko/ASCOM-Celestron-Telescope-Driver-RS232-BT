@@ -12,7 +12,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
         /// <summary>
         /// UTC seconds in sidereal second
         /// </summary>
-        public const double SiderealRate = 0.9972695677;
+        public const double SiderealRate = 0.9972695664; //0.9972695677 (orig) 1⁄1,002737909350795
         
         /// <summary>
         /// UTC seconds in UTC day
@@ -28,6 +28,27 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
         /// Maximum Drive Rate (deg per sec)
         /// </summary>
         public const double MaxAxisRate = 4.5;
+
+        public const double STELLAR_DAY = 86164.0905308329; //86164.098903691; //86164.09054 (wolfram alpha)
+        /// <summary>
+        /// Sidereal tracking rate (arcsec/sec)
+        /// </summary>
+        public const double TRACKRATE_SIDEREAL = ((360.0*3600.0)/STELLAR_DAY);
+
+        public const double SOLAR_DAY = 86400;
+        /// <summary>
+        /// Solar tracking rate (arcsec/sec)
+        /// </summary>
+        public const double TRACKRATE_SOLAR = ((360.0 * 3600.0) / SOLAR_DAY);
+        public const double LUNAR_DAY = 89416.2793513594;
+        /// <summary>
+        /// Lunar tracking rate (arcsec/sec)
+        /// </summary>
+        public const double TRACKRATE_LUNAR = ((360.0*3600.0)/LUNAR_DAY);//14.511415;
+//      1 s | 1.11836×10^-5 lunar days
+//      1 min | 6.71018×10^-4 lunar days
+//      1 h | 0.0402611 lunar days
+//      1 day | 0.966267 lunar days
     }
 
     public class DMS 

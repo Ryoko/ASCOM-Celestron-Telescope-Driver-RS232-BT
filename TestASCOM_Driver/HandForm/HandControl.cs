@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.DeviceInterface;
 
@@ -79,6 +80,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HandForm
                     Dec.Text = new DMS(_driver.Declination).ToString();
                     Alt.Text = new DMS(_driver.Altitude).ToString();
                     Azm.Text = new DMS(_driver.Azimuth).ToString();
+                    var m = _driver.Action("GetTrackingMode", "");
+                    int mode;
+                    if (int.TryParse(m, out mode))
+                    {
+                        Mode.Text = ((TrackingMode)mode).ToString();
+                    }
                 }catch{}
             }
             if (e.ProgressPercentage == 10)
@@ -110,24 +117,24 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HandForm
             if (!(sender is Button)) return;
             var b = (Button)sender;
             TelescopeAxes axis;
-            var rate = 0d;
+            var rate = (double)RateBar.Value * 10;
             switch (b.Name)
             {
                 case "Ra_p":
                     axis = TelescopeAxes.axisPrimary;
-                    rate = 1d;
+                    rate *= 1d;
                     break;
                 case "Ra_n":
                     axis = TelescopeAxes.axisPrimary;
-                    rate = -1d;
+                    rate *= -1d;
                     break;
                 case "Dec_p":
                     axis = TelescopeAxes.axisSecondary;
-                    rate = 1d;
+                    rate *= 1d;
                     break;
                 case "Dec_n":
                     axis = TelescopeAxes.axisSecondary;
-                    rate = -1d;
+                    rate *= -1d;
                     break;
                 default:
                     return;
@@ -139,6 +146,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HandForm
 
         private void Control_MouseUp(object sender, MouseEventArgs e)
         {
+            if (ConstMove.Checked) return;
             if (!(sender is Button)) return;
             var b = (Button)sender;
             TelescopeAxes axis;
@@ -159,6 +167,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HandForm
 
             if (_driver == null || !_driver.Connected) return;
             _driver.MoveAxis(axis, 0);
+        }
+
+        private void Stop_Click(object sender, EventArgs e)
+        {
+            if (_driver == null || !_driver.Connected) return;
+            _driver.MoveAxis(TelescopeAxes.axisPrimary, 0);
+            _driver.MoveAxis(TelescopeAxes.axisSecondary, 0);
         }
     }
 }

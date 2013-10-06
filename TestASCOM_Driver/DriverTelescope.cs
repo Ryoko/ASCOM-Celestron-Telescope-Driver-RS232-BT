@@ -16,7 +16,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public void AbortSlew()
         {
             tl.LogMessage("AbortSlew", "set");
-            tw.CancelGoTo();
+            telescopeInteraction.CancelGoTo();
         }
 
         public AlignmentModes AlignmentMode
@@ -127,10 +127,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             switch (Axis)
             {
                 case TelescopeAxes.axisPrimary:
-                    res = tw.CanSlewVariableRate;
+                    res = telescopeInteraction.CanSlewVariableRate;
                     break;
                 case TelescopeAxes.axisSecondary:
-                    res = tw.CanSlewVariableRate;
+                    res = telescopeInteraction.CanSlewVariableRate;
                     break;
                 case TelescopeAxes.axisTertiary:
                     break;
@@ -154,8 +154,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanPulseGuide", "Get - " + false.ToString());
-                return false;
+                var res = telescopeInteraction.CanSlewHighRate;
+                tl.LogMessage("CanPulseGuide", "Get - " + res.ToString());
+                return res;
             }
         }
 
@@ -163,8 +164,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSetDeclinationRate", "Get - " + tw.CanSlewVariableRate.ToString());
-                return tw.CanSlewVariableRate;
+                tl.LogMessage("CanSetDeclinationRate", "Get - " + telescopeInteraction.CanSlewVariableRate.ToString());
+                return telescopeInteraction.CanSlewVariableRate;
             }
         }
 
@@ -172,8 +173,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSetGuideRates", "Get - " + tw.CanSlewVariableRate.ToString());
-                return tw.CanSlewVariableRate;
+                tl.LogMessage("CanSetGuideRates", "Get - " + telescopeInteraction.CanSlewVariableRate.ToString());
+                return telescopeInteraction.CanSlewVariableRate;
             }
         }
 
@@ -199,8 +200,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSetRightAscensionRate", "Get - " + tw.CanSlewVariableRate.ToString());
-                return tw.CanSlewVariableRate;
+                tl.LogMessage("CanSetRightAscensionRate", "Get - " + telescopeInteraction.CanSlewVariableRate.ToString());
+                return telescopeInteraction.CanSlewVariableRate;
             }
         }
 
@@ -208,8 +209,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("CanSetTracking", "Get - " + tw.CanSetTracking.ToString());
-                return tw.CanSetTracking;
+                tl.LogMessage("CanSetTracking", "Get - " + telescopeInteraction.CanSetTracking.ToString());
+                return telescopeInteraction.CanSetTracking;
             }
         }
 
@@ -254,7 +255,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             get
             {
                 tl.LogMessage("CanSync", "Get - " + false.ToString());
-                return tw.CanSyncRaDec;
+                return telescopeInteraction.CanSyncRaDec;
             }
         }
 
@@ -263,7 +264,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             get
             {
                 tl.LogMessage("CanSyncAltAz", "Get - " + false.ToString());
-                return tw.CanSyncRaDec;
+                return telescopeInteraction.CanSyncRaDec;
             }
         }
 
@@ -310,11 +311,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
-                if (CanSetDeclinationRate && tw.CanSlewHighRate)
+                if (CanSetDeclinationRate && telescopeInteraction.CanSlewHighRate)
                 {
                     //var val = Math.Abs(value)*Const.SiderealRate;
-                    tw.SlewHighRate(SlewAxes.DecAlt, value * 3600);
+                    //telescopeInteraction.SlewHighRate(SlewAxes.DecAlt, value * 3600);
                     TelescopeProperties.DeclinationRateOffset = value;
+                    telescopeWorker.SetTrackingDec();
                     tl.LogMessage("DeclinationRate Set", value.ToString());
                 }
 //                if (tw.CanSlewVariableRate) throw new ASCOM.InvalidOperationException("Error setting declination rate");
@@ -372,13 +374,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("GuideRateDeclination Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("GuideRateDeclination", false);
+                
+                tl.LogMessage("GuideRateDeclination Get", telescopeProperties.PulseRateAzm.ToString());
+                return telescopeProperties.PulseRateAzm;
             }
             set
             {
-                tl.LogMessage("GuideRateDeclination Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("GuideRateDeclination", true);
+                var rate = telescopeProperties.DeclinationRateOffset + value*3600d;
+                if (!CheckRate(TelescopeAxes.axisPrimary, rate)) throw new ArgumentOutOfRangeException("value for Dec guide rate out of range");
+                tl.LogMessage("GuideRateDeclination Set", (value*3600d).ToString());
+                telescopeProperties.PulseRateAlt = value*3600d;
             }
         }
 
@@ -386,13 +391,18 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("GuideRateRightAscension Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("GuideRateRightAscension", false);
+                
+                tl.LogMessage("GuideRateRightAscension Get", telescopeProperties.PulseRateAzm.ToString());
+                return telescopeProperties.PulseRateAzm;
             }
             set
             {
-                tl.LogMessage("GuideRateRightAscension Set", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("GuideRateRightAscension", true);
+                var rate =
+                    telescopeWorker.GetRateRa(telescopeProperties.TrackingRate, telescopeProperties.TrackingMode) +
+                    value*3600d;
+                if (!CheckRate(TelescopeAxes.axisPrimary, rate)) throw new ArgumentOutOfRangeException("value for RA guide rate out of range");
+                tl.LogMessage("GuideRateRightAscension Set", (value*3600d).ToString());
+                telescopeProperties.PulseRateAzm = value*3600d;
             }
         }
 
@@ -400,9 +410,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("IsPulseGuiding Get", "Not implemented");
-                return false;
-                throw new ASCOM.PropertyNotImplementedException("IsPulseGuiding", false);
+                bool res = telescopeWorker.IsPulsGuiding();
+                tl.LogMessage("IsPulseGuiding Get", res.ToString());
+                return res;
+                //throw new ASCOM.PropertyNotImplementedException("IsPulseGuiding", false);
             }
         }
 
@@ -413,10 +424,23 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         /// <param name="Rate">Rate of movement in deg per sec</param>
         public void MoveAxis(TelescopeAxes Axis, double Rate)
         {
-            if (!CheckRate(Axis, Math.Abs(Rate))) throw new ArgumentOutOfRangeException("Rate for MovingRate is Out of range");
-            SlewAxes a = Axis == TelescopeAxes.axisPrimary ? SlewAxes.RaAzm : SlewAxes.DecAlt;
-            telescopeWorker.MoveAxis(a, Rate);
-            tl.LogMessage("MoveAxis ", Axis + "to rate " + Rate);
+            SlewAxes axs = Axis == TelescopeAxes.axisPrimary ? SlewAxes.RaAzm : SlewAxes.DecAlt;
+            if (Math.Abs(Rate) > 10)
+            {
+                var rate = (int) (Rate/10);
+                var absRate = Math.Abs(rate);
+                if (absRate > 9)
+                    throw new ArgumentOutOfRangeException("Fixed rate " + absRate + " for MovingRate is Out of range");
+                telescopeWorker.MoveAxis(axs, rate, true);
+                tl.LogMessage("MoveAxis ", Axis + "to fixed rate " + rate);
+            }
+            else
+            {
+                if (!CheckRate(Axis, Math.Abs(Rate)))
+                    throw new ArgumentOutOfRangeException("Rate " + Rate.ToString() + " for MovingRate is Out of range");
+                telescopeWorker.MoveAxis(axs, Rate);
+                tl.LogMessage("MoveAxis ", Axis + "to rate " + Rate);
+            }
             //throw new ASCOM.MethodNotImplementedException("MoveAxis");
         }
 
@@ -428,7 +452,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
         public void PulseGuide(GuideDirections Direction, int Duration)
         {
-            tl.LogMessage("PulseGuide", "Not implemented");
+            if (!CanPulseGuide || !telescopeInteraction.CanSlewHighRate) throw new NotSupportedException("Puls guiding is not supported");
+            telescopeWorker.PulseGuide(Direction, Duration);
+            tl.LogMessage("PulseGuide", string.Format("{0} {1}sec", Direction.ToString(), Duration));
             throw new ASCOM.MethodNotImplementedException("PulseGuide");
         }
 
@@ -465,13 +491,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
-                if (CanSetRightAscensionRate && tw.CanSlewVariableRate)
+                if (CanSetRightAscensionRate && telescopeInteraction.CanSlewVariableRate)
                 {
                     tl.LogMessage("Right Ascesion Rate Set - ", value.ToString());
                     TelescopeProperties.RightAscensionRateOffset = value;
-                    var rate = (Const.SiderealRateDegPerSec + value * Const.SiderealRate) * ((TelescopeProperties.TrackingMode == TrackingMode.EQS) ? -1 : 1);
-                    var val =  rate * 3600;
-                    tw.SlewHighRate(SlewAxes.RaAzm, val);
+                    //var rate = (Const.SiderealRateDegPerSec + value * Const.SiderealRate) * ((TelescopeProperties.TrackingMode == TrackingMode.EQS) ? -1 : 1);
+                    //var val =  rate * 3600;
+                    //telescopeInteraction.SlewHighRate(SlewAxes.RaAzm, val);
+                    telescopeWorker.SetTrackingRate(telescopeProperties. TrackingRate,telescopeProperties.TrackingMode);
                 }
             }
         }
@@ -535,11 +562,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
-                if (tw.CanWorkLocation)
+                if (telescopeInteraction.CanWorkLocation)
                 {
                     if (telescopeProperties == null || telescopeProperties.Location == null) return;
                     telescopeProperties.Location.Lat = value;
-                    tw.TelescopeLocation = telescopeProperties.Location;
+                    telescopeInteraction.TelescopeLocation = telescopeProperties.Location;
                 }
                 tl.LogMessage("SiteLatitude Set", new DMS(value).ToString(":"));
                 Telescope.latitude = value;
@@ -558,11 +585,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
-                if (tw.CanWorkLocation)
+                if (telescopeInteraction.CanWorkLocation)
                 {
                     if (telescopeProperties == null || telescopeProperties.Location == null) return;
                     telescopeProperties.Location.Lon = value;
-                    tw.TelescopeLocation = telescopeProperties.Location;
+                    telescopeInteraction.TelescopeLocation = telescopeProperties.Location;
                 }
                 tl.LogMessage("SiteLongitude Set", new DMS(value).ToString(":"));
                 Telescope.longitude = value;
@@ -712,7 +739,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                if (!tw.CanGetTracking) throw new NotSupportedException("Getting tracking mode is not supported");
+                if (!telescopeInteraction.CanGetTracking) throw new NotSupportedException("Getting tracking mode is not supported");
 //                var tm = telescopeProperties.TrackingMode;
                 bool tr = (telescopeProperties.TrackingMode > TrackingMode.Off);
                 tl.LogMessage("Tracking Mode - Get:", telescopeProperties.TrackingMode.ToString());
@@ -737,11 +764,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
-                if (tw.CanSetTrackingRates)
+                if (!telescopeInteraction.CanSetTrackingRates) throw new NotSupportedException("Setting tracking rate is not supported");
+                if (telescopeInteraction.CanSlewHighRate)
                 {
+                    telescopeWorker.SetTrackingRate(value, telescopeProperties.TrackingMode);
                     telescopeProperties.TrackingRate = value;
-                    tw.SetTrackingRate(value, telescopeProperties.TrackingMode);
                     tl.LogMessage("TrackingRate Set", value.ToString());
+                    return;
                 }
                 throw new NotSupportedException("TrackingRate");
             }
@@ -766,11 +795,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             get
             {
                 DateTime utcDate;
-                if (tw.CanWorkDateTime)
+                if (telescopeInteraction.CanWorkDateTime)
                 {
                     try
                     {
-                        utcDate = tw.TelescopeDateTime.ToUniversalTime();
+                        utcDate = telescopeInteraction.TelescopeDateTime.ToUniversalTime();
                         tl.LogMessage("Telescope UTCDate", "Get - " + utcDate.ToString("MM/dd/yy HH:mm:ss"));
                         return utcDate;
                     }
@@ -787,11 +816,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             set
             {
                 
-                if (tw.CanWorkDateTime)
+                if (telescopeInteraction.CanWorkDateTime)
                 {
                     try
                     {
-                        tw.TelescopeDateTime = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+                        telescopeInteraction.TelescopeDateTime = DateTime.SpecifyKind(value, DateTimeKind.Utc);
                         tl.LogMessage("Telescope UTCDate", "Set - " + value.ToString("MM/dd/yy HH:mm:ss"));
                         return;
                     }
@@ -813,7 +842,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
         #endregion
 
-        private bool CheckRate(TelescopeAxes axis, double rate)
+        public bool CheckRate(TelescopeAxes axis, double rate)
         {
             foreach (IRate trackingRate in AxisRates(axis))
             {
