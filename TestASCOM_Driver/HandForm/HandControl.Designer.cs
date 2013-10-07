@@ -29,10 +29,26 @@
         private void InitializeComponent()
         {
             this.ControlButtons = new System.Windows.Forms.GroupBox();
-            this.Ra_p = new System.Windows.Forms.Button();
+            this.bMode = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.Ra_n = new System.Windows.Forms.Button();
+            this.Stop = new System.Windows.Forms.Button();
             this.Dec_n = new System.Windows.Forms.Button();
+            this.Ra_p = new System.Windows.Forms.Button();
             this.Dec_p = new System.Windows.Forms.Button();
+            this.RateBar = new System.Windows.Forms.TrackBar();
+            this.ConstMove = new System.Windows.Forms.CheckBox();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.label3 = new System.Windows.Forms.Label();
+            this.GuideItvl = new System.Windows.Forms.NumericUpDown();
+            this.label2 = new System.Windows.Forms.Label();
+            this.GuideRate = new System.Windows.Forms.NumericUpDown();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.GuideW = new System.Windows.Forms.Button();
+            this.GuideS = new System.Windows.Forms.Button();
+            this.GuideE = new System.Windows.Forms.Button();
+            this.GuideN = new System.Windows.Forms.Button();
             this.Coordinates = new System.Windows.Forms.GroupBox();
             this.Mode = new System.Windows.Forms.Label();
             this.lMode = new System.Windows.Forms.Label();
@@ -45,75 +61,296 @@
             this.Ra = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.bgw = new System.ComponentModel.BackgroundWorker();
-            this.RateBar = new System.Windows.Forms.TrackBar();
-            this.Stop = new System.Windows.Forms.Button();
-            this.ConstMove = new System.Windows.Forms.CheckBox();
             this.ControlButtons.SuspendLayout();
-            this.Coordinates.SuspendLayout();
+            this.bMode.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.RateBar)).BeginInit();
+            this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.GuideItvl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.GuideRate)).BeginInit();
+            this.tableLayoutPanel2.SuspendLayout();
+            this.Coordinates.SuspendLayout();
             this.SuspendLayout();
             // 
             // ControlButtons
             // 
-            this.ControlButtons.Controls.Add(this.ConstMove);
-            this.ControlButtons.Controls.Add(this.Stop);
-            this.ControlButtons.Controls.Add(this.RateBar);
-            this.ControlButtons.Controls.Add(this.Ra_p);
-            this.ControlButtons.Controls.Add(this.Ra_n);
-            this.ControlButtons.Controls.Add(this.Dec_n);
-            this.ControlButtons.Controls.Add(this.Dec_p);
+            this.ControlButtons.Controls.Add(this.bMode);
             this.ControlButtons.Dock = System.Windows.Forms.DockStyle.Top;
             this.ControlButtons.Enabled = false;
             this.ControlButtons.Location = new System.Drawing.Point(0, 122);
             this.ControlButtons.Name = "ControlButtons";
-            this.ControlButtons.Size = new System.Drawing.Size(174, 146);
+            this.ControlButtons.Size = new System.Drawing.Size(174, 301);
             this.ControlButtons.TabIndex = 6;
             this.ControlButtons.TabStop = false;
             this.ControlButtons.Text = "Controls";
             // 
-            // Ra_p
+            // bMode
             // 
-            this.Ra_p.Location = new System.Drawing.Point(78, 56);
-            this.Ra_p.Name = "Ra_p";
-            this.Ra_p.Size = new System.Drawing.Size(30, 30);
-            this.Ra_p.TabIndex = 3;
-            this.Ra_p.Text = ">";
-            this.Ra_p.UseVisualStyleBackColor = true;
-            this.Ra_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
-            this.Ra_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
+            this.bMode.Controls.Add(this.tabPage1);
+            this.bMode.Controls.Add(this.tabPage2);
+            this.bMode.Dock = System.Windows.Forms.DockStyle.Top;
+            this.bMode.Location = new System.Drawing.Point(3, 16);
+            this.bMode.Margin = new System.Windows.Forms.Padding(0);
+            this.bMode.Name = "bMode";
+            this.bMode.Padding = new System.Drawing.Point(0, 0);
+            this.bMode.SelectedIndex = 0;
+            this.bMode.Size = new System.Drawing.Size(168, 186);
+            this.bMode.TabIndex = 7;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.BackColor = System.Drawing.Color.LightGray;
+            this.tabPage1.Controls.Add(this.tableLayoutPanel1);
+            this.tabPage1.Controls.Add(this.RateBar);
+            this.tabPage1.Controls.Add(this.ConstMove);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(0);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Size = new System.Drawing.Size(160, 160);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "Button";
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 3;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.Controls.Add(this.Ra_n, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.Stop, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.Dec_n, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.Ra_p, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.Dec_p, 1, 0);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(7, 7);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 3;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(109, 100);
+            this.tableLayoutPanel1.TabIndex = 7;
             // 
             // Ra_n
             // 
-            this.Ra_n.Location = new System.Drawing.Point(6, 56);
+            this.Ra_n.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Ra_n.Location = new System.Drawing.Point(0, 33);
+            this.Ra_n.Margin = new System.Windows.Forms.Padding(0);
             this.Ra_n.Name = "Ra_n";
-            this.Ra_n.Size = new System.Drawing.Size(30, 30);
+            this.Ra_n.Size = new System.Drawing.Size(36, 33);
             this.Ra_n.TabIndex = 2;
             this.Ra_n.Text = "<";
             this.Ra_n.UseVisualStyleBackColor = true;
             this.Ra_n.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Ra_n.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
             // 
+            // Stop
+            // 
+            this.Stop.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Stop.Location = new System.Drawing.Point(36, 33);
+            this.Stop.Margin = new System.Windows.Forms.Padding(0);
+            this.Stop.Name = "Stop";
+            this.Stop.Size = new System.Drawing.Size(36, 33);
+            this.Stop.TabIndex = 5;
+            this.Stop.Text = "0";
+            this.Stop.UseVisualStyleBackColor = true;
+            this.Stop.Click += new System.EventHandler(this.Stop_Click);
+            // 
             // Dec_n
             // 
-            this.Dec_n.Location = new System.Drawing.Point(42, 92);
+            this.Dec_n.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Dec_n.Location = new System.Drawing.Point(36, 66);
+            this.Dec_n.Margin = new System.Windows.Forms.Padding(0);
             this.Dec_n.Name = "Dec_n";
-            this.Dec_n.Size = new System.Drawing.Size(30, 30);
+            this.Dec_n.Size = new System.Drawing.Size(36, 34);
             this.Dec_n.TabIndex = 1;
             this.Dec_n.Text = "v";
             this.Dec_n.UseVisualStyleBackColor = true;
             this.Dec_n.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Dec_n.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
             // 
+            // Ra_p
+            // 
+            this.Ra_p.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Ra_p.Location = new System.Drawing.Point(72, 33);
+            this.Ra_p.Margin = new System.Windows.Forms.Padding(0);
+            this.Ra_p.Name = "Ra_p";
+            this.Ra_p.Size = new System.Drawing.Size(37, 33);
+            this.Ra_p.TabIndex = 3;
+            this.Ra_p.Text = ">";
+            this.Ra_p.UseVisualStyleBackColor = true;
+            this.Ra_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
+            this.Ra_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
+            // 
             // Dec_p
             // 
-            this.Dec_p.Location = new System.Drawing.Point(42, 20);
+            this.Dec_p.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Dec_p.Location = new System.Drawing.Point(36, 0);
+            this.Dec_p.Margin = new System.Windows.Forms.Padding(0);
             this.Dec_p.Name = "Dec_p";
-            this.Dec_p.Size = new System.Drawing.Size(30, 30);
+            this.Dec_p.Size = new System.Drawing.Size(36, 33);
             this.Dec_p.TabIndex = 0;
             this.Dec_p.Text = "^";
             this.Dec_p.UseVisualStyleBackColor = true;
             this.Dec_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Dec_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
+            // 
+            // RateBar
+            // 
+            this.RateBar.Location = new System.Drawing.Point(110, 7);
+            this.RateBar.Maximum = 9;
+            this.RateBar.Minimum = 1;
+            this.RateBar.Name = "RateBar";
+            this.RateBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.RateBar.Size = new System.Drawing.Size(45, 100);
+            this.RateBar.TabIndex = 4;
+            this.RateBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.RateBar.Value = 7;
+            // 
+            // ConstMove
+            // 
+            this.ConstMove.AutoSize = true;
+            this.ConstMove.Location = new System.Drawing.Point(7, 113);
+            this.ConstMove.Name = "ConstMove";
+            this.ConstMove.Size = new System.Drawing.Size(75, 17);
+            this.ConstMove.TabIndex = 6;
+            this.ConstMove.Text = "Constantly";
+            this.ConstMove.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.BackColor = System.Drawing.Color.LightGray;
+            this.tabPage2.Controls.Add(this.label3);
+            this.tabPage2.Controls.Add(this.GuideItvl);
+            this.tabPage2.Controls.Add(this.label2);
+            this.tabPage2.Controls.Add(this.GuideRate);
+            this.tabPage2.Controls.Add(this.tableLayoutPanel2);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(0);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Size = new System.Drawing.Size(160, 160);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Guide";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(3, 139);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(46, 13);
+            this.label3.TabIndex = 12;
+            this.label3.Text = "Itvl (ms.)";
+            // 
+            // GuideItvl
+            // 
+            this.GuideItvl.Location = new System.Drawing.Point(56, 137);
+            this.GuideItvl.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.GuideItvl.Name = "GuideItvl";
+            this.GuideItvl.Size = new System.Drawing.Size(59, 20);
+            this.GuideItvl.TabIndex = 11;
+            this.GuideItvl.Value = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(3, 115);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(47, 13);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Rate (%)";
+            // 
+            // GuideRate
+            // 
+            this.GuideRate.Location = new System.Drawing.Point(56, 113);
+            this.GuideRate.Maximum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.GuideRate.Name = "GuideRate";
+            this.GuideRate.Size = new System.Drawing.Size(59, 20);
+            this.GuideRate.TabIndex = 9;
+            this.GuideRate.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.GuideRate.ValueChanged += new System.EventHandler(this.GideRate_ValueChanged);
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 3;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.Controls.Add(this.GuideW, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.GuideS, 1, 2);
+            this.tableLayoutPanel2.Controls.Add(this.GuideE, 2, 1);
+            this.tableLayoutPanel2.Controls.Add(this.GuideN, 1, 0);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(6, 6);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 3;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(109, 100);
+            this.tableLayoutPanel2.TabIndex = 8;
+            // 
+            // GuideW
+            // 
+            this.GuideW.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GuideW.Location = new System.Drawing.Point(0, 33);
+            this.GuideW.Margin = new System.Windows.Forms.Padding(0);
+            this.GuideW.Name = "GuideW";
+            this.GuideW.Size = new System.Drawing.Size(36, 33);
+            this.GuideW.TabIndex = 2;
+            this.GuideW.Text = "W";
+            this.GuideW.UseVisualStyleBackColor = true;
+            this.GuideW.Click += new System.EventHandler(this.GuideBtn_Click);
+            // 
+            // GuideS
+            // 
+            this.GuideS.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GuideS.Location = new System.Drawing.Point(36, 66);
+            this.GuideS.Margin = new System.Windows.Forms.Padding(0);
+            this.GuideS.Name = "GuideS";
+            this.GuideS.Size = new System.Drawing.Size(36, 34);
+            this.GuideS.TabIndex = 1;
+            this.GuideS.Text = "S";
+            this.GuideS.UseVisualStyleBackColor = true;
+            this.GuideS.Click += new System.EventHandler(this.GuideBtn_Click);
+            // 
+            // GuideE
+            // 
+            this.GuideE.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GuideE.Location = new System.Drawing.Point(72, 33);
+            this.GuideE.Margin = new System.Windows.Forms.Padding(0);
+            this.GuideE.Name = "GuideE";
+            this.GuideE.Size = new System.Drawing.Size(37, 33);
+            this.GuideE.TabIndex = 3;
+            this.GuideE.Text = "E";
+            this.GuideE.UseVisualStyleBackColor = true;
+            this.GuideE.Click += new System.EventHandler(this.GuideBtn_Click);
+            // 
+            // GuideN
+            // 
+            this.GuideN.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.GuideN.Location = new System.Drawing.Point(36, 0);
+            this.GuideN.Margin = new System.Windows.Forms.Padding(0);
+            this.GuideN.Name = "GuideN";
+            this.GuideN.Size = new System.Drawing.Size(36, 33);
+            this.GuideN.TabIndex = 0;
+            this.GuideN.Text = "N";
+            this.GuideN.UseVisualStyleBackColor = true;
+            this.GuideN.Click += new System.EventHandler(this.GuideBtn_Click);
             // 
             // Coordinates
             // 
@@ -233,52 +470,28 @@
             this.bgw.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bgw_ProgressChanged);
             this.bgw.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgw_RunWorkerCompleted);
             // 
-            // RateBar
-            // 
-            this.RateBar.Location = new System.Drawing.Point(117, 19);
-            this.RateBar.Maximum = 9;
-            this.RateBar.Minimum = 1;
-            this.RateBar.Name = "RateBar";
-            this.RateBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.RateBar.Size = new System.Drawing.Size(45, 103);
-            this.RateBar.TabIndex = 4;
-            this.RateBar.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.RateBar.Value = 7;
-            // 
-            // Stop
-            // 
-            this.Stop.Location = new System.Drawing.Point(42, 56);
-            this.Stop.Name = "Stop";
-            this.Stop.Size = new System.Drawing.Size(30, 30);
-            this.Stop.TabIndex = 5;
-            this.Stop.Text = "0";
-            this.Stop.UseVisualStyleBackColor = true;
-            this.Stop.Click += new System.EventHandler(this.Stop_Click);
-            // 
-            // ConstMove
-            // 
-            this.ConstMove.AutoSize = true;
-            this.ConstMove.Location = new System.Drawing.Point(6, 123);
-            this.ConstMove.Name = "ConstMove";
-            this.ConstMove.Size = new System.Drawing.Size(75, 17);
-            this.ConstMove.TabIndex = 6;
-            this.ConstMove.Text = "Constantly";
-            this.ConstMove.UseVisualStyleBackColor = true;
-            // 
             // HandControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(174, 280);
+            this.ClientSize = new System.Drawing.Size(174, 435);
             this.Controls.Add(this.ControlButtons);
             this.Controls.Add(this.Coordinates);
             this.Name = "HandControl";
             this.Text = "HandControl";
             this.ControlButtons.ResumeLayout(false);
-            this.ControlButtons.PerformLayout();
+            this.bMode.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage1.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.RateBar)).EndInit();
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.GuideItvl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.GuideRate)).EndInit();
+            this.tableLayoutPanel2.ResumeLayout(false);
             this.Coordinates.ResumeLayout(false);
             this.Coordinates.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.RateBar)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -305,5 +518,18 @@
         private System.Windows.Forms.TrackBar RateBar;
         private System.Windows.Forms.Button Stop;
         private System.Windows.Forms.CheckBox ConstMove;
+        private System.Windows.Forms.TabControl bMode;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.NumericUpDown GuideItvl;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.Button GuideW;
+        private System.Windows.Forms.Button GuideS;
+        private System.Windows.Forms.Button GuideE;
+        private System.Windows.Forms.Button GuideN;
+        public System.Windows.Forms.NumericUpDown GuideRate;
     }
 }

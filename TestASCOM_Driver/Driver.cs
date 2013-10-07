@@ -353,7 +353,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     {
                         telescopeWorker.MoveAxis(SlewAxes.RaAzm, 0);
                     }
-
+                    telescopeWorker.SetNotRateTracking();
                     telescopeInteraction.isConnected = false;
                     connectedState = false;
                     tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);

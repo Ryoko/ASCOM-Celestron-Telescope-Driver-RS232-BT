@@ -20,7 +20,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HandForm
         public HandControl()
         {
             InitializeComponent();
-
+            SetGuideRates();
         }
 
         public void ShowForm(bool show)
@@ -174,6 +174,46 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HandForm
             if (_driver == null || !_driver.Connected) return;
             _driver.MoveAxis(TelescopeAxes.axisPrimary, 0);
             _driver.MoveAxis(TelescopeAxes.axisSecondary, 0);
+        }
+
+        private void GuideBtn_Click(object sender, EventArgs e)
+        {
+            if (!(sender is Button)) return;
+            var btn = (Button) sender;
+            GuideDirections dir;
+            switch (btn.Name)
+            {
+                case "GuideN":
+                    dir = GuideDirections.guideNorth;
+                    break;
+                case "GuideS":
+                    dir = GuideDirections.guideSouth;
+                    break;
+                case "GuideE":
+                    dir = GuideDirections.guideEast;
+                    break;
+                case "GuideW":
+                    dir = GuideDirections.guideWest;
+                    break;
+                default:
+                    return;
+            }
+
+            if (_driver == null || !_driver.Connected || !_driver.CanPulseGuide) return;
+            var durat = GuideItvl.Value;
+            _driver.PulseGuide(dir, (int)durat);
+        }
+
+        private void SetGuideRates()
+        {
+            if (_driver == null || !_driver.Connected || !_driver.CanSetGuideRates) return;
+            _driver.GuideRateDeclination = (double)(GuideRate.Value / 100) * (Const.TRACKRATE_SIDEREAL) / 15;
+            _driver.GuideRateRightAscension = (double)(GuideRate.Value / 100) * (Const.TRACKRATE_SIDEREAL);
+        }
+
+        private void GideRate_ValueChanged(object sender, EventArgs e)
+        {
+            SetGuideRates();
         }
     }
 }

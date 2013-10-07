@@ -78,13 +78,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         void SyncRaDec(Coordinates coordinates);
         TrackingMode TrackingMode { get; set; }
         /// <summary>
-        /// Slew with Variable Rate
+        /// Slew with Variable Rate (deg/sec)
         /// </summary>
         /// <param name="dir">Direction</param>
         /// <param name="axis">Axis</param>
-        /// <param name="rate">Rate (arcseconds/second)</param>
+        /// <param name="rate">Rate (deg/second)</param>
         void SlewVariableRate(SlewAxes axis, double rate);
         void SlewFixedRate(SlewAxes axis, int rate);
+        /// <summary>
+        /// Slew with Variable Rate High Precision (deg/sec)
+        /// </summary>
+        /// <param name="dir">Direction</param>
+        /// <param name="axis">Axis</param>
+        /// <param name="rate">Rate (deg/second)</param>
         void SlewHighRate(SlewAxes axis, double rate);
         DateTime TelescopeDateTime { get; set; }
         LatLon TelescopeLocation { get; set; }

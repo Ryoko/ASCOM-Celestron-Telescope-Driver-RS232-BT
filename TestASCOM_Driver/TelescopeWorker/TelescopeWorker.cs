@@ -38,6 +38,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         }
 
+
         public static TelescopeWorker GetWorker(Telescope driver)
         {
             if (_worker == null)
@@ -119,7 +120,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 tp.TrackingMode = TrackingMode.Off;
             }
         }
-
+        /// <summary>
+        /// Get rate on Azm axis in (deg/sec)
+        /// </summary>
+        /// <param name="rate">Curent DriveRate</param>
+        /// <param name="mode">Current TrackingMode</param>
+        /// <returns></returns>
         public double GetRateRa(DriveRates rate, TrackingMode mode)
         {
             if (mode <= TrackingMode.AltAzm)
@@ -174,7 +180,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         private void CheckRateTrackingState()
         {
-            if (tp.IsRateTracked) return;
+            if (tp.IsRateTracked || ti == null || !ti.CanSlewHighRate || !ti.CanSetTracking) return;
             ti.TrackingMode = TrackingMode.Off;
             tp.IsRateTracked = true;
         }
@@ -182,7 +188,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         private PulsState ps = new PulsState();
         public void PulseGuide(GuideDirections dir, int duration)
         {
-            if(telescopeMode != TelescopeMode.Normal || telescopeMode != TelescopeMode.Guiding) return;
+            if(telescopeMode != TelescopeMode.Normal && telescopeMode != TelescopeMode.Guiding) return;
             if (!ti.CanSlewHighRate) throw new NotSupportedException("Puls guiding is not supported");
             CheckRateTrackingState();
             double rate;
@@ -218,6 +224,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         }
 
         private TrackingMode moveAxisTrackingMode = TrackingMode.Unknown;
+        /// <summary>
+        /// MoveAxis with fixed or variable rate
+        /// </summary>
+        /// <param name="axis">SlewAxes</param>
+        /// <param name="rate">Rate (deg/sec) or fixed rate * 10</param>
+        /// <param name="isFixed"></param>
         public void MoveAxis(SlewAxes axis, double rate, bool isFixed = false)
         {
             if (telescopeMode == TelescopeMode.Normal || telescopeMode == TelescopeMode.MovingAxis)
@@ -235,7 +247,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     }
                     if (!isFixed)
                     {
-                        ti.SlewHighRate(axis, rate*3600d);
+                        ti.SlewHighRate(axis, rate);
                     }
                     else
                     {
@@ -245,7 +257,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 }
                 else // rate == 0
                 {
-                    ti.SlewHighRate(axis, 0);
+                    //ti.SlewHighRate(axis, 0);
                     if (axis == SlewAxes.RaAzm)
                     {
                         //if (tp.TrackingMode > TrackingMode.Off) moveAxisTrackingMode = tp.TrackingMode;
@@ -265,6 +277,21 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     }
                 }
                 
+            }
+        }
+
+        public void SetNotRateTracking()
+        {
+            if (ti != null && tp != null && tp.IsRateTracked)
+            {
+                if (ti.CanSlewHighRate)
+                    ti.SlewHighRate(SlewAxes.DecAlt, 0);
+                if (ti.CanSetTracking && ti.CanSlewHighRate)
+                {
+                    ti.SlewHighRate(SlewAxes.RaAzm, 0);
+                    ti.TrackingMode = tp.TrackingMode;
+                    tp.IsRateTracked = false;
+                }
             }
         }
 
@@ -380,7 +407,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             if (!isReady) throw new DriverException("Can't get propertyes of telescope");
             CheckCoordinates(true);
             telescopeMode = tp.SlewState == SlewState.Slewing ? TelescopeMode.Slewing : TelescopeMode.Normal;
-
+            CheckRateTrackingState();
+            SetTrackingRate(tp.TrackingRate, tp.TrackingMode);
         }
 
         private int slewEndTime = int.MinValue;

@@ -40,7 +40,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public DriveRates TrackingRate { get; set; }
         public bool IsTracking { get; set; }
         public TrackingMode DefaultTrackingMode { get; set; }
+        /// <summary>
+        /// deg/sec
+        /// </summary>
         public double DeclinationRateOffset { get; set; }
+        /// <summary>
+        /// deg/sec
+        /// </summary>
         public double RightAscensionRateOffset { get; set; }
         public bool MovingAltAxes { get; set; }
         public bool MovingAzmAxes { get; set; }
@@ -49,7 +55,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public bool IsAtPark { get; set; }
         public bool IsAtHome { get; set; }
         public bool IsRateTracked { get; set; }
+        /// <summary>
+        /// deg/sec
+        /// </summary>
         public double PulseRateAlt { get; set; }
+        /// <summary>
+        /// deg/sec
+        /// </summary>
         public double PulseRateAzm { get; set; }
 
         //public static TelescopeProperties Properties { get { return _properties; } }

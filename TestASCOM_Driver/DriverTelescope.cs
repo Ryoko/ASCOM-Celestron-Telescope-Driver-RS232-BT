@@ -380,10 +380,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
-                var rate = telescopeProperties.DeclinationRateOffset + value*3600d;
+                var rate = telescopeProperties.DeclinationRateOffset + value;
                 if (!CheckRate(TelescopeAxes.axisPrimary, rate)) throw new ArgumentOutOfRangeException("value for Dec guide rate out of range");
-                tl.LogMessage("GuideRateDeclination Set", (value*3600d).ToString());
-                telescopeProperties.PulseRateAlt = value*3600d;
+                tl.LogMessage("GuideRateDeclination Set", (value).ToString());
+                telescopeProperties.PulseRateAlt = value;
             }
         }
 
@@ -399,10 +399,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 var rate =
                     telescopeWorker.GetRateRa(telescopeProperties.TrackingRate, telescopeProperties.TrackingMode) +
-                    value*3600d;
+                    value;
                 if (!CheckRate(TelescopeAxes.axisPrimary, rate)) throw new ArgumentOutOfRangeException("value for RA guide rate out of range");
-                tl.LogMessage("GuideRateRightAscension Set", (value*3600d).ToString());
-                telescopeProperties.PulseRateAzm = value*3600d;
+                tl.LogMessage("GuideRateRightAscension Set", (value).ToString());
+                telescopeProperties.PulseRateAzm = value;
             }
         }
 
@@ -418,7 +418,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         }
 
         /// <summary>
-        /// Set rate for specified axis
+        /// Set rate for specified axis (deg/sec)
         /// </summary>
         /// <param name="Axis">Axis to specified rate</param>
         /// <param name="Rate">Rate of movement in deg per sec</param>
@@ -455,7 +455,6 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             if (!CanPulseGuide || !telescopeInteraction.CanSlewHighRate) throw new NotSupportedException("Puls guiding is not supported");
             telescopeWorker.PulseGuide(Direction, Duration);
             tl.LogMessage("PulseGuide", string.Format("{0} {1}sec", Direction.ToString(), Duration));
-            throw new ASCOM.MethodNotImplementedException("PulseGuide");
         }
 
         public double RightAscension
@@ -498,7 +497,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     //var rate = (Const.SiderealRateDegPerSec + value * Const.SiderealRate) * ((TelescopeProperties.TrackingMode == TrackingMode.EQS) ? -1 : 1);
                     //var val =  rate * 3600;
                     //telescopeInteraction.SlewHighRate(SlewAxes.RaAzm, val);
-                    telescopeWorker.SetTrackingRate(telescopeProperties. TrackingRate,telescopeProperties.TrackingMode);
+                    telescopeWorker.SetTrackingRate(telescopeProperties.TrackingRate, telescopeProperties.TrackingMode);
                 }
             }
         }
@@ -841,7 +840,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         }
 
         #endregion
-
+        /// <summary>
+        /// Check rate on specified axis (deg/sec)
+        /// </summary>
+        /// <param name="axis">TelescopeAxes</param>
+        /// <param name="rate">Rate (deg/sec)</param>
+        /// <returns></returns>
         public bool CheckRate(TelescopeAxes axis, double rate)
         {
             foreach (IRate trackingRate in AxisRates(axis))

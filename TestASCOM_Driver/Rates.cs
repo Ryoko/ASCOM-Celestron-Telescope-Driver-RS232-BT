@@ -98,7 +98,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 case TelescopeAxes.axisPrimary:
                     // TODO Initialize this array with any Primary axis rates that your driver may provide
                     // Example: m_Rates = new Rate[] { new Rate(10.5, 30.2), new Rate(54.0, 43.6) }
-                    var sid = Utils.Const.SiderealRateDegPerSec;
+                    //var sid = Utils.Const.SiderealRateDegPerSec;
                     this.rates = new Rate[]
                     {
                         new Rate(0, Utils.Const.MaxAxisRate),

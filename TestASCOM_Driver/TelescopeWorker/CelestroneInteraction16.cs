@@ -78,7 +78,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public override void SlewVariableRate(SlewAxes axis, double rate)
         {
-            var r = (int)Math.Abs(rate * 4);
+            var r = (int)Math.Abs(rate*4*3600);
             var devId = GetDeviceId(axis);
             //var com = new byte[] { (byte)'P', 3, devId, (byte)dir, (byte) (r/256), (byte) (r%256), 0, 0 };
             //SendCommand(com);
@@ -88,7 +88,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public override void SlewHighRate(SlewAxes axis, double rate)
         {
-            var r = Math.Abs((long)rate*1024);
+            var r = Math.Abs((long)(rate*3600*1024));
             var h = (byte) ((r/0x10000) & 0xff);
             var m = (byte) ((r/0x100) & 0xff);
             var l = (byte) (r & 0xff);
