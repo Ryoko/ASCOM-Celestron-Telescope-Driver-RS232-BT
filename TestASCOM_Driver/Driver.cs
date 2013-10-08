@@ -48,6 +48,8 @@ using System.Threading;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
+    using ASCOM.CelestronAdvancedBlueTooth.HardwareWorker;
+
     //
     // Your driver's DeviceID is ASCOM.CelestronAdvancedBlueTooth.Telescope
     //
@@ -195,8 +197,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public void Initialize()
         {
             StopWorking();
-            deviceWorker = isBluetooth ? new BluetoothWorker() : null;
-            //TODO: Implement your additional construction here
+            deviceWorker = isBluetooth ? (IDeviceWorker)new BluetoothWorker() : new ComPortWorker();
             if (deviceWorker != null)
             {
                 driverWorker = new DriverWorker(this.CheckConnected, deviceWorker);
@@ -204,7 +205,6 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 telescopeWorker = TelescopeWorker.TelescopeWorker.GetWorker(this);
                 telescopeWorker.TelescopeInteraction = telescopeInteraction;
                 telescopeProperties = telescopeWorker.TelescopeProperties;
-
             }
         }
 
@@ -330,37 +330,50 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 if (value)
                 {
                     connectedState = true;
-                    tl.LogMessage("Connected Set", "Connecting to port " + comPort);
-                    deviceWorker.Connect(Telescope.bluetoothDevice);
-                    telescopeInteraction.isConnected = true;
-                    var tBegin = Environment.TickCount;
-                    while (true)
+                    bool res;
+                    if (isBluetooth)
                     {
-                        if (tBegin + 30000 < Environment.TickCount) throw new DriverException("Unable to get telescope parameters");
-                        Thread.Sleep(100);
-                        if (telescopeProperties.IsReady) break;
+                        tl.LogMessage("Connected Set", "Connecting to bluetooth device " + bluetoothDevice.ToString());
+                        res = this.deviceWorker.Connect(bluetoothDevice);
                     }
-                    _handControl.ShowForm(showControl);
-                    // TODO connect to the device
+                    else
+                    {
+                        tl.LogMessage("Connected Set", "Connecting to COM port " + comPort);
+                        res = this.deviceWorker.Connect(comPort);
+                    }
+                    if (res)
+                    {
+                        telescopeInteraction.isConnected = true;
+                        var tBegin = Environment.TickCount;
+                        while (true)
+                        {
+                            if (tBegin + 30000 < Environment.TickCount) throw new DriverException("Unable to get telescope parameters");
+                            Thread.Sleep(100);
+                            if (telescopeProperties.IsReady) break;
+                        }
+                        _handControl.ShowForm(showControl);
+                    }
+                    else
+                    {
+                        connectedState = false;
+                        throw new DriverException("Error connectiong to device");
+                    }
                 }
                 else
                 {
-                    if (telescopeProperties.MovingAltAxes)
-                    {
-                        telescopeWorker.MoveAxis(SlewAxes.DecAlt, 0);
-                    }
-                    if (telescopeProperties.MovingAzmAxes)
-                    {
-                        telescopeWorker.MoveAxis(SlewAxes.RaAzm, 0);
-                    }
-                    telescopeWorker.SetNotRateTracking();
+                    telescopeWorker.StopWorking();
                     telescopeInteraction.isConnected = false;
                     connectedState = false;
-                    tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);
-                    //telescopeInteraction.isConnected = false;
+                    if (isBluetooth)
+                    {
+                        tl.LogMessage("Connected Set", "Disconnecting from bluetooth " + bluetoothDevice.ToString());
+                    }
+                    else
+                    {
+                        tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);
+                    }
                     _handControl.ShowForm(false);
                     StopWorking();
-                    // TODO disconnect from the device
                 }
             }
         }

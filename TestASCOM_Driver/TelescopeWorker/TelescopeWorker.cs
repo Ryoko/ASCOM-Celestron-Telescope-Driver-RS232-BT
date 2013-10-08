@@ -280,8 +280,17 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
-        public void SetNotRateTracking()
+        public void StopWorking()
         {
+            if (tp.MovingAltAxes)
+            {
+                MoveAxis(SlewAxes.DecAlt, 0);
+            }
+            if (tp.MovingAzmAxes)
+            {
+                MoveAxis(SlewAxes.RaAzm, 0);
+            }
+
             if (ti != null && tp != null && tp.IsRateTracked)
             {
                 if (ti.CanSlewHighRate)

@@ -51,7 +51,8 @@ _ReSharper*/
 ~$*
 
 #NuGet
-packages/
+#packages/
+!packages/ASCOM/*.dll
 
 #ncrunch
 *ncrunch*
