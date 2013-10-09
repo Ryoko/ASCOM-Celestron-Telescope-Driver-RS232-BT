@@ -276,6 +276,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     }
                     return "";
                 }
+                case "GetPosition":
+                    var res = telescopeInteraction.GetPosition();
+                    return string.Format("{0};{1}", res[0], res[1]);
             }
             throw new ASCOM.ActionNotImplementedException("Action " + actionName + " is not implemented by this driver");
         }

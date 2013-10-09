@@ -131,6 +131,21 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get { return 0; }
         }
 
+        public virtual void GoToPosition(double azm, double alt)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public virtual double[] GetPosition()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public virtual bool CanWorkPosition
+        {
+            get { return false; }
+        }
+
         public virtual bool CanSyncAltAzm
         {
             get { return false; }
@@ -287,6 +302,33 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             if (axis == SlewAxes.DecAlt) return DeviceID.DecAltMotor;
             if (axis == SlewAxes.RaAzm) return DeviceID.RaAzmMotor;
             throw new ValueNotAvailableException("Wrong axis value: " + axis.ToString());
+        }
+
+        /// <summary>
+        /// Fraction of full rotation to 3 bytes
+        /// </summary>
+        /// <param name="value">0-360</param>
+        /// <returns></returns>
+        protected byte[] DoubleToBytes(double value)
+        {
+            if (value < 0) value += 360;
+
+            var iVal = (int)(value * (Math.Pow(2, 24) / 360) + 0.5);
+            var h = (byte)((iVal/0x10000) & 0xff);
+            var m = (byte)((iVal / 0x100) & 0xff);
+            var l = (byte) (iVal & 0xff);
+            return (new[] {h, m, l});
+        }
+
+        protected double BytesToDouble(byte[] buf)
+        {
+            int res = 0;
+            foreach (var b in buf)
+            {
+                res = res*0x100 + b;
+            }
+            var val = 360*res/Math.Pow(2, buf.Length*8);
+            return val;
         }
     }
 }

@@ -356,8 +356,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
         public void FindHome()
         {
-            tl.LogMessage("FindHome", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("FindHome");
+            if (telescopeInteraction.CanWorkPosition)
+            {
+                telescopeInteraction.GoToPosition(90, 90);
+                tl.LogMessage("FindHome", "Not implemented");
+            }
         }
 
         public double FocalLength

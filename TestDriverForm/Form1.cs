@@ -181,5 +181,28 @@ namespace ASCOM.CelestronAdvancedBluetooth
             if (isSetting) return;
             driver.Action("SetTrackingMode", TrMode.SelectedIndex.ToString());
         }
+
+        private void getHome_Click(object sender, EventArgs e)
+        {
+            if (driver != null && driver.Connected)
+            {
+                //driver.FindHome();
+                var pos = driver.Action("GetPosition", "").Split(';');
+                double alt, azm;
+                if (double.TryParse(pos[0], out azm) && double.TryParse(pos[1], out alt))
+                {
+                    positionAzm.Text = new DMS(azm).ToString();
+                    positionAlt.Text = new DMS(alt).ToString();
+                }
+            }
+        }
+
+        private void goHome_Click(object sender, EventArgs e)
+        {
+            if (driver != null && driver.Connected)
+            {
+                driver.FindHome();
+            }
+        }
     }
 }

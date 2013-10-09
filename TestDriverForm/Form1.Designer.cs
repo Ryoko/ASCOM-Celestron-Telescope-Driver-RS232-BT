@@ -32,6 +32,10 @@
             this.buttonConnect = new System.Windows.Forms.Button();
             this.labelDriverId = new System.Windows.Forms.Label();
             this.Coordinates = new System.Windows.Forms.GroupBox();
+            this.getHome = new System.Windows.Forms.Button();
+            this.positionAlt = new System.Windows.Forms.Label();
+            this.positionAzm = new System.Windows.Forms.Label();
+            this.goHome = new System.Windows.Forms.Button();
             this.Azm = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.Alt = new System.Windows.Forms.Label();
@@ -42,14 +46,14 @@
             this.label1 = new System.Windows.Forms.Label();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.ControlButtons = new System.Windows.Forms.GroupBox();
+            this.TrMode = new System.Windows.Forms.ComboBox();
+            this.Lunar = new System.Windows.Forms.Button();
             this.Ra_p = new System.Windows.Forms.Button();
+            this.Solar = new System.Windows.Forms.Button();
             this.Ra_n = new System.Windows.Forms.Button();
+            this.Sidereal = new System.Windows.Forms.Button();
             this.Dec_n = new System.Windows.Forms.Button();
             this.Dec_p = new System.Windows.Forms.Button();
-            this.Sidereal = new System.Windows.Forms.Button();
-            this.Solar = new System.Windows.Forms.Button();
-            this.Lunar = new System.Windows.Forms.Button();
-            this.TrMode = new System.Windows.Forms.ComboBox();
             this.Coordinates.SuspendLayout();
             this.ControlButtons.SuspendLayout();
             this.SuspendLayout();
@@ -87,6 +91,10 @@
             // 
             // Coordinates
             // 
+            this.Coordinates.Controls.Add(this.getHome);
+            this.Coordinates.Controls.Add(this.positionAlt);
+            this.Coordinates.Controls.Add(this.positionAzm);
+            this.Coordinates.Controls.Add(this.goHome);
             this.Coordinates.Controls.Add(this.Azm);
             this.Coordinates.Controls.Add(this.label6);
             this.Coordinates.Controls.Add(this.Alt);
@@ -97,10 +105,48 @@
             this.Coordinates.Controls.Add(this.label1);
             this.Coordinates.Location = new System.Drawing.Point(216, 73);
             this.Coordinates.Name = "Coordinates";
-            this.Coordinates.Size = new System.Drawing.Size(181, 134);
+            this.Coordinates.Size = new System.Drawing.Size(181, 165);
             this.Coordinates.TabIndex = 3;
             this.Coordinates.TabStop = false;
             this.Coordinates.Text = "Coordinates";
+            // 
+            // getHome
+            // 
+            this.getHome.Location = new System.Drawing.Point(9, 126);
+            this.getHome.Name = "getHome";
+            this.getHome.Size = new System.Drawing.Size(60, 23);
+            this.getHome.TabIndex = 11;
+            this.getHome.Text = "GetHome";
+            this.getHome.UseVisualStyleBackColor = true;
+            this.getHome.Click += new System.EventHandler(this.getHome_Click);
+            // 
+            // positionAlt
+            // 
+            this.positionAlt.AutoSize = true;
+            this.positionAlt.Location = new System.Drawing.Point(99, 115);
+            this.positionAlt.Name = "positionAlt";
+            this.positionAlt.Size = new System.Drawing.Size(19, 13);
+            this.positionAlt.TabIndex = 10;
+            this.positionAlt.Text = "Alt";
+            // 
+            // positionAzm
+            // 
+            this.positionAzm.AutoSize = true;
+            this.positionAzm.Location = new System.Drawing.Point(99, 102);
+            this.positionAzm.Name = "positionAzm";
+            this.positionAzm.Size = new System.Drawing.Size(27, 13);
+            this.positionAzm.TabIndex = 9;
+            this.positionAzm.Text = "Azm";
+            // 
+            // goHome
+            // 
+            this.goHome.Location = new System.Drawing.Point(9, 97);
+            this.goHome.Name = "goHome";
+            this.goHome.Size = new System.Drawing.Size(57, 23);
+            this.goHome.TabIndex = 8;
+            this.goHome.Text = "GoHome";
+            this.goHome.UseVisualStyleBackColor = true;
+            this.goHome.Click += new System.EventHandler(this.goHome_Click);
             // 
             // Azm
             // 
@@ -200,6 +246,30 @@
             this.ControlButtons.TabStop = false;
             this.ControlButtons.Text = "Control";
             // 
+            // TrMode
+            // 
+            this.TrMode.FormattingEnabled = true;
+            this.TrMode.Items.AddRange(new object[] {
+            "Off",
+            "AltAzm",
+            "EQ-N",
+            "EQ-S"});
+            this.TrMode.Location = new System.Drawing.Point(6, 182);
+            this.TrMode.Name = "TrMode";
+            this.TrMode.Size = new System.Drawing.Size(120, 21);
+            this.TrMode.TabIndex = 7;
+            this.TrMode.SelectedIndexChanged += new System.EventHandler(this.TrackinMode_SelectedIndexChanged);
+            // 
+            // Lunar
+            // 
+            this.Lunar.Location = new System.Drawing.Point(132, 142);
+            this.Lunar.Name = "Lunar";
+            this.Lunar.Size = new System.Drawing.Size(57, 23);
+            this.Lunar.TabIndex = 6;
+            this.Lunar.Text = "Lunar";
+            this.Lunar.UseVisualStyleBackColor = true;
+            this.Lunar.Click += new System.EventHandler(this.Rate_Click);
+            // 
             // Ra_p
             // 
             this.Ra_p.Location = new System.Drawing.Point(114, 56);
@@ -211,6 +281,16 @@
             this.Ra_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Ra_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
             // 
+            // Solar
+            // 
+            this.Solar.Location = new System.Drawing.Point(69, 142);
+            this.Solar.Name = "Solar";
+            this.Solar.Size = new System.Drawing.Size(57, 23);
+            this.Solar.TabIndex = 5;
+            this.Solar.Text = "Solar";
+            this.Solar.UseVisualStyleBackColor = true;
+            this.Solar.Click += new System.EventHandler(this.Rate_Click);
+            // 
             // Ra_n
             // 
             this.Ra_n.Location = new System.Drawing.Point(6, 56);
@@ -221,6 +301,16 @@
             this.Ra_n.UseVisualStyleBackColor = true;
             this.Ra_n.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Ra_n.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
+            // 
+            // Sidereal
+            // 
+            this.Sidereal.Location = new System.Drawing.Point(6, 142);
+            this.Sidereal.Name = "Sidereal";
+            this.Sidereal.Size = new System.Drawing.Size(57, 23);
+            this.Sidereal.TabIndex = 4;
+            this.Sidereal.Text = "Sidereal";
+            this.Sidereal.UseVisualStyleBackColor = true;
+            this.Sidereal.Click += new System.EventHandler(this.Rate_Click);
             // 
             // Dec_n
             // 
@@ -243,50 +333,6 @@
             this.Dec_p.UseVisualStyleBackColor = true;
             this.Dec_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Dec_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
-            // 
-            // Sidereal
-            // 
-            this.Sidereal.Location = new System.Drawing.Point(6, 142);
-            this.Sidereal.Name = "Sidereal";
-            this.Sidereal.Size = new System.Drawing.Size(57, 23);
-            this.Sidereal.TabIndex = 4;
-            this.Sidereal.Text = "Sidereal";
-            this.Sidereal.UseVisualStyleBackColor = true;
-            this.Sidereal.Click += new System.EventHandler(this.Rate_Click);
-            // 
-            // Solar
-            // 
-            this.Solar.Location = new System.Drawing.Point(69, 142);
-            this.Solar.Name = "Solar";
-            this.Solar.Size = new System.Drawing.Size(57, 23);
-            this.Solar.TabIndex = 5;
-            this.Solar.Text = "Solar";
-            this.Solar.UseVisualStyleBackColor = true;
-            this.Solar.Click += new System.EventHandler(this.Rate_Click);
-            // 
-            // Lunar
-            // 
-            this.Lunar.Location = new System.Drawing.Point(132, 142);
-            this.Lunar.Name = "Lunar";
-            this.Lunar.Size = new System.Drawing.Size(57, 23);
-            this.Lunar.TabIndex = 6;
-            this.Lunar.Text = "Lunar";
-            this.Lunar.UseVisualStyleBackColor = true;
-            this.Lunar.Click += new System.EventHandler(this.Rate_Click);
-            // 
-            // TrMode
-            // 
-            this.TrMode.FormattingEnabled = true;
-            this.TrMode.Items.AddRange(new object[] {
-            "Off",
-            "AltAzm",
-            "EQ-N",
-            "EQ-S"});
-            this.TrMode.Location = new System.Drawing.Point(6, 182);
-            this.TrMode.Name = "TrMode";
-            this.TrMode.Size = new System.Drawing.Size(120, 21);
-            this.TrMode.TabIndex = 7;
-            this.TrMode.SelectedIndexChanged += new System.EventHandler(this.TrackinMode_SelectedIndexChanged);
             // 
             // Form1
             // 
@@ -332,6 +378,10 @@
         private System.Windows.Forms.Button Solar;
         private System.Windows.Forms.Button Lunar;
         private System.Windows.Forms.ComboBox TrMode;
+        private System.Windows.Forms.Button goHome;
+        private System.Windows.Forms.Label positionAzm;
+        private System.Windows.Forms.Label positionAlt;
+        private System.Windows.Forms.Button getHome;
     }
 }
 

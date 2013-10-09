@@ -215,6 +215,28 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get { return 1.6; }
         }
 
+        public override void GoToPosition(double azm, double alt)
+        {
+            var buf = DoubleToBytes(alt);
+            SendCommandToDevice(DeviceID.DecAltMotor, DeviceCommands.MC_GOTO_FAST, 0, buf);
+            buf = DoubleToBytes(azm);
+            SendCommandToDevice(DeviceID.RaAzmMotor, DeviceCommands.MC_GOTO_FAST, 0, buf);
+        }
+
+        public override double[] GetPosition()
+        {
+            var res = SendCommandToDevice(DeviceID.DecAltMotor, DeviceCommands.MC_GET_POSITION, 3);
+            var alt = BytesToDouble(res.Take(res.Length - 1).ToArray());
+            res = SendCommandToDevice(DeviceID.RaAzmMotor, DeviceCommands.MC_GET_POSITION, 3);
+            var azm = BytesToDouble(res.Take(res.Length - 1).ToArray());
+            return new[] {azm, alt};
+        }
+
+        public override bool CanWorkPosition
+        {
+            get { return true; }
+        }
+
         public override bool CanSetTracking
         {
             get { return true; }

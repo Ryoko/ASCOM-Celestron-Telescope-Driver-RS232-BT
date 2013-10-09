@@ -280,6 +280,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
+        public void GoHome()
+        {
+           // ti.SendCommandToDevice()
+        }
+
         public void StopWorking()
         {
             if (tp.MovingAltAxes)

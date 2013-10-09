@@ -15,7 +15,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         MC_GET_POSITION = 1, //    n/a    24 bits
         MC_GOTO_FAST = 2, //   16/24 bits Ack
 
-        MC_SET_AXIS = 4, //   24 bits Ack     24 bits for a rotation
+        MC_SET_POSITION = 4, //   24 bits Ack     24 bits for a rotation
 
         // continuously variable move rate in units of 0.25 arc sec per second
         MC_SET_POS_VARIABLE_GUIDERATE = 6, //   24 bits n/a
@@ -106,6 +106,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         void CancelGoTo();
         //bool SetTrackingRate(DriveRates rate, TrackingMode mode);
         double VersionRequired { get; }
+        void GoToPosition(double azm, double alt);
+        /// <summary>
+        /// Get Position {Azm, Alt} 
+        /// </summary>
+        /// <returns>{Azm, Alt}</returns>
+        double[] GetPosition();
+
         bool CanSyncAltAzm { get; }
         bool CanSyncRaDec { get; }
         bool CanSetTracking { get; }
@@ -121,7 +128,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         bool CanGetDeviceVersion { get; }
         bool CanSetTrackingRates { get; }
         bool CanSlewHighRate { get; }
+        bool CanWorkPosition { get; }
         byte[] SendCommandToDevice(DeviceID DeviceId, DeviceCommands Command, byte NoOfAnsvers, params byte[] args);
-
     }
 }
