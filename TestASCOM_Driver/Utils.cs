@@ -176,6 +176,43 @@ namespace ASCOM.CelestronAdvancedBlueTooth.Utils
 
         }
 
+        static public Coordinates AltAzm2RaDec(AltAzm altAzm, LatLon location, DateTime time, double elevation)
+        {
+            var utils = new Astrometry.AstroUtils.AstroUtils();
+            var MJDdate = utils.CalendarToMJD(time.Day, time.Month, time.Year);
+            MJDdate += time.TimeOfDay.TotalDays;
+
+            var tfm = new Astrometry.Transform.Transform();
+            tfm.JulianDateTT = MJDdate;
+            tfm.SiteElevation = elevation * 1000;
+            tfm.SiteLatitude = location.Lat;
+            tfm.SiteLongitude = location.Lon;
+            tfm.SiteTemperature = 0;
+            tfm.SetAzimuthElevation(altAzm.Azm, altAzm.Alt);
+            tfm.Refresh();
+            var res = new Coordinates(tfm.RAJ2000, tfm.DecJ2000);
+            return res;
+        }
+
+        static public AltAzm RaDec2AltAzm(Coordinates coord, LatLon location, DateTime time, double elevation)
+        {
+            var utils = new Astrometry.AstroUtils.AstroUtils();
+            var MJDdate = utils.CalendarToMJD(time.Day, time.Month, time.Year);
+            MJDdate += time.TimeOfDay.TotalDays;
+
+            var tfm = new Astrometry.Transform.Transform();
+            tfm.JulianDateTT = MJDdate;
+            tfm.SiteElevation = elevation * 1000;
+            tfm.SiteLatitude = location.Lat;
+            tfm.SiteLongitude = location.Lon;
+            tfm.SiteTemperature = 0;
+            tfm.SetJ2000(coord.Ra, coord.Dec);
+            tfm.Refresh();
+
+            var res = new AltAzm(tfm.ElevationTopocentric, tfm.AzimuthTopocentric);
+            return res;
+        } 
+
     }
 
     public class Coordinates

@@ -54,6 +54,7 @@
             this.Sidereal = new System.Windows.Forms.Button();
             this.Dec_n = new System.Windows.Forms.Button();
             this.Dec_p = new System.Windows.Forms.Button();
+            this.console = new System.Windows.Forms.TextBox();
             this.Coordinates.SuspendLayout();
             this.ControlButtons.SuspendLayout();
             this.SuspendLayout();
@@ -334,11 +335,21 @@
             this.Dec_p.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Control_MouseDown);
             this.Dec_p.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Control_MouseUp);
             // 
+            // console
+            // 
+            this.console.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.console.Location = new System.Drawing.Point(0, 305);
+            this.console.Multiline = true;
+            this.console.Name = "console";
+            this.console.Size = new System.Drawing.Size(409, 147);
+            this.console.TabIndex = 5;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 452);
+            this.Controls.Add(this.console);
             this.Controls.Add(this.ControlButtons);
             this.Controls.Add(this.Coordinates);
             this.Controls.Add(this.labelDriverId);
@@ -351,6 +362,7 @@
             this.Coordinates.PerformLayout();
             this.ControlButtons.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -382,6 +394,7 @@
         private System.Windows.Forms.Label positionAzm;
         private System.Windows.Forms.Label positionAlt;
         private System.Windows.Forms.Button getHome;
+        private System.Windows.Forms.TextBox console;
     }
 }
 

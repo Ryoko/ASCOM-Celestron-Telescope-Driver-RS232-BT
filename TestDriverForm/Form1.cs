@@ -16,6 +16,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
         {
             InitializeComponent();
             SetUIState();
+            this.test();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -204,5 +205,13 @@ namespace ASCOM.CelestronAdvancedBluetooth
                 driver.FindHome();
             }
         }
+    
+        private void test()
+        {
+            var trf = new ASCOM.Astrometry.Transform.Transform();
+            var jd = trf.JulianDateTT;
+            console.Text += string.Format("JD value = {0}\n", jd);
+        }
     }
+
 }
