@@ -34,7 +34,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 try
                 {
-                    if (telescopeProperties == null || telescopeProperties.AltAzm == null) return 0;
+                    if (telescopeProperties == null || telescopeProperties.AltAzm == null || !telescopeProperties.IsReady) return 0;
                     var alt = telescopeProperties.AltAzm.Alt;
                     tl.LogMessage("Altitude Get - ", alt.ToString());
                     return alt;
@@ -98,7 +98,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 try
                 {
-                    if (telescopeProperties == null || telescopeProperties.AltAzm == null) return 0;
+                    if (telescopeProperties == null || telescopeProperties.AltAzm == null || !telescopeProperties.IsReady) return 0;
                     var azm = telescopeProperties.AltAzm.Azm;
                     tl.LogMessage("Azimuth Get", new DMS(azm).ToString(":"));
                     return azm;
@@ -283,7 +283,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 try
                 {
-                    if (telescopeProperties == null || telescopeProperties.RaDec == null) return 0;
+                    if (telescopeProperties == null || telescopeProperties.RaDec == null || !telescopeProperties.IsReady) return 0;
                     var dec = telescopeProperties.RaDec.Dec;
                     tl.LogMessage("Declination Get", new DMS(dec).ToString());
                     return dec;
@@ -466,7 +466,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 try
                 {
-                    if (telescopeProperties == null || telescopeProperties.RaDec == null) return 0;
+                    if (telescopeProperties == null || telescopeProperties.RaDec == null || !telescopeProperties.IsReady) return 0;
                     var val = telescopeProperties.RaDec.Ra;
                     tl.LogMessage("RightAscension Get", new DMS(val).ToString());
                     return val;

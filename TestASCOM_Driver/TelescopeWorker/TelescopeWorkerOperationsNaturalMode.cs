@@ -13,7 +13,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         private TelescopeProperties tp;
         private ITelescopeInteraction ti;
 
-        public TelescopeWorkerOperationsRateMode(TelescopeProperties telescopeProperties, ITelescopeInteraction telescopeInteraction)
+        public TelescopeWorkerOperationsRateMode()
+        {
+        }
+
+        public void SegProperties(TelescopeProperties telescopeProperties, ITelescopeInteraction telescopeInteraction)
         {
             this.tp = telescopeProperties;
             this.ti = telescopeInteraction;
@@ -79,7 +83,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public void CheckRateTrackingState()
         {
-            if (tp.IsRateTracked || ti == null || !ti.CanSlewHighRate || !ti.CanSetTracking) return;
+            if (tp==null || tp.IsRateTracked || ti == null || !ti.CanSlewHighRate || !ti.CanSetTracking) return;
             ti.TrackingMode = TrackingMode.Off;
             tp.IsRateTracked = true;
         }
@@ -119,17 +123,17 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         /// </summary>
         /// <param name="rate">Rate (deg/sec) or fixed rate * 10</param>
         /// <param name="isFixed"></param>
-        public void MoveAxisAzm(double rate, bool isFixed = false)
+        public void MoveAxis(SlewAxes axis, double rate, bool isFixed = false)
         {
             if (!rate.Equals(0))
             {
                 if (!isFixed)
                 {
-                    ti.SlewHighRate(SlewAxes.RaAzm, rate);
+                    ti.SlewHighRate(axis, rate);
                 }
                 else
                 {
-                    ti.SlewFixedRate(SlewAxes.RaAzm, (int)rate);
+                    ti.SlewFixedRate(axis, (int)rate);
                 }
             }
         }

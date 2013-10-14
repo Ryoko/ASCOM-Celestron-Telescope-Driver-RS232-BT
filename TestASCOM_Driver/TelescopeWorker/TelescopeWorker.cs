@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -38,7 +39,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             bgWorker.WorkerSupportsCancellation = true;
             bgWorker.WorkerReportsProgress = true;
             bgWorker.RunWorkerAsync();
-            two = new TelescopeWorkerOperationsRateMode(tp, ti);
+            two = new TelescopeWorkerOperationsRateMode();
         }
 
 
@@ -54,7 +55,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public TelescopeProperties TelescopeProperties
         {
             get { return tp; }
-            private set { tp = value; }
+            //private set { tp = value; }
         }
 
         public ITelescopeInteraction TelescopeInteraction
@@ -63,6 +64,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             {
                 ti = value;
                 tp = new TelescopeProperties(value);
+                two.SegProperties(tp, ti);
             }
             get
             {
@@ -81,8 +83,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             set
             {
                 two = value == TelescopeOperationMode.Natural
-                    ? (ITelescopeWorkerOperations)new TelescopeWorkerOperationsNaturalMode(tp, ti)
-                    : new TelescopeWorkerOperationsRateMode(tp, ti);
+                    ? (ITelescopeWorkerOperations)new TelescopeWorkerOperationsNaturalMode()
+                    : new TelescopeWorkerOperationsRateMode();
+                two.SegProperties(tp, ti);
             }
         }
 
@@ -200,7 +203,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                         //SetTracking(TrackingMode.Off);
                         //tp.TrackingMode = TrackingMode.Off;
                     }
-                    two.MoveAxisAzm(rate, isFixed);
+                    two.MoveAxis(axis, rate, isFixed);
                     telescopeMode = TelescopeMode.MovingAxis;
                 }
                 else // rate == 0
@@ -375,6 +378,42 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
+        private double dRateRa = 0, dRateDec = 0, sRa = 0;
+        private int lastCalcTime = 0, tCalc = 0;
+
+        private void CheckTracking(double dRa, double dDec)
+        {
+            double rRa, rDec;
+            if (lastCalcTime > 0)
+            {
+                var RaRate = GetRateRa(tp.TrackingRate, tp.TrackingMode);
+                var dT = Environment.TickCount - lastCalcTime;
+                var ra = (15 * dRa * 1000) / dT - Const.TRACKRATE_SIDEREAL;
+                var dec = (dDec*1000)/dT;
+
+                //var csRa = Math.Pow(ra - RaRate, 2);
+                //sRa =  Math.Sqrt((Math.Pow(sRa, 2) * tCalc + csRa) / (tCalc + 1));
+                sRa = Math.Abs(RaRate + ra);
+                if (tp.TrackingMode > TrackingMode.AltAzm && Math.Abs(ra) < 0.0003)
+                {
+                    SetTrackingRate(tp.TrackingRate, tp.TrackingMode);
+//                    sRa = 0;
+                }
+
+                if (sRa > 0.0005)
+                {
+                    tCalc = 0;
+                }
+
+                dRateRa = dRateRa*tCalc/(tCalc+1) + ra/(tCalc + 1);
+                dRateDec = dRateDec*tCalc/(tCalc +1) + dec/(tCalc + 1);
+                tCalc++;
+                Debug.WriteLine(string.Format("dRateRA = {0:f6}, dRa = {1:f6}, errRa = {2:f6}, n={3}", dRateRa, ra, sRa, tCalc));
+            }
+            lastCalcTime = Environment.TickCount;
+
+        }
+
         private void CheckCoordinates(bool now = false)
         {
             if (!now && lastGetCoordiante + CoordinatesGetInterval > Environment.TickCount) return;
@@ -383,7 +422,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             {
                 try
                 {
-                    tp.RaDec = ti.RaDec;
+                    var c = ti.RaDec;
+                    if (tp.RaDec != null)
+                    {
+                        var dRa = c.Ra - tp.RaDec.Ra;
+                        var dDec = c.Dec - tp.RaDec.Dec;
+                        CheckTracking(dRa, dDec);
+                    }
+                    tp.RaDec = c;
                 }
                 catch (Exception err)
                 {

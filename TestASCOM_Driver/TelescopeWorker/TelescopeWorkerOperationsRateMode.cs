@@ -13,12 +13,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         private TelescopeProperties tp;
         private ITelescopeInteraction ti;
 
-        public TelescopeWorkerOperationsNaturalMode(TelescopeProperties telescopeProperties, ITelescopeInteraction telescopeInteraction)
+        public TelescopeWorkerOperationsNaturalMode()
+        {
+        }
+
+        public void SegProperties(TelescopeProperties telescopeProperties, ITelescopeInteraction telescopeInteraction)
         {
             this.tp = telescopeProperties;
             this.ti = telescopeInteraction;
-        }
-        
+        }        
         /// <summary>
         /// Get rate on Azm axis in (deg/sec)
         /// </summary>
@@ -119,17 +122,17 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         /// </summary>
         /// <param name="rate">Rate (deg/sec) or fixed rate * 10</param>
         /// <param name="isFixed"></param>
-        public void MoveAxisAzm(double rate, bool isFixed = false)
+        public void MoveAxis(SlewAxes axis, double rate, bool isFixed = false)
         {
             if (!rate.Equals(0))
             {
                 if (!isFixed)
                 {
-                    ti.SlewHighRate(SlewAxes.RaAzm, rate);
+                    ti.SlewHighRate(axis, rate);
                 }
                 else
                 {
-                    ti.SlewFixedRate(SlewAxes.RaAzm, (int) rate);
+                    ti.SlewFixedRate(axis, (int) rate);
                 }
             }
         }

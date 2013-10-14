@@ -151,9 +151,11 @@
     <Compile Include="SetupProperties\SetupDialogForm.designer.cs">
       <DependentUpon>SetupDialogForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TelescopeWorker\ITelescopeWorkerOperations.cs" />
     <Compile Include="TelescopeWorker\PulsState.cs" />
     <Compile Include="TelescopeWorker\TelescopeProperties.cs" />
     <Compile Include="TelescopeWorker\TelescopeWorker.cs" />
+    <Compile Include="TelescopeWorker\TelescopeWorkerOperationsNaturalMode.cs" />
     <Compile Include="TelescopeWorker\TelescopeWorkerOperationsRateMode.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

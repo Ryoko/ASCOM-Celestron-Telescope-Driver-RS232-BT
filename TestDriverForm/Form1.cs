@@ -41,10 +41,17 @@ namespace ASCOM.CelestronAdvancedBluetooth
             }
             else
             {
-                driver = new ASCOM.DriverAccess.Telescope(Properties.Settings.Default.DriverId);
-                driver.Connected = true;
-                if (!backgroundWorker1.IsBusy)
-                    backgroundWorker1.RunWorkerAsync();
+                try
+                {
+                    driver = new ASCOM.DriverAccess.Telescope(Properties.Settings.Default.DriverId);
+                    driver.Connected = true;
+                    if (!backgroundWorker1.IsBusy)
+                        backgroundWorker1.RunWorkerAsync();
+                }
+                catch
+                {
+                    
+                }
             }
             SetUIState();
         }
