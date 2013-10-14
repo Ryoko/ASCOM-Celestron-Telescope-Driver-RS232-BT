@@ -323,11 +323,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         protected double BytesToDouble(byte[] buf)
         {
             int res = 0;
-            foreach (var b in buf)
+            int d = 0;
+            foreach (var v in buf)
             {
-                res = res*0x100 + b;
+                if (v == 35) break;
+                res = res * 0x100 + v;
+                d++;
             }
-            var val = 360*res/Math.Pow(2, buf.Length*8);
+            var val = res*(360d/Math.Pow(2, d*8));
+            while (val > 360) val -= 360;
+            if (val < 0) val += 360;
             return val;
         }
     }

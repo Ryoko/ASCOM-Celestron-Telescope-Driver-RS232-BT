@@ -154,6 +154,7 @@
     <Compile Include="TelescopeWorker\PulsState.cs" />
     <Compile Include="TelescopeWorker\TelescopeProperties.cs" />
     <Compile Include="TelescopeWorker\TelescopeWorker.cs" />
+    <Compile Include="TelescopeWorker\TelescopeWorkerOperationsRateMode.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
