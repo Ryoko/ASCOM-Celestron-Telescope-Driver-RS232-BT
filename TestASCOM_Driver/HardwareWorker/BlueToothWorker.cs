@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using InTheHand.Net.Sockets;
@@ -108,6 +109,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     if (Environment.TickCount > begin + TIMEOUT) break;
                 }
             }
+            //Debug.WriteLine(string.Format("Send:{0} Recived:{1}", Utils.Utils.Bytes2Dump(send), Utils.Utils.Bytes2Dump(receive.Take(offset))));
             return receive.Take(offset).ToArray();
         }
 

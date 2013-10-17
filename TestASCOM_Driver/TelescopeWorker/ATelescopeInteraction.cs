@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using ASCOM.Astrometry.Exceptions;
@@ -235,13 +236,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         protected byte[] SendBytes(byte[] com)
         {
-            var res = this.driverWorker.CommandString(Encoding.ASCII.GetString(com), false);
-            if (res.Length == 0 || !res[res.Length - 1].Equals('#'))
+            var res = this.driverWorker.CommandBytes(com);// CommandString(Encoding.ASCII.GetString(com), false);
+            if (res.Length == 0 || res[res.Length - 1] != '#')
             {
                 throw new Exception("Error in protocol");
             }
 
-            return Encoding.ASCII.GetBytes(res); //  res.ToCharArray().Cast<byte>().ToArray();
+            return res; //  res.ToCharArray().Cast<byte>().ToArray();
         }
 
         protected double[] GetValues(string command, int nOfDigits)
@@ -327,12 +328,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             foreach (var v in buf)
             {
                 if (v == 35) break;
-                res = res * 0x100 + v;
+                res = res * 0x100 + (v & 0xff);
                 d++;
             }
-            var val = res*(360d/Math.Pow(2, d*8));
-            while (val > 360) val -= 360;
+            var val = (res*360d)/Math.Pow(2, d*8);
             if (val < 0) val += 360;
+            while (val > 360) val -= 360;
             return val;
         }
     }

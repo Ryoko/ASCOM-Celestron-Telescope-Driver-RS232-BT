@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
@@ -13,6 +14,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         bool CommandBool(string command, bool raw);
         string CommandString(string command, bool raw);
         bool GetPairValues(string command, out int val1, out int val2);
+        byte[] CommandBytes(byte[] command);
     }
 
     class DriverWorker : IDriverWorker
@@ -51,6 +53,18 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             // it's a good idea to put all the low level communication with the device here,
             // then all communication calls this function
             // you need something to ensure that only one command is in progress at a time
+            try
+            {
+                return dw.Transfer(command);
+            }
+            catch (Exception err)
+            {
+                throw new ASCOM.DriverException(err.Message, err);
+            }
+        }
+
+        public byte[] CommandBytes(byte[] command)
+        {
             try
             {
                 return dw.Transfer(command);

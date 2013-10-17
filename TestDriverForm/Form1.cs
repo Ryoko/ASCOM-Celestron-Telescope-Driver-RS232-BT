@@ -90,18 +90,21 @@ namespace ASCOM.CelestronAdvancedBluetooth
         {
             if (e.ProgressPercentage == 50)
             {
-                isSetting = true;
-                Ra.Text = new DMS(driver.RightAscension, true).ToString();
-                Dec.Text = new DMS(driver.Declination).ToString();
-                Alt.Text = new DMS(driver.Altitude).ToString();
-                Azm.Text = new DMS(driver.Azimuth).ToString();
-                var mode = driver.Action("GetTrackingMode", "");
-                int trMode;
-                if (int.TryParse(mode, out trMode) && TrMode.SelectedIndex != trMode)
+                try
                 {
-                    TrMode.SelectedIndex = trMode;
-                }
-                isSetting = false;
+                    isSetting = true;
+                    Ra.Text = new DMS(driver.RightAscension, true).ToString();
+                    Dec.Text = new DMS(driver.Declination).ToString();
+                    Alt.Text = new DMS(driver.Altitude).ToString();
+                    Azm.Text = new DMS(driver.Azimuth).ToString();
+                    var mode = driver.Action("GetTrackingMode", "");
+                    int trMode;
+                    if (int.TryParse(mode, out trMode) && TrMode.SelectedIndex != trMode)
+                    {
+                        TrMode.SelectedIndex = trMode;
+                    }
+                    isSetting = false;
+                }catch{}
             }
         }
 

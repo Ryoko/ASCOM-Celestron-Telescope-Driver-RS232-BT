@@ -63,6 +63,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         /// deg/sec
         /// </summary>
         public double PulseRateAzm { get; set; }
+        public AltAzm Position { get; set; }
 
         //public static TelescopeProperties Properties { get { return _properties; } }
 

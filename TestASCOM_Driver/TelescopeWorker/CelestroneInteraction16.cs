@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -229,6 +230,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             var alt = BytesToDouble(res.Take(res.Length - 1).ToArray());
             res = SendCommandToDevice(DeviceID.RaAzmMotor, DeviceCommands.MC_GET_POSITION, 3);
             var azm = BytesToDouble(res.Take(res.Length - 1).ToArray());
+            var rest = "";
+            foreach (var re in res)
+            {
+                rest += string.Format(" {0:x}", re);
+            }
+            //Debug.WriteLine(string.Format("[{0}] DevID={1} Com={2} res={3}",
+            //    DateTime.Now, (byte)DeviceID.RaAzmMotor, (byte)DeviceCommands.MC_GET_POSITION, rest));
+
             return new[] {azm, alt};
         }
 

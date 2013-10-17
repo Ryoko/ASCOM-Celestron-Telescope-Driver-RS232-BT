@@ -29,17 +29,21 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         private bool lastGetCoordinateMode = false;
         private Telescope _driver;
         private ITelescopeWorkerOperations two;
+        private KalmanFilterSimple1D kfilt;
 
         private TelescopeWorker(Telescope driver)
         {
             _driver = driver;
+            two = new TelescopeWorkerOperationsRateMode();
+            setFilter();
+            
             bgWorker.DoWork += BgWorkerOnDoWork;
             bgWorker.ProgressChanged += BgWorkerOnProgressChanged;
             bgWorker.RunWorkerCompleted += BgWorkerOnRunWorkerCompleted;
             bgWorker.WorkerSupportsCancellation = true;
             bgWorker.WorkerReportsProgress = true;
+
             bgWorker.RunWorkerAsync();
-            two = new TelescopeWorkerOperationsRateMode();
         }
 
 
@@ -300,7 +304,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     Thread.Sleep(20);
                     continue;
                 }
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
             }
         }
 
@@ -427,7 +431,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     {
                         var dRa = c.Ra - tp.RaDec.Ra;
                         var dDec = c.Dec - tp.RaDec.Dec;
-                        CheckTracking(dRa, dDec);
+                        //CheckTracking(dRa, dDec);
                     }
                     tp.RaDec = c;
                 }
@@ -441,16 +445,59 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             {
                 try
                 {
-                    tp.AltAzm = ti.AltAzm;
+                    var val = ti.AltAzm;
+                    //ProcessAltAzm(val, tp.AltAzm);
+                    tp.AltAzm = val;
                 }
                 catch (Exception err)
                 {
                     tp.AltAzm = new AltAzm(double.NaN, double.NaN);
                 }
             }
-            
+
+            try
+            {
+                var val = ti.GetPosition();
+                var pos = new AltAzm(val[1], val[0]);
+                ProcessAltAzm(pos, tp.Position);
+                tp.Position = pos;
+            }
+            catch (Exception err)
+            {
+                tp.Position = new AltAzm(double.NaN, double.NaN);
+            }
+
             lastGetCoordinateMode = !lastGetCoordinateMode;
             lastGetCoordiante = Environment.TickCount;
+        }
+
+        private void setFilter()
+        {
+            kfilt = new KalmanFilterSimple1D(0.0001, 0.00003);
+        }
+
+        private int lastAltAzm = 0;
+        private void ProcessAltAzm(AltAzm newVal, AltAzm oldVal)
+        {
+            if (lastAltAzm > 0)
+            {
+                var RaRate = GetRateRa(tp.TrackingRate, tp.TrackingMode);
+                var dT = Environment.TickCount - lastAltAzm;
+                var azm = (newVal.Azm - oldVal.Azm)*1000/dT;// - Const.TRACKRATE_SIDEREAL;
+                var dec = (newVal.Alt - oldVal.Alt)*1000/dT;
+
+                var azmf = kfilt.Correct(azm);
+
+                Debug.WriteLine(string.Format("[{4}] azm = {0,14}, AzmV = {1:f8}, AzmVcorr = {2:f8}, Covar = {3:f8}", 
+                    DMS.FromDeg(newVal.Azm).ToString(":"), 
+                    azm, azmf, kfilt.Covariance, DateTime.Now));
+
+            }
+            else
+            {
+                kfilt.SetState(newVal.Azm, 0.0);
+            }
+            lastAltAzm = Environment.TickCount;
         }
 
     }

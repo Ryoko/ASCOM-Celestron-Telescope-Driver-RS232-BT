@@ -157,7 +157,10 @@
     <Compile Include="TelescopeWorker\TelescopeWorker.cs" />
     <Compile Include="TelescopeWorker\TelescopeWorkerOperationsNaturalMode.cs" />
     <Compile Include="TelescopeWorker\TelescopeWorkerOperationsRateMode.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Utils\Const.cs" />
+    <Compile Include="Utils\DMS.cs" />
+    <Compile Include="Utils\Kalman.cs" />
+    <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HandForm\HandControl.resx">
