@@ -120,6 +120,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get;
         }
 
+        public virtual bool IsSlewDone(DeviceID deviceId)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public abstract void CancelGoTo();
 
         public virtual bool SetTrackingRate(DriveRates rate, TrackingMode mode)
@@ -132,12 +137,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get { return 0; }
         }
 
-        public virtual void GoToPosition(double azm, double alt)
+        public virtual void GoToPosition(AltAzm position)
         {
             throw new System.NotImplementedException();
         }
 
-        public virtual double[] GetPosition()
+        public virtual AltAzm GetPosition()
         {
             throw new System.NotImplementedException();
         }

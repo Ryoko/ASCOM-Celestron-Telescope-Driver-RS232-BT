@@ -109,6 +109,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             this.RightAscensionRateOffset = 0;
             this.DeclinationRateOffset = 0;
             this.DefaultTrackingMode = TrackingMode > TrackingMode.Off ? TrackingMode : Location.Lat > 0 ? TrackingMode.EQN : TrackingMode.EQS;
+            this.HomePozition = new AltAzm(Telescope.HomeAlt, Telescope.HomeAzm);
+            this.ParkPosition = Telescope.ParkAlt.Equals(double.NaN) || Telescope.ParkAzm.Equals(double.NaN) ? null : new AltAzm(Telescope.ParkAlt, Telescope.ParkAzm);
+            this.IsAtPark = Telescope.IsAtPark;
             this.IsReady = true;
         }
     }

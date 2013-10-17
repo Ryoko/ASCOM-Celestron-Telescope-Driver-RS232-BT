@@ -106,12 +106,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         void CancelGoTo();
         //bool SetTrackingRate(DriveRates rate, TrackingMode mode);
         double VersionRequired { get; }
-        void GoToPosition(double azm, double alt);
+        void GoToPosition(AltAzm position);
         /// <summary>
         /// Get Position {Azm, Alt} 
         /// </summary>
         /// <returns>{Azm, Alt}</returns>
-        double[] GetPosition();
+        AltAzm GetPosition();
+
+        bool IsSlewDone(DeviceID deviceId);
 
         bool CanSyncAltAzm { get; }
         bool CanSyncRaDec { get; }

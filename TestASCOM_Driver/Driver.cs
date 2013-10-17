@@ -278,7 +278,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 }
                 case "GetPosition":
                     var res = telescopeInteraction.GetPosition();
-                    return string.Format("{0};{1}", res[0], res[1]);
+                    return string.Format("{0};{1}", res.Azm, res.Alt);
             }
             throw new ASCOM.ActionNotImplementedException("Action " + actionName + " is not implemented by this driver");
         }
@@ -575,14 +575,27 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 val = driverProfile.GetValue(driverID, showControlProfileName, string.Empty, "false");
                 bool.TryParse(val, out showControl);
 
-                val = driverProfile.GetValue(driverID, HomeAltProfileName, string.Empty, defaultDouble);
-                double.TryParse(val, out HomeAlt);
-                val = driverProfile.GetValue(driverID, HomeAzmProfileName, string.Empty, defaultDouble);
-                double.TryParse(val, out HomeAzm);
-                val = driverProfile.GetValue(driverID, ParkAltProfileName, string.Empty, defaultDouble);
-                double.TryParse(val, out ParkAlt);
-                val = driverProfile.GetValue(driverID, ParkAzmProfileName, string.Empty, defaultDouble);
-                double.TryParse(val, out ParkAzm);
+                var posValid = true;
+                val = driverProfile.GetValue(driverID, HomeAltProfileName, string.Empty, string.Empty);
+                posValid &= double.TryParse(val, out HomeAlt);
+                val = driverProfile.GetValue(driverID, HomeAzmProfileName, string.Empty, string.Empty);
+                posValid &= double.TryParse(val, out HomeAzm);
+                if (!posValid) 
+                {
+                    HomeAlt = 90;
+                    HomeAzm = 90;
+                }
+                posValid = true;
+                val = driverProfile.GetValue(driverID, ParkAltProfileName, string.Empty, string.Empty);
+                posValid &= double.TryParse(val, out ParkAlt);
+                val = driverProfile.GetValue(driverID, ParkAzmProfileName, string.Empty, string.Empty);
+                posValid &= double.TryParse(val, out ParkAzm);
+                if (!posValid)
+                {
+                    ParkAlt = 90;
+                    ParkAzm = 90;
+                }
+
                 val = driverProfile.GetValue(driverID, AtParkProfileName, string.Empty, defaultDouble);
                 bool.TryParse(val, out IsAtPark);
 

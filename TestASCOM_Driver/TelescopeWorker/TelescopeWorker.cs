@@ -103,6 +103,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public bool Slew(Coordinates coord)
         {
+            CheckPark();
             if (telescopeMode != TelescopeMode.Normal) return false;
             ti.RaDec = coord;
             telescopeMode = TelescopeMode.Slewing;
@@ -111,6 +112,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public bool Slew(AltAzm coord)
         {
+            CheckPark();
             if (telescopeMode != TelescopeMode.Normal) return false;
             ti.AltAzm = coord;
             telescopeMode = TelescopeMode.Slewing;
@@ -127,6 +129,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public void SetTracking(bool value)
         {
+            if (value) CheckPark();
             if (!ti.CanSetTrackingRates) throw new NotSupportedException("Setting tracking rate is not supported");
             if (telescopeMode == TelescopeMode.MovingAxis) return;
 
@@ -175,6 +178,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         private PulsState ps = new PulsState();
         public void PulseGuide(GuideDirections dir, int duration)
         {
+            CheckPark();
             if(telescopeMode != TelescopeMode.Normal && telescopeMode != TelescopeMode.Guiding) return;
             two.PulseGuide(dir, duration, ps);
             telescopeMode = TelescopeMode.Guiding;
@@ -194,6 +198,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         /// <param name="isFixed"></param>
         public void MoveAxis(SlewAxes axis, double rate, bool isFixed = false)
         {
+            CheckPark();
             if (telescopeMode == TelescopeMode.Normal || telescopeMode == TelescopeMode.MovingAxis)
             {
                 if (axis == SlewAxes.DecAlt) tp.MovingAltAxes = !rate.Equals(0);
@@ -233,6 +238,25 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public void GoHome()
         {
            // ti.SendCommandToDevice()
+        }
+
+        public bool IsAthome
+        {
+            get
+            {
+                var p = ti.GetPosition();
+                var dAlt = Math.Abs(p.Alt - tp.HomePozition.Alt);
+                var dAzm = Math.Abs(p.Azm - tp.HomePozition.Azm);
+                return (dAlt < 0.001 && dAzm < 0.001);
+            }
+        }
+
+        public void CheckPark()
+        {
+            if (tp.IsAtPark)
+            {
+                throw new ParkedException("Parked");
+            }
         }
 
         public void StopWorking()
@@ -276,7 +300,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             while (!bgWorker.CancellationPending)
             {
-                if (ti != null && ti.isConnected)
+                if (ti != null && ti.isConnected && !tp.IsAtPark)
                 {
                     switch (telescopeMode)
                     {
@@ -304,7 +328,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     Thread.Sleep(20);
                     continue;
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
         }
 
@@ -373,7 +397,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     slewEndTime = Environment.TickCount;
                     isSlewSetteled = true;
                 }
-                CheckCoordinates(true);
+                CheckCoordinates();
             }
             if (slewEndTime + tp.SlewSteeleTime < Environment.TickCount)
             {
@@ -454,19 +478,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     tp.AltAzm = new AltAzm(double.NaN, double.NaN);
                 }
             }
-
-            try
+            if (telescopeMode == TelescopeMode.Normal)
             {
-                var val = ti.GetPosition();
-                var pos = new AltAzm(val[1], val[0]);
-                ProcessAltAzm(pos, tp.Position);
-                tp.Position = pos;
+                try
+                {
+                    var pos = ti.GetPosition();
+                    ProcessAltAzm(pos, tp.Position);
+                    tp.Position = pos;
+                }
+                catch (Exception err)
+                {
+                    tp.Position = new AltAzm(double.NaN, double.NaN);
+                }
             }
-            catch (Exception err)
-            {
-                tp.Position = new AltAzm(double.NaN, double.NaN);
-            }
-
             lastGetCoordinateMode = !lastGetCoordinateMode;
             lastGetCoordiante = Environment.TickCount;
         }
@@ -483,7 +507,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             {
                 var RaRate = GetRateRa(tp.TrackingRate, tp.TrackingMode);
                 var dT = Environment.TickCount - lastAltAzm;
-                var azm = (newVal.Azm - oldVal.Azm)*1000/dT;// - Const.TRACKRATE_SIDEREAL;
+                var azm = Const.TRACKRATE_SIDEREAL - (newVal.Azm - oldVal.Azm)*1000/dT;
                 var dec = (newVal.Alt - oldVal.Alt)*1000/dT;
 
                 var azmf = kfilt.Correct(azm);

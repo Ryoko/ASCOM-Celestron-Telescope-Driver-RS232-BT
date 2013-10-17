@@ -60,7 +60,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             double Rate = GetRateRa(rate, mode);
             CheckRateTrackingState();
-            ti.SlewHighRate(SlewAxes.RaAzm, Rate);
+            if (!tp.IsAtPark)
+                ti.SlewHighRate(SlewAxes.RaAzm, Rate);
             tp.MovingAzmAxes = false;
         }
 
@@ -74,7 +75,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             {
                 //                if (tp.TrackingMode == TrackingMode.EQS) Rate = -Rate;
                 var Rate = tp.DeclinationRateOffset;
-                ti.SlewHighRate(SlewAxes.DecAlt, Rate);
+                if (!tp.IsAtPark)
+                    ti.SlewHighRate(SlewAxes.DecAlt, Rate);
             }
             tp.MovingAltAxes = false;
 
@@ -139,7 +141,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public void StopWorking()
         {
-            if (ti != null && tp != null && tp.IsRateTracked)
+            if (ti != null && tp != null && tp.IsRateTracked && !tp.IsAtPark)
             {
                 if (ti.CanSlewHighRate)
                     ti.SlewHighRate(SlewAxes.DecAlt, 0);

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using ASCOM.Astrometry.Exceptions;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.DeviceInterface;
@@ -216,15 +217,35 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get { return 1.6; }
         }
 
-        public override void GoToPosition(double azm, double alt)
+        public override void GoToPosition(AltAzm pos)
         {
-            var buf = DoubleToBytes(alt);
-            SendCommandToDevice(DeviceID.DecAltMotor, DeviceCommands.MC_GOTO_FAST, 0, buf);
-            buf = DoubleToBytes(azm);
+            var buf = DoubleToBytes(pos.Alt);
+            if (pos.Azm < 0 || pos.Azm > 180)//Unsafe Azm position
+            {
+                if (pos.Alt < 80 || pos.Alt > 100)
+                    throw new ArgumentOutOfRangeException("Azimuth position is out of safety range");
+                
+                // Move Alt axis to safe position before moving Azm axis to unsafe position
+                SendCommandToDevice(DeviceID.DecAltMotor, DeviceCommands.MC_GOTO_FAST, 0, buf);
+                var tBeginMove = Environment.TickCount;
+                while (true)
+                {
+                    Thread.Sleep(100);
+                    var p = GetPosition();
+                    if (p.Alt > 80 && p.Alt < 100) break;
+                    if (tBeginMove + 60000 < Environment.TickCount)
+                        throw new DriverException("Can not move Alt axis to save position");
+                }
+            }
+            else
+            {
+                SendCommandToDevice(DeviceID.DecAltMotor, DeviceCommands.MC_GOTO_FAST, 0, buf);
+            }
+            buf = DoubleToBytes(pos.Azm);
             SendCommandToDevice(DeviceID.RaAzmMotor, DeviceCommands.MC_GOTO_FAST, 0, buf);
         }
 
-        public override double[] GetPosition()
+        public override AltAzm GetPosition()
         {
             var res = SendCommandToDevice(DeviceID.DecAltMotor, DeviceCommands.MC_GET_POSITION, 3);
             var alt = BytesToDouble(res.Take(res.Length - 1).ToArray());
@@ -238,7 +259,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             //Debug.WriteLine(string.Format("[{0}] DevID={1} Com={2} res={3}",
             //    DateTime.Now, (byte)DeviceID.RaAzmMotor, (byte)DeviceCommands.MC_GET_POSITION, rest));
 
-            return new[] {azm, alt};
+            return new AltAzm(alt, azm);
+        }
+
+        public override bool IsSlewDone(DeviceID deviceId)
+        {
+            var res = SendCommandToDevice(deviceId, DeviceCommands.MC_SLEW_DONE, 1);
+            return res[0] != 0;
         }
 
         public override bool CanWorkPosition
