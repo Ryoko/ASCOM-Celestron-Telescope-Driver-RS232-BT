@@ -524,7 +524,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 try
                 {
                     var pos = ti.GetPosition();
-                    ProcessAltAzm(pos, tp.Position);
+                    ProcessAltAzm(pos, tp.Position, Environment.TickCount);
                     tp.Position = pos;
                 }
                 catch (Exception err)
@@ -542,27 +542,28 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         }
 
         private int lastAltAzm = 0;
-        private void ProcessAltAzm(AltAzm newVal, AltAzm oldVal)
+        private Statistic AzmValues = new Statistic(3);
+        private void ProcessAltAzm(AltAzm newVal, AltAzm oldVal, int time)
         {
             if (lastAltAzm > 0)
             {
                 var RaRate = GetRateRa(tp.TrackingRate, tp.TrackingMode);
-                var dT = Environment.TickCount - lastAltAzm;
+                var dT = time - lastAltAzm;
                 var azm = Const.TRACKRATE_SIDEREAL - (newVal.Azm - oldVal.Azm)*1000/dT;
                 var dec = (newVal.Alt - oldVal.Alt)*1000/dT;
+                AzmValues.Add(azm, Const.TRACKRATE_SIDEREAL - RaRate);
+//                var azmf = kfilt.Correct(azm);
 
-                var azmf = kfilt.Correct(azm);
-
-                Debug.WriteLine(string.Format("[{4}] azm = {0,14}, AzmV = {1:f8}, AzmVcorr = {2:f8}, Covar = {3:f8}", 
+                Debug.WriteLine(string.Format("[{0}] azm={1,-12} azmVal={2,9:f6} sco={3,9:f6} sMed={4,9:f6} sSco={5,9:f6} med={6,9:f6}", DateTime.Now,
                     DMS.FromDeg(newVal.Azm).ToString(":"), 
-                    azm, azmf, kfilt.Covariance, DateTime.Now));
+                    azm, AzmValues.sco, AzmValues.cMed, AzmValues.cSco , AzmValues.Median));
 
             }
             else
             {
-                kfilt.SetState(newVal.Azm, 0.0);
+                //kfilt.SetState(newVal.Azm, 0.0);
             }
-            lastAltAzm = Environment.TickCount;
+            lastAltAzm = time;
         }
 
     }
