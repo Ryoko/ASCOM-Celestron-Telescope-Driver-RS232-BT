@@ -11,5 +11,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         void Disconnect();
         string Transfer(string command);
         byte[] Transfer(byte[] send);
+        bool IsConnected { get; }
+        void CheckConnected(string message);
     }
 }

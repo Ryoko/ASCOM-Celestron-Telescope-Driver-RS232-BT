@@ -10,9 +10,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
     internal class CelestroneInteraction31 : CelestroneInteraction23
     {
-        public CelestroneInteraction31(IDriverWorker _driverWorker) : base(_driverWorker)
-        {
-        }
+        public CelestroneInteraction31(IDeviceWorker deviceWorker) : base(deviceWorker)
+        {}
 
         public override DateTime RTCDateTime
         {
@@ -28,21 +27,21 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     (byte) 'P', 3, 178, 131,
                     (byte)value.Month, (byte)value.Day, 0, 0
                 };
-                SendCommand(com);
+                SendBytes(com);
                 
                 com = new byte[]
                 {
                     (byte) 'P', 3, 178, 132,
                     (byte)(value.Year / 256), (byte)(value.Year % 256), 0, 0
                 };
-                SendCommand(com);
+                SendBytes(com);
 
                 com = new byte[]
                 {
                     (byte) 'P', 4, 178, 179,
                     (byte)value.Hour, (byte)value.Minute, (byte)value.Second, 0
                 };
-                SendCommand(com);
+                SendBytes(com);
 
             }
         }

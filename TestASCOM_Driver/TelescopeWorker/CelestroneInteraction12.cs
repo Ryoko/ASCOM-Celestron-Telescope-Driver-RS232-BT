@@ -13,15 +13,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
     /// </summary>
     internal class CelestroneInteraction12 : ATelescopeInteraction
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CelestroneInteraction12"/> class.
-        /// </summary>
-        /// <param name="_driverWorker">
-        /// The _driver worker.
-        /// </param>
-        public CelestroneInteraction12(IDriverWorker _driverWorker) : base(_driverWorker)
-        {
-        }
+        public CelestroneInteraction12(IDeviceWorker deviceWorker) : base(deviceWorker)
+        {}
 
         /// <summary>
         /// Gets or sets the alt azm.
@@ -101,27 +94,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
-
-        public override double FirmwareVersion
-        {
-            get
-            {
-                //var com = new[] {(byte) 'V'};
-                var res = driverWorker.CommandString("V", false);// SendCommand(com);
-                if (res.Length < 2) throw new Exception("Wrong answer");
-                var low = (double) res[1];
-                low = low/(low < 10 ? 10 : low < 100 ? 100 : 1000);
-                _firmwareVersion = res[0] + low;
-                return _firmwareVersion;
-            }
-        }
-
         public override bool IsAlignmentComplete
         {
             get
             {
                 //var com = new[] {(byte) 'J'};
-                var res = driverWorker.CommandString("J", false);//SendCommand(com);
+                var res = DeviceWorker.Transfer("J");//SendBytes(com);
                 return res[0] == 1;
             }
         }
@@ -131,7 +109,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 //var com = new[] {(byte) 'L'};
-                var res = driverWorker.CommandString("L", false);//SendCommand(com);
+                var res = DeviceWorker.Transfer("L");//SendBytes(com);
                 return res[0] == (byte) '1';
             }
         }
@@ -139,12 +117,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public override void CancelGoTo()
         {
             //var com = new[] {(byte) 'M'};
-            driverWorker.CommandString("M", false);//SendCommand(com);
+            DeviceWorker.Transfer("M");//SendBytes(com);
         }
 
         public override double VersionRequired
         {
-            get { return 1.2; }
+            get { return 0; }
         }
 
     }

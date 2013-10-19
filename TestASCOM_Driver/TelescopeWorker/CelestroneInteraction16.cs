@@ -15,9 +15,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
     class CelestroneInteraction16 : CelestroneInteraction12
     {
-        public CelestroneInteraction16(IDriverWorker _driverWorker) : base(_driverWorker)
-        {
-        }
+        public CelestroneInteraction16(IDeviceWorker deviceWorker) : base(deviceWorker)
+        {}
 
         /// <summary>
         /// Gets or sets the ra dec.
@@ -83,7 +82,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             var r = (int)Math.Abs(rate*4*3600);
             var devId = GetDeviceId(axis);
             //var com = new byte[] { (byte)'P', 3, devId, (byte)dir, (byte) (r/256), (byte) (r%256), 0, 0 };
-            //SendCommand(com);
+            //SendBytes(com);
             var command = rate < 0 ? DeviceCommands.MC_SET_NEG_VARIABLE_GUIDERATE : DeviceCommands.MC_SET_POS_VARIABLE_GUIDERATE;
             SendCommandToDevice(devId, command, 0, (byte) (r/256), (byte) (r%256));
         }
@@ -146,16 +145,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new byte[] { (byte)'P', 1, 176, 3, 0, 0, 0, 2 };
-                var res = SendCommand(com); 
+                var res = SendBytes(com); 
                 var month = (int)res[0];
                 var day = (int)res[1];
 
                 com = new byte[] { (byte)'P', 1, 176, 4, 0, 0, 0, 2 };
-                res = SendCommand(com); 
+                res = SendBytes(com); 
                 var year = (int)res[0] * 256 + res[1];
 
                 com = new byte[] { (byte)'P', 1, 176, 51, 0, 0, 0, 3 };
-                res = SendCommand(com);
+                res = SendBytes(com);
 
                 return new DateTime(year, month, day, res[2], res[1], res[0]);
             }
@@ -166,13 +165,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new byte[] { (byte)'P', 1, 176, 1, 0, 0, 0, 3 };
-                var res = SendCommand(com);
+                var res = SendBytes(com);
                 var lat = ((
                     ((double) res[0])*65536 +
                     ((double) res[1])*256 +
                     res[2])/Math.Pow(2, 24))*360;
                 com[3] = 2;
-                res = SendCommand(com);
+                res = SendBytes(com);
                 var lon = ((
                     ((double)res[0]) * 65536 +
                     ((double)res[1]) * 256 +
@@ -186,16 +185,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new byte[] { (byte)'P', 1, 178, 3, 0, 0, 0, 2 };
-                var res = SendCommand(com); 
+                var res = SendBytes(com); 
                 var month = (int)res[0];
                 var day = (int)res[1];
 
                 com = new byte[] { (byte)'P', 1, 178, 4, 0, 0, 0, 2 };
-                res = SendCommand(com); 
+                res = SendBytes(com); 
                 var year = (int)res[0] * 256 + res[1];
 
                 com = new byte[] { (byte)'P', 1, 178, 51, 0, 0, 0, 3 };
-                res = SendCommand(com);
+                res = SendBytes(com);
 
                 return new DateTime(year, month, day, res[2], res[1], res[0]);
             }
@@ -206,7 +205,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
 //            var com = new byte[] { (byte)'P', 1, (byte)device, 254, 0, 0, 0, 2 };
             var ans = SendCommandToDevice(device, DeviceCommands.GET_VER, 2);
-//            var res = SendCommand(com);
+//            var res = SendBytes(com);
             var low = (double)ans[1];
             low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
             return ans[0] + low;
@@ -220,9 +219,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         public override void GoToPosition(AltAzm pos)
         {
             var buf = DoubleToBytes(pos.Alt);
-            if (pos.Azm < 0 || pos.Azm > 180)//Unsafe Azm position
+            if (pos.Azm < 10 || pos.Azm > 170)//Unsafe Azm position
             {
-                if (pos.Alt < 80 || pos.Alt > 100)
+                if (pos.Alt < 90 || pos.Alt > 270)
                     throw new ArgumentOutOfRangeException("Azimuth position is out of safety range");
                 
                 // Move Alt axis to safe position before moving Azm axis to unsafe position
@@ -231,8 +230,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 while (true)
                 {
                     Thread.Sleep(100);
-                    var p = GetPosition();
-                    if (p.Alt > 80 && p.Alt < 100) break;
+                    if (IsSlewDone(DeviceID.DecAltMotor)) break;
                     if (tBeginMove + 60000 < Environment.TickCount)
                         throw new DriverException("Can not move Alt axis to save position");
                 }

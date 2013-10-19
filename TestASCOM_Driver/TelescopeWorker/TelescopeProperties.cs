@@ -64,6 +64,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         /// </summary>
         public double PulseRateAzm { get; set; }
         public AltAzm Position { get; set; }
+        public Coordinates SyncRaDecOffset { get; set; }
+        public AltAzm SyncAltAzmOffset { get; set; }
 
         //public static TelescopeProperties Properties { get { return _properties; } }
 
@@ -113,6 +115,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             this.ParkPosition = Telescope.ParkAlt.Equals(double.NaN) || Telescope.ParkAzm.Equals(double.NaN) ? null : new AltAzm(Telescope.ParkAlt, Telescope.ParkAzm);
             this.IsAtPark = Telescope.IsAtPark;
             this.IsReady = true;
+            this.SyncAltAzmOffset = new AltAzm(0, 0);
+            this.SyncRaDecOffset = new Coordinates(0, 0);
         }
     }
 

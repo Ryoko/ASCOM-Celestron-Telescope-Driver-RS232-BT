@@ -9,10 +9,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
     class CelestroneInteraction22 : CelestroneInteraction16
     {
-        public CelestroneInteraction22(IDriverWorker _driverWorker)
-            : base(_driverWorker)
-        {
-        }
+        public CelestroneInteraction22(IDeviceWorker deviceWorker) : base(deviceWorker)
+        {}
 
         /// <summary>
         /// Gets or sets the alt azm.
@@ -58,7 +56,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get
             {
                 var com = new[] { (byte)'m' };
-                var res = driverWorker.CommandString("m", false);//SendCommand(com);
+                var res = DeviceWorker.Transfer("m");//SendBytes(com);
                 _telescopeModel = (TelescopeModel) res[0];
                 return _telescopeModel;
             }

@@ -132,5 +132,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         bool CanSlewHighRate { get; }
         bool CanWorkPosition { get; }
         byte[] SendCommandToDevice(DeviceID DeviceId, DeviceCommands Command, byte NoOfAnsvers, params byte[] args);
+
+        bool CommandBool(string command, bool raw);
+        void CommandBlind(string command, bool raw);
+        string CommandString(string command, bool raw);
+
     }
 }

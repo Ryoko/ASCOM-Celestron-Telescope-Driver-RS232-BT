@@ -9,11 +9,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
     class CelestroneInteraction23 : CelestroneInteraction22
     {
-        public CelestroneInteraction23(IDriverWorker _driverWorker) : base(_driverWorker)
-        {
-        }
+        public CelestroneInteraction23(IDeviceWorker deviceWorker) : base(deviceWorker)
+        {}
 
-        
         public override TrackingMode TrackingMode
         {
             get

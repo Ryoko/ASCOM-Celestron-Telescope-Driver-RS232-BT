@@ -32,7 +32,10 @@
             this.buttonConnect = new System.Windows.Forms.Button();
             this.labelDriverId = new System.Windows.Forms.Label();
             this.Coordinates = new System.Windows.Forms.GroupBox();
-            this.getHome = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.Park = new System.Windows.Forms.Button();
+            this.setPark = new System.Windows.Forms.Button();
             this.positionAlt = new System.Windows.Forms.Label();
             this.positionAzm = new System.Windows.Forms.Label();
             this.goHome = new System.Windows.Forms.Button();
@@ -92,7 +95,10 @@
             // 
             // Coordinates
             // 
-            this.Coordinates.Controls.Add(this.getHome);
+            this.Coordinates.Controls.Add(this.label2);
+            this.Coordinates.Controls.Add(this.label3);
+            this.Coordinates.Controls.Add(this.Park);
+            this.Coordinates.Controls.Add(this.setPark);
             this.Coordinates.Controls.Add(this.positionAlt);
             this.Coordinates.Controls.Add(this.positionAzm);
             this.Coordinates.Controls.Add(this.goHome);
@@ -106,42 +112,70 @@
             this.Coordinates.Controls.Add(this.label1);
             this.Coordinates.Location = new System.Drawing.Point(216, 73);
             this.Coordinates.Name = "Coordinates";
-            this.Coordinates.Size = new System.Drawing.Size(181, 165);
+            this.Coordinates.Size = new System.Drawing.Size(181, 214);
             this.Coordinates.TabIndex = 3;
             this.Coordinates.TabStop = false;
             this.Coordinates.Text = "Coordinates";
             // 
-            // getHome
+            // label2
             // 
-            this.getHome.Location = new System.Drawing.Point(9, 126);
-            this.getHome.Name = "getHome";
-            this.getHome.Size = new System.Drawing.Size(60, 23);
-            this.getHome.TabIndex = 11;
-            this.getHome.Text = "GetHome";
-            this.getHome.UseVisualStyleBackColor = true;
-            this.getHome.Click += new System.EventHandler(this.getHome_Click);
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(8, 115);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(87, 13);
+            this.label2.TabIndex = 14;
+            this.label2.Text = "Position Azimuth:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(8, 102);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(85, 13);
+            this.label3.TabIndex = 13;
+            this.label3.Text = "Position Altitude:";
+            // 
+            // Park
+            // 
+            this.Park.Location = new System.Drawing.Point(75, 171);
+            this.Park.Name = "Park";
+            this.Park.Size = new System.Drawing.Size(57, 23);
+            this.Park.TabIndex = 12;
+            this.Park.Text = "Park";
+            this.Park.UseVisualStyleBackColor = true;
+            this.Park.Click += new System.EventHandler(this.Park_Click);
+            // 
+            // setPark
+            // 
+            this.setPark.Location = new System.Drawing.Point(9, 171);
+            this.setPark.Name = "setPark";
+            this.setPark.Size = new System.Drawing.Size(60, 23);
+            this.setPark.TabIndex = 11;
+            this.setPark.Text = "SetPark";
+            this.setPark.UseVisualStyleBackColor = true;
+            this.setPark.Click += new System.EventHandler(this.setPark_Click);
             // 
             // positionAlt
             // 
             this.positionAlt.AutoSize = true;
-            this.positionAlt.Location = new System.Drawing.Point(99, 115);
+            this.positionAlt.Location = new System.Drawing.Point(99, 102);
             this.positionAlt.Name = "positionAlt";
-            this.positionAlt.Size = new System.Drawing.Size(19, 13);
+            this.positionAlt.Size = new System.Drawing.Size(58, 13);
             this.positionAlt.TabIndex = 10;
-            this.positionAlt.Text = "Alt";
+            this.positionAlt.Text = "00:00:00.0";
             // 
             // positionAzm
             // 
             this.positionAzm.AutoSize = true;
-            this.positionAzm.Location = new System.Drawing.Point(99, 102);
+            this.positionAzm.Location = new System.Drawing.Point(99, 115);
             this.positionAzm.Name = "positionAzm";
-            this.positionAzm.Size = new System.Drawing.Size(27, 13);
+            this.positionAzm.Size = new System.Drawing.Size(58, 13);
             this.positionAzm.TabIndex = 9;
-            this.positionAzm.Text = "Azm";
+            this.positionAzm.Text = "00:00:00.0";
             // 
             // goHome
             // 
-            this.goHome.Location = new System.Drawing.Point(9, 97);
+            this.goHome.Location = new System.Drawing.Point(9, 142);
             this.goHome.Name = "goHome";
             this.goHome.Size = new System.Drawing.Size(57, 23);
             this.goHome.TabIndex = 8;
@@ -394,8 +428,11 @@
         private System.Windows.Forms.Button goHome;
         private System.Windows.Forms.Label positionAzm;
         private System.Windows.Forms.Label positionAlt;
-        private System.Windows.Forms.Button getHome;
+        private System.Windows.Forms.Button setPark;
         private System.Windows.Forms.TextBox console;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button Park;
     }
 }
 

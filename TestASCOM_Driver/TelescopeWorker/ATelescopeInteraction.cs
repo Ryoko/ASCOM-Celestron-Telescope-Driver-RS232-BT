@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using ASCOM.Astrometry.Exceptions;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
@@ -11,14 +12,50 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
     abstract class ATelescopeInteraction : ITelescopeInteraction
     {
-        protected IDriverWorker driverWorker;
+        //protected IDriverWorker driverWorker { set; get; }
+        protected IDeviceWorker DeviceWorker { get; set; }
         protected double _firmwareVersion = -1;
         protected TelescopeModel _telescopeModel = TelescopeModel.Unknown;
 
-        public ATelescopeInteraction(IDriverWorker _driverWorker)
+        public static ITelescopeInteraction GeTelescopeInteraction(IDeviceWorker deviceWorker)
         {
-            driverWorker = _driverWorker;
+            var tis = new[]
+            {
+                typeof (CelestroneInteraction41), typeof (CelestroneInteraction31), typeof (CelestroneInteraction23),
+                typeof (CelestroneInteraction22), typeof (CelestroneInteraction16), typeof (CelestroneInteraction12)
+            };
+            
+
+            //var ti = new CelestroneInteraction41(driverWorker);
+            //while (ti.GetType() != typeof (ATelescopeInteraction))
+            //{
+            //    if (version < ti.VersionRequired) return ti;
+            //    ti = ReflectionPermissionAttribute.GetCustomAttribute()
+            //    base;
+            //}
+
+            var res = deviceWorker.Transfer("V");// SendBytes(com);
+            if (res.Length < 2) throw new Exception("Wrong answer");
+            var low = (double)res[1];
+            low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
+            var ver = res[0] + low;
+
+            foreach (var type in tis)
+            {
+
+                var t = (ATelescopeInteraction)Activator.CreateInstance(type, deviceWorker);
+                if (t.VersionRequired > ver) continue;
+                return t;
+            }
+            return null;
         }
+
+        public ATelescopeInteraction(IDeviceWorker deviceWorker)
+        {
+            DeviceWorker = deviceWorker;
+        }
+
+        protected ATelescopeInteraction(){}
 
         public bool isConnected { get; set; }
         
@@ -95,9 +132,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get { throw new System.NotImplementedException(); }
             set { throw new System.NotImplementedException(); }
         }
-        public abstract double FirmwareVersion
+
+        public virtual double FirmwareVersion
         {
-            get;
+            get
+            {
+                //var com = new[] {(byte) 'V'};
+                var res = DeviceWorker.Transfer("V");// SendBytes(com);
+                if (res.Length < 2) throw new Exception("Wrong answer");
+                var low = (double)res[1];
+                low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
+                _firmwareVersion = res[0] + low;
+                return _firmwareVersion;
+            }
         }
 
         public virtual double GetDeviceVersion(DeviceID device)
@@ -227,21 +274,36 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             get { return false; }
         }
 
-        protected byte[] SendCommand(byte[] com)
+        public bool CommandBool(string command, bool raw)
         {
-            var len = com[com.Length - 1] + 1;
-            var res = this.driverWorker.CommandString(Encoding.ASCII.GetString(com), false);
-            if (res.Length < len || !res[len - 1].Equals('#'))
-            {
-                throw new Exception("Error in protocol");
-            }
+            DeviceWorker.CheckConnected("CommandBool");
+            string ret = DeviceWorker.Transfer(command);
+            return ret.EndsWith("#");
+        }
 
-            return Encoding.ASCII.GetBytes(res); //res.ToCharArray().Cast<byte>().ToArray();
+        public void CommandBlind(string command, bool raw)
+        {
+            DeviceWorker.CheckConnected("CommandBlind");
+            // Call CommandString and return as soon as it finishes
+            this.DeviceWorker.Transfer(command);
+        }
+
+        public string CommandString(string command, bool raw)
+        {
+            DeviceWorker.CheckConnected("CommandString");
+            try
+            {
+                return DeviceWorker.Transfer(command);
+            }
+            catch (Exception err)
+            {
+                throw new ASCOM.DriverException(err.Message, err);
+            }
         }
 
         protected byte[] SendBytes(byte[] com)
         {
-            var res = this.driverWorker.CommandBytes(com);// CommandString(Encoding.ASCII.GetString(com), false);
+            var res = DeviceWorker.Transfer(com);// CommandString(Encoding.ASCII.GetString(com), false);
             if (res.Length == 0 || res[res.Length - 1] != '#')
             {
                 throw new Exception("Error in protocol");
@@ -252,7 +314,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         protected double[] GetValues(string command, int nOfDigits)
         {
-            var res = this.driverWorker.CommandString(command, false);
+            var res = DeviceWorker.Transfer(command);
             if (res.Length == 0 || !res[res.Length - 1].Equals('#'))
             {
                 throw new Exception("Error in protocol");
@@ -299,8 +361,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                 com += com.Length > command.Length ? "," + v : v;
             }
             com += "#";
-
-            driverWorker.CommandBool(com, false);
+            DeviceWorker.Transfer(com);
         }
 
         protected DeviceID GetDeviceId(SlewAxes axis)

@@ -10,7 +10,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HardwareWorker
     class ComPortWorker : IDeviceWorker
     {
         private Serial _port = new Serial();
-
+        public bool IsConnected { get; private set; }
 
         public bool Connect(object connectionInfo)
         {
@@ -42,7 +42,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HardwareWorker
                 _port.Handshake = SerialHandshake.None;
 
                 _port.Connected = true;
-                return _port.Connected;
+                IsConnected = _port.Connected;
+                return IsConnected;
             }
             catch (Exception err)
             {
@@ -59,6 +60,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HardwareWorker
                     _port.Connected = false;
                 }
             }catch(Exception err){}
+            IsConnected = false;
         }
 
         public string Transfer(string command)
@@ -86,6 +88,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth.HardwareWorker
             catch (Exception err)
             {
                 return new byte[0];
+            }
+        }
+
+        public void CheckConnected(string message)
+        {
+            if (!IsConnected)
+            {
+                throw new ASCOM.NotConnectedException(message);
             }
         }
     }

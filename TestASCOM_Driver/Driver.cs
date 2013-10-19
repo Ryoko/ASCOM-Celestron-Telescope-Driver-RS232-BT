@@ -188,7 +188,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             connectedState = false; // Initialise connected to false
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro utilities object
-            Initialize();
+            try
+            {
+                //Initialize();
+            }
+            catch (Exception err)
+            {
+                
+            }
             tl.LogMessage("Telescope", "Completed initialisation");
             _handControl = new HandControl();
             _handControl.SetForm(this);
@@ -196,16 +203,6 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
         public void Initialize()
         {
-            StopWorking();
-            deviceWorker = isBluetooth ? (IDeviceWorker)new BluetoothWorker() : new ComPortWorker();
-            if (deviceWorker != null)
-            {
-                driverWorker = new DriverWorker(this.CheckConnected, deviceWorker);
-                telescopeInteraction = new CelestroneInteraction41(driverWorker);
-                telescopeWorker = TelescopeWorker.TelescopeWorker.GetWorker(this);
-                telescopeWorker.TelescopeInteraction = telescopeInteraction;
-                telescopeProperties = telescopeWorker.TelescopeProperties;
-            }
         }
 
         private void StopWorking()
@@ -255,7 +252,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             get
             {
                 tl.LogMessage("SupportedActions Get", "Returning empty arraylist");
-                return new ArrayList(){"GetTrackingMode", "SetTrackingMode"};
+                return new ArrayList(){"GetTrackingMode", "SetTrackingMode", "GetPosition"};
             }
         }
 
@@ -285,24 +282,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
         public void CommandBlind(string command, bool raw)
         {
-            driverWorker.CommandBlind(command, raw);
+            telescopeInteraction.CommandBlind(command, raw);
         }
 
         public bool CommandBool(string command, bool raw)
         {
-            return driverWorker.CommandBool(command, raw);
+            return telescopeInteraction.CommandBool(command, raw);
         }
 
         public string CommandString(string command, bool raw)
         {
-            return driverWorker.CommandString(command, raw);
+            return telescopeInteraction.CommandString(command, raw);
         }
         
-        public bool GetPairValues(string command, out int val1, out int val2)
-        {
-            return driverWorker.GetPairValues(command, out val1, out val2);
-        }
-
         public void Dispose()
         {
             // Clean up the tracelogger and util objects
@@ -332,6 +324,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
                 if (value)
                 {
+                    //Initialize();
+                    StopWorking();
+                    deviceWorker = isBluetooth ? (IDeviceWorker)new BluetoothWorker() : new ComPortWorker();
+                    if (deviceWorker != null)
+                    {
+                        //driverWorker = new DriverWorker(this.CheckConnected, deviceWorker);
+                        //telescopeInteraction = new CelestroneInteraction12(deviceWorker);
+                    }
+
                     connectedState = true;
                     bool res;
                     if (isBluetooth)
@@ -346,6 +347,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     }
                     if (res)
                     {
+                        telescopeWorker = TelescopeWorker.TelescopeWorker.GetWorker(this);
+                        telescopeInteraction = ATelescopeInteraction.GeTelescopeInteraction(deviceWorker);
+                        telescopeWorker.TelescopeInteraction = telescopeInteraction;
+                        telescopeProperties = telescopeWorker.TelescopeProperties;
                         telescopeInteraction.isConnected = true;
                         var tBegin = Environment.TickCount;
                         while (true)
@@ -592,7 +597,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 posValid &= double.TryParse(val, out ParkAzm);
                 if (!posValid)
                 {
-                    ParkAlt = 90;
+                    ParkAlt = 0;
                     ParkAzm = 90;
                 }
 

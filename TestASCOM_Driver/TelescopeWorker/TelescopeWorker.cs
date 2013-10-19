@@ -105,6 +105,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             CheckPark();
             if (telescopeMode != TelescopeMode.Normal) return false;
+            tp.IsAtHome = false;
             ti.RaDec = coord;
             telescopeMode = TelescopeMode.Slewing;
             return true;
@@ -114,6 +115,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             CheckPark();
             if (telescopeMode != TelescopeMode.Normal) return false;
+            tp.IsAtHome = false;
             ti.AltAzm = coord;
             telescopeMode = TelescopeMode.Slewing;
             return true;
@@ -136,6 +138,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             if (tp.TrackingMode > TrackingMode.Off) tp.DefaultTrackingMode = tp.TrackingMode;
             if (value)
             {
+                tp.IsAtHome = false;
                 if (tp.TrackingMode > TrackingMode.Off) return;
                 //ti.TrackingMode = tp.DefaultTrackingMode;
                 SetTrackingRate(tp.TrackingRate, tp.DefaultTrackingMode);
@@ -162,6 +165,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public void SetTrackingRate(DriveRates rate, TrackingMode mode)
         {
+            if (mode > TrackingMode.AltAzm) tp.IsAtHome = false;
             two.SetTrackingRate(rate, mode);
         }
 
@@ -180,6 +184,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         {
             CheckPark();
             if(telescopeMode != TelescopeMode.Normal && telescopeMode != TelescopeMode.Guiding) return;
+            tp.IsAtHome = false;
             two.PulseGuide(dir, duration, ps);
             telescopeMode = TelescopeMode.Guiding;
         }
@@ -201,6 +206,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             CheckPark();
             if (telescopeMode == TelescopeMode.Normal || telescopeMode == TelescopeMode.MovingAxis)
             {
+                tp.IsAtHome = false;
                 if (axis == SlewAxes.DecAlt) tp.MovingAltAxes = !rate.Equals(0);
                 if (axis == SlewAxes.RaAzm) tp.MovingAzmAxes = !rate.Equals(0);
                 if (!rate.Equals(0))
@@ -235,19 +241,54 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             }
         }
 
+        public void WaitGoPosition()
+        {
+            var tBeginPark = Environment.TickCount;
+            bool isAltSlewDone = false, isAzmSlewDone = false;
+            while (true)
+            {
+
+                isAltSlewDone = isAltSlewDone || ti.IsSlewDone(DeviceID.DecAltMotor);
+                isAzmSlewDone = isAzmSlewDone || ti.IsSlewDone(DeviceID.RaAzmMotor);
+                if (isAltSlewDone && isAzmSlewDone)
+                {
+                    return;
+                }
+                if (tBeginPark + 60000 < Environment.TickCount)
+                {
+                    throw new DriverException("Timeout error while parking");
+                }
+                Thread.Sleep(100);
+            }
+        }
+
+        public void Park()
+        {
+            var pos = tp.HomePozition;
+            ti.GoToPosition(pos);
+            WaitGoPosition();
+            SetTracking(false);
+            tp.IsAtPark = true;
+        }
+
         public void GoHome()
         {
-           // ti.SendCommandToDevice()
+            var pos = tp.HomePozition;
+            ti.GoToPosition(pos);
+            WaitGoPosition();
+            SetTracking(false);
+            tp.IsAtHome = true;
         }
 
         public bool IsAthome
         {
             get
             {
-                var p = ti.GetPosition();
-                var dAlt = Math.Abs(p.Alt - tp.HomePozition.Alt);
-                var dAzm = Math.Abs(p.Azm - tp.HomePozition.Azm);
-                return (dAlt < 0.001 && dAzm < 0.001);
+                return tp.IsAtHome;
+                //var p = ti.GetPosition();
+                //var dAlt = Math.Abs(p.Alt - tp.HomePozition.Alt);
+                //var dAzm = Math.Abs(p.Azm - tp.HomePozition.Azm);
+                //return (dAlt < 0.001 && dAzm < 0.001);
             }
         }
 

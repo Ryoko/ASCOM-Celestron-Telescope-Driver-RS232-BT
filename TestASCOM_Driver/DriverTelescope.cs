@@ -35,7 +35,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 try
                 {
                     if (telescopeProperties == null || telescopeProperties.AltAzm == null || !telescopeProperties.IsReady) return 0;
-                    var alt = telescopeProperties.AltAzm.Alt;
+                    var alt = telescopeProperties.AltAzm.Alt - telescopeProperties.SyncAltAzmOffset.Alt;
                     tl.LogMessage("Altitude Get - ", alt.ToString());
                     return alt;
                 }
@@ -81,7 +81,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 try
                 {
                     if (telescopeProperties == null || telescopeProperties.AltAzm == null || !telescopeProperties.IsReady) return 0;
-                    var azm = telescopeProperties.AltAzm.Azm;
+                    var azm = telescopeProperties.AltAzm.Azm - telescopeProperties.SyncAltAzmOffset.Azm;
                     tl.LogMessage("Azimuth Get", new DMS(azm).ToString(":"));
                     return azm;
                 }
@@ -215,7 +215,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             get
             {
                 if (telescopeProperties.IsAtPark) return false;
-                var res = telescopeInteraction.CanSyncRaDec;
+                var res = true;// telescopeInteraction.CanSyncRaDec;
                 tl.LogMessage("CanSync", "Get - " + res.ToString());
                 return res;
             }
@@ -226,7 +226,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             get
             {
                 if (telescopeProperties.IsAtPark) return false;
-                var res = telescopeInteraction.CanSyncAltAzm;
+                var res = true;// telescopeInteraction.CanSyncAltAzm;
                 tl.LogMessage("CanSyncAltAz", "Get - " + res.ToString());
                 return res;
             }
@@ -241,7 +241,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 try
                 {
                     if (telescopeProperties == null || telescopeProperties.RaDec == null || !telescopeProperties.IsReady) return 0;
-                    var dec = telescopeProperties.RaDec.Dec;
+                    var dec = telescopeProperties.RaDec.Dec - telescopeProperties.SyncRaDecOffset.Dec;
                     tl.LogMessage("Declination Get", new DMS(dec).ToString());
                     return dec;
                 }
@@ -411,7 +411,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 try
                 {
                     if (telescopeProperties == null || telescopeProperties.RaDec == null || !telescopeProperties.IsReady) return 0;
-                    var val = telescopeProperties.RaDec.Ra;
+                    var val = telescopeProperties.RaDec.Ra - telescopeProperties.SyncRaDecOffset.Ra;
                     tl.LogMessage("RightAscension Get", new DMS(val).ToString());
                     return val;
                 }
@@ -568,7 +568,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public void SlewToAltAzAsync(double Azimuth, double Altitude)
         {
             telescopeWorker.CheckPark();
-            if (telescopeWorker.Slew(new AltAzm(Altitude, Azimuth)))
+            var altaz = new AltAzm(Altitude + telescopeProperties.SyncAltAzmOffset.Alt, Azimuth + telescopeProperties.SyncAltAzmOffset.Azm);
+            if (telescopeWorker.Slew(altaz))
             {
                 tl.LogMessage("SlewingToAltAz", string.Format("Alt:{0}, Azm:{1}", Altitude, Azimuth));
             }
@@ -593,7 +594,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
             telescopeWorker.CheckPark();
-            if (telescopeWorker.Slew(new Coordinates(RightAscension, Declination)))
+            var coord = new Coordinates(RightAscension + telescopeProperties.SyncRaDecOffset.Ra, Declination + telescopeProperties.SyncRaDecOffset.Dec);
+            if (telescopeWorker.Slew(coord))
             {
                 tl.LogMessage("Slewing ToToCoordinates", string.Format("RA:{0}, Dec:{1}", new DMS(RightAscension).ToString(), new DMS(Declination).ToString()));
             }
@@ -632,22 +634,51 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         public void SyncToAltAz(double Azimuth, double Altitude)
         {
             telescopeWorker.CheckPark();
-            tl.LogMessage("SyncToAltAz", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SyncToAltAz");
+            if (telescopeInteraction.CanSyncAltAzm)
+            {
+                telescopeInteraction.SyncAltAz(new AltAzm(Altitude, Azimuth));
+            }
+            else
+            {
+                // rc = 3 sc = 4 ; c = 3; cc = c - dc => dc = -1; dc = rc - dc => cc = 4; rc = cc + dc 
+                telescopeProperties.SyncAltAzmOffset.Alt = telescopeProperties.AltAzm.Alt - Altitude;
+                telescopeProperties.SyncAltAzmOffset.Azm = telescopeProperties.AltAzm.Azm - Azimuth;
+            }
+            tl.LogMessage("SyncToAltAz", "Setted");
         }
 
         public void SyncToCoordinates(double RightAscension, double Declination)
         {
             telescopeWorker.CheckPark();
-            tl.LogMessage("SyncToCoordinates", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SyncToCoordinates");
+            if (telescopeInteraction.CanSyncRaDec)
+            {
+                telescopeInteraction.SyncRaDec(new Coordinates(RightAscension, Declination));
+            }
+            else
+            {
+                // rc = 3 sc = 4 ; c = 3; cc = c - dc => dc = -1; dc = rc - dc => cc = 4; rc = cc + dc 
+                telescopeProperties.SyncRaDecOffset.Ra = telescopeProperties.RaDec.Ra - RightAscension;
+                telescopeProperties.SyncRaDecOffset.Dec = telescopeProperties.RaDec.Dec - Declination;
+            }
+            tl.LogMessage("SyncToCoordinates", "Synced");
         }
 
         public void SyncToTarget()
         {
             telescopeWorker.CheckPark();
-            tl.LogMessage("SyncToTarget", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("SyncToTarget");
+            if (!telescopeProperties.Target.IsRaDec) throw new ASCOM.ValueNotSetException("Target not set");
+
+            if (telescopeInteraction.CanSyncRaDec)
+            {
+                telescopeInteraction.SyncRaDec(new Coordinates((double)telescopeProperties.Target.Ra.Deg, (double)telescopeProperties.Target.Dec.Deg));
+            }
+            else
+            {
+                // rc = 3 sc = 4 ; c = 3; cc = c - dc => dc = -1; dc = rc - dc => cc = 4; rc = cc + dc 
+                telescopeProperties.SyncRaDecOffset.Ra = telescopeProperties.RaDec.Ra - (double)telescopeProperties.Target.Ra.Deg;
+                telescopeProperties.SyncRaDecOffset.Dec = telescopeProperties.RaDec.Dec - (double)telescopeProperties.Target.Dec.Deg;
+            }
+            tl.LogMessage("SyncToTarget", "Setted");
         }
 
         public double TargetDeclination
@@ -857,8 +888,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             if (telescopeInteraction.CanWorkPosition && telescopeProperties.HomePozition != null)
             {
                 var pos = telescopeProperties.HomePozition;
-                telescopeInteraction.GoToPosition(pos);
-                telescopeWorker.SetTrackingRate(telescopeProperties.TrackingRate, telescopeProperties.TrackingMode);
+                try
+                {
+                    telescopeWorker.GoHome();
+                }
+                catch (Exception err)
+                {
+                    tl.LogMessage("FindHome", string.Format("Timeout error while finding home position: Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
+                    throw new DriverException("Timeout error while parking");
+                }
                 tl.LogMessage("FindHome", string.Format("Driving to: Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
             }
         }
@@ -869,35 +907,20 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             if (telescopeInteraction.CanWorkPosition && telescopeProperties.ParkPosition != null)
             {
                 var pos = telescopeProperties.HomePozition;
-                telescopeInteraction.GoToPosition(pos);
                 tl.LogMessage("Parking", string.Format("Driving to: Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
-                var tBeginPark = Environment.TickCount;
-                bool isAltSlewDone = false, isAzmSlewDone = false;
-                while (true)
+                try
                 {
-                    
-                    isAltSlewDone = isAltSlewDone || telescopeInteraction.IsSlewDone(DeviceID.DecAltMotor);
-                    isAzmSlewDone = isAzmSlewDone || telescopeInteraction.IsSlewDone(DeviceID.RaAzmMotor);
-                    //var p = telescopeInteraction.GetPosition();
-                    //var dAlt = Math.Abs(p.Alt - pos.Alt);
-                    //var dAzm = Math.Abs(p.Azm - pos.Azm);
-                    //if (dAlt < 0.5 && dAzm < 0.5)
-                    if(isAltSlewDone && isAzmSlewDone)
-                    {
-                        tl.LogMessage("Parked", string.Format("at position: Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
-                        telescopeWorker.SetTracking(false);
-                        telescopeProperties.IsAtPark = true;
-                        IsAtPark = true;
-                        WriteProfile();
-                        return;
-                    }
-                    if (tBeginPark + 60000 < Environment.TickCount)
-                    {
-                        tl.LogMessage("Parking", string.Format("Timeout error while parking at position: Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
-                        throw new DriverException("Timeout error while parking");
-                    }
-                    Thread.Sleep(100);
+                    telescopeWorker.Park();
                 }
+                catch (Exception err)
+                {
+                    tl.LogMessage("Parking", string.Format("Timeout error while parking at position: Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
+                    throw new DriverException("Timeout error while parking");
+                }
+                tl.LogMessage("Parked", string.Format("at position: Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
+                IsAtPark = true;
+                WriteProfile();
+                return;
             }
 
             tl.LogMessage("Park", "Can't park");

@@ -10,14 +10,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
     internal class CelestroneInteraction41 : CelestroneInteraction31
     {
-        public CelestroneInteraction41(IDriverWorker _driverWorker)
-            : base(_driverWorker)
-        {
-        }
+        public CelestroneInteraction41(IDeviceWorker deviceWorker) : base(deviceWorker)
+        {}
 
         public override void SyncRaDec(Coordinates coordinates)
         {
-            if (driverWorker.CommandBool(string.Format("s{0},{1}#",
+            if (CommandBool(string.Format("s{0},{1}#",
                 Utils.Utils.Deg2HEX32(coordinates.Ra), Utils.Utils.Deg2HEX32(coordinates.Dec)), false))
             {
                 return;

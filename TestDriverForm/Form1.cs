@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using ASCOM.CelestronAdvancedBlueTooth;
 using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.DeviceInterface;
@@ -61,8 +62,17 @@ namespace ASCOM.CelestronAdvancedBluetooth
             buttonConnect.Enabled = !string.IsNullOrEmpty(Properties.Settings.Default.DriverId);
             buttonChoose.Enabled = !IsConnected;
             buttonConnect.Text = IsConnected ? "Disconnect" : "Connect";
+            var park = false;
+            if (IsConnected)
+            {
+                park = driver.AtPark;
+            }
             Coordinates.Enabled = IsConnected;
-            ControlButtons.Enabled = IsConnected;
+            ControlButtons.Enabled = IsConnected && !park;
+            Park.Text = park ? "Unpark" : "Park";
+            goHome.Enabled = !park;
+            setPark.Enabled = !park;
+            TrMode.Enabled = !park;
         }
 
         private bool IsConnected
@@ -73,12 +83,21 @@ namespace ASCOM.CelestronAdvancedBluetooth
             }
         }
 
+
+        private double pAlt = 0, pAzm = 0;
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             while (!backgroundWorker1.CancellationPending)
             {
                 if (this.driver != null && this.driver.Connected)
                 {
+                    try
+                    {
+                        var pos = driver.Action("GetPosition", "").Split(';');
+                        //double alt, azm;
+                        double.TryParse(pos[0], out pAzm);
+                        double.TryParse(pos[1], out pAlt);
+                    }catch{}
                     backgroundWorker1.ReportProgress(50, driver);
                 }
                 Thread.Sleep(100);
@@ -97,6 +116,10 @@ namespace ASCOM.CelestronAdvancedBluetooth
                     Dec.Text = new DMS(driver.Declination).ToString();
                     Alt.Text = new DMS(driver.Altitude).ToString();
                     Azm.Text = new DMS(driver.Azimuth).ToString();
+                    positionAzm.Text = new DMS(pAzm).ToString();
+                    positionAlt.Text = new DMS(pAlt).ToString();
+
+
                     var mode = driver.Action("GetTrackingMode", "");
                     int trMode;
                     if (int.TryParse(mode, out trMode) && TrMode.SelectedIndex != trMode)
@@ -193,18 +216,11 @@ namespace ASCOM.CelestronAdvancedBluetooth
             driver.Action("SetTrackingMode", TrMode.SelectedIndex.ToString());
         }
 
-        private void getHome_Click(object sender, EventArgs e)
+        private void setPark_Click(object sender, EventArgs e)
         {
             if (driver != null && driver.Connected)
             {
-                //driver.FindHome();
-                var pos = driver.Action("GetPosition", "").Split(';');
-                double alt, azm;
-                if (double.TryParse(pos[0], out azm) && double.TryParse(pos[1], out alt))
-                {
-                    positionAzm.Text = new DMS(azm).ToString();
-                    positionAlt.Text = new DMS(alt).ToString();
-                }
+                driver.SetPark();
             }
         }
 
@@ -213,6 +229,22 @@ namespace ASCOM.CelestronAdvancedBluetooth
             if (driver != null && driver.Connected)
             {
                 driver.FindHome();
+            }
+        }
+
+        private void Park_Click(object sender, EventArgs e)
+        {
+            if (driver != null && driver.Connected)
+            {
+                if (driver.AtPark)
+                {
+                    driver.Unpark();
+                }
+                else
+                {
+                    driver.Park();
+                }
+                SetUIState();
             }
         }
     
