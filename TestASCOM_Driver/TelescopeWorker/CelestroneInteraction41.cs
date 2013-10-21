@@ -8,6 +8,7 @@ using ASCOM.Utilities.Interfaces;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
+    [TelescopeInteraction(4.1)]
     internal class CelestroneInteraction41 : CelestroneInteraction31
     {
         public CelestroneInteraction41(IDeviceWorker deviceWorker) : base(deviceWorker)

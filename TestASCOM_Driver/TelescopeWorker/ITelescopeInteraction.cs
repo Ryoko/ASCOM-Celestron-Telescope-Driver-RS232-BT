@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.DeviceInterface;
 
@@ -67,7 +68,6 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
     }
 
     //public enum DeviceIds { Main = 1, HC = 4, AzmDrive = 16, AltDrive = 17, GPS = 176, RTC = 0xB2 }
-
     public interface ITelescopeInteraction
     {
         //ICelestroneTelescopeWorker(IDeviceWorker dw);
@@ -137,5 +137,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
         void CommandBlind(string command, bool raw);
         string CommandString(string command, bool raw);
 
+    }
+
+    public class TelescopeInteractionAttribute : Attribute
+    {
+        public TelescopeInteractionAttribute(double versionRequired)
+        {
+            RequiredVersion = versionRequired;
+        }
+        public double RequiredVersion { get; private set; }
+        public TelescopeModel[] TelescopeModels { get; set; } 
     }
 }

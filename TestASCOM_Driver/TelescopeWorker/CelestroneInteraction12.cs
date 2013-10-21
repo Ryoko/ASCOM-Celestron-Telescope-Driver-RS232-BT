@@ -11,6 +11,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
     /// <summary>
     /// The celestrone interaction 12.
     /// </summary>
+    [TelescopeInteraction(0)]
     internal class CelestroneInteraction12 : ATelescopeInteraction
     {
         public CelestroneInteraction12(IDeviceWorker deviceWorker) : base(deviceWorker)

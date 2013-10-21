@@ -438,13 +438,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
                     slewEndTime = Environment.TickCount;
                     isSlewSetteled = true;
                 }
-                CheckCoordinates();
-            }
-            if (slewEndTime + tp.SlewSteeleTime < Environment.TickCount)
+            } 
+            else if (slewEndTime + tp.SlewSteeleTime < Environment.TickCount)
             {
                 isSlewSetteled = false;
                 telescopeMode = TelescopeMode.Normal;
             }
+            CheckCoordinates();
         }
 
         private double dRateRa = 0, dRateDec = 0, sRa = 0;
@@ -549,11 +549,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
             {
                 var RaRate = GetRateRa(tp.TrackingRate, tp.TrackingMode);
                 var dT = time - lastAltAzm;
-                var azm = Const.TRACKRATE_SIDEREAL - (newVal.Azm - oldVal.Azm)*1000/dT;
+                var azm = /*Const.TRACKRATE_SIDEREAL -*/ (newVal.Azm - oldVal.Azm)*1000/dT;
                 var dec = (newVal.Alt - oldVal.Alt)*1000/dT;
                 AzmValues.Add(azm, Const.TRACKRATE_SIDEREAL - RaRate);
 //                var azmf = kfilt.Correct(azm);
-
+                if (azm.Equals(0d)) 
+                    SetTrackingRate(tp.TrackingRate, tp.TrackingMode);
                 Debug.WriteLine(string.Format("[{0}] azm={1,-12} azmVal={2,9:f6} sco={3,9:f6} sMed={4,9:f6} sSco={5,9:f6} med={6,9:f6}", DateTime.Now,
                     DMS.FromDeg(newVal.Azm).ToString(":"), 
                     azm, AzmValues.sco, AzmValues.cMed, AzmValues.cSco , AzmValues.Median));

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Permissions;
 using System.Text;
 using ASCOM.Astrometry.Exceptions;
@@ -10,6 +12,17 @@ using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 {
+    //[TelescopeInteraction(     TelescopeModels = new[]
+    //{
+    //    TelescopeModel.AdvancedGT, 
+    //    TelescopeModel.CGE,
+    //    TelescopeModel.CPC,
+    //    TelescopeModel.GPSSeries,
+    //    TelescopeModel.SE45,
+    //    TelescopeModel.SE68,
+    //    TelescopeModel.iSeries,
+    //    TelescopeModel.iSeriesSE,
+    //})]
     abstract class ATelescopeInteraction : ITelescopeInteraction
     {
         //protected IDriverWorker driverWorker { set; get; }
@@ -19,35 +32,44 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
 
         public static ITelescopeInteraction GeTelescopeInteraction(IDeviceWorker deviceWorker)
         {
-            var tis = new[]
-            {
-                typeof (CelestroneInteraction41), typeof (CelestroneInteraction31), typeof (CelestroneInteraction23),
-                typeof (CelestroneInteraction22), typeof (CelestroneInteraction16), typeof (CelestroneInteraction12)
-            };
-            
-
-            //var ti = new CelestroneInteraction41(driverWorker);
-            //while (ti.GetType() != typeof (ATelescopeInteraction))
-            //{
-            //    if (version < ti.VersionRequired) return ti;
-            //    ti = ReflectionPermissionAttribute.GetCustomAttribute()
-            //    base;
-            //}
-
+         
             var res = deviceWorker.Transfer("V");// SendBytes(com);
             if (res.Length < 2) throw new Exception("Wrong answer");
             var low = (double)res[1];
             low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
             var ver = res[0] + low;
+            ver = 1.6;
 
-            foreach (var type in tis)
+            var types = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttributes(typeof (TelescopeInteractionAttribute), false).Any());
+            Type tver = null;
+            var maxVer = double.MinValue;
+            foreach (var type in types)
             {
-
-                var t = (ATelescopeInteraction)Activator.CreateInstance(type, deviceWorker);
-                if (t.VersionRequired > ver) continue;
-                return t;
+                var at = type.GetCustomAttributes(typeof (TelescopeInteractionAttribute), false);
+                var v = (TelescopeInteractionAttribute)at[0];
+                if (v.RequiredVersion <= ver && v.RequiredVersion > maxVer)
+                {
+                    tver = type;
+                    maxVer = v.RequiredVersion;
+                }
             }
+            if (tver != null) return (ATelescopeInteraction)Activator.CreateInstance(tver, deviceWorker);
             return null;
+
+            //ATelescopeInteraction ti = new CelestroneInteraction41(deviceWorker);
+            //while (ti.GetType() != typeof (ATelescopeInteraction))
+            //{
+            //    var tti = ti.GetType();
+            //    var att = tti.GetCustomAttributes(typeof(TelescopeInteractionAttribute), true);
+               
+            //    if (ver >= ti.VersionRequired) return ti;
+            //    var t = ti.GetType();
+            //    var tp = t.BaseType;
+            //    if (tp == null) return null;
+            //    ti = (ATelescopeInteraction)Activator.CreateInstance(tp, deviceWorker);
+            //}
+
+            //return null;
         }
 
         public ATelescopeInteraction(IDeviceWorker deviceWorker)
