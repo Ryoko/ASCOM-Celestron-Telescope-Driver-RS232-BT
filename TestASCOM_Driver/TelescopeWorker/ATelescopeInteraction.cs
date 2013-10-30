@@ -23,7 +23,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker
     //    TelescopeModel.iSeries,
     //    TelescopeModel.iSeriesSE,
     //})]
-    abstract class ATelescopeInteraction : ITelescopeInteraction
+    public abstract class ATelescopeInteraction : ITelescopeInteraction
     {
         //protected IDriverWorker driverWorker { set; get; }
         protected IDeviceWorker DeviceWorker { get; set; }

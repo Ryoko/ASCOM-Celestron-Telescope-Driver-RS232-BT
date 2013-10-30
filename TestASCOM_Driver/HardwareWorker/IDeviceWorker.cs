@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
-    interface IDeviceWorker
+    public interface IDeviceWorker
     {
         bool Connect(object connectionInfo);
         void Disconnect();
