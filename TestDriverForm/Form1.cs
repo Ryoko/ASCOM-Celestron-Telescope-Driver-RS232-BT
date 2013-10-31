@@ -2,12 +2,12 @@
 using System.Threading;
 using System.Windows.Forms;
 using ASCOM.CelestronAdvancedBlueTooth;
-using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
-using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBluetooth
 {
+    using CelestroneDriver.Utils;
+
     public partial class Form1 : Form
     {
 

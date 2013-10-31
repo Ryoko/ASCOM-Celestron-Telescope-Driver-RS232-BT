@@ -66,9 +66,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TestASCOM_Driver\TestASCOM_Driver.csproj">
-      <Project>{64308775-bd4a-469c-bcab-3ed830b811af}</Project>
-      <Name>TestASCOM_Driver</Name>
+    <ProjectReference Include="..\CelestroneDriver\CelestroneDriver.csproj">
+      <Project>{91317b6f-7b1a-4cd4-8aa1-7dc0b449e691}</Project>
+      <Name>CelestroneDriver</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

@@ -8,6 +8,8 @@ using System.Collections;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
+    using CelestroneDriver.Utils;
+
     #region Rate class
     //
     // The Rate class implements IRate, and is used to hold values
@@ -101,7 +103,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     //var sid = Utils.Const.SiderealRateDegPerSec;
                     this.rates = new Rate[]
                     {
-                        new Rate(0, Utils.Const.MaxAxisRate),
+                        new Rate(0, Const.MaxAxisRate),
 /*                        
                         new Rate(sid / 2, sid / 2),     //Rate 1
                         new Rate(sid, sid),             //Rate 2
@@ -120,7 +122,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     // TODO Initialize this array with any Secondary axis rates that your driver may provide
                     this.rates = new Rate[]
                     {
-                        new Rate(0, Utils.Const.MaxAxisRate),
+                        new Rate(0, Const.MaxAxisRate),
                     };
                     break;
                 case TelescopeAxes.axisTertiary:

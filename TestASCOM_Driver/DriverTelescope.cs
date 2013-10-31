@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
-using ASCOM.CelestronAdvancedBlueTooth.Utils;
+
 using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
+    using CelestroneDriver.TelescopeWorker;
+    using CelestroneDriver.Utils;
+
     public partial class Telescope : ITelescopeV3
     {
         #region ITelescope Implementation
@@ -487,7 +489,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 tl.LogMessage("SiteElevation Set", value.ToString());
                 telescopeProperties.Elevation = value;
-                Telescope.elevation = (int) value;
+                profile.elevation = (int)value;
                 WriteProfile();
             }
         }
@@ -510,7 +512,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     telescopeInteraction.TelescopeLocation = telescopeProperties.Location;
                 }
                 tl.LogMessage("SiteLatitude Set", new DMS(value).ToString(":"));
-                Telescope.latitude = value;
+                profile.latitude = value;
                 WriteProfile();
             }
         }
@@ -533,7 +535,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     telescopeInteraction.TelescopeLocation = telescopeProperties.Location;
                 }
                 tl.LogMessage("SiteLongitude Set", new DMS(value).ToString(":"));
-                Telescope.longitude = value;
+                profile.longitude = value;
                 WriteProfile();
             }
         }
@@ -877,8 +879,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             var pos = telescopeInteraction.GetPosition();
             telescopeProperties.ParkPosition = pos;
             telescopeProperties.HomePozition = pos;
-            ParkAlt = pos.Alt;
-            ParkAzm = pos.Azm;
+            profile.ParkAlt = pos.Alt;
+            profile.ParkAzm = pos.Azm;
             WriteProfile();
             tl.LogMessage("SetPark", string.Format("Setted at Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
         }
@@ -918,7 +920,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     throw new DriverException("Timeout error while parking");
                 }
                 tl.LogMessage("Parked", string.Format("at position: Azm={0:f6} Alt={1:f6}", pos.Azm, pos.Alt));
-                IsAtPark = true;
+                profile.IsAtPark = true;
                 WriteProfile();
                 return;
             }
@@ -933,7 +935,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 telescopeProperties.IsAtPark = false;
                 telescopeWorker.SetTracking(true);
-                IsAtPark = false;
+                profile.IsAtPark = false;
                 WriteProfile();
                 tl.LogMessage("Unpark", "unparked");
                 return;

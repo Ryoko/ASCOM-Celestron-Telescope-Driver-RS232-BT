@@ -4,8 +4,10 @@
 
 namespace CelestroneDriverTestProject
 {
-    using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
-    using ASCOM.CelestronAdvancedBlueTooth;
+    
+    using CelestroneDriver.HardwareWorker;
+    using CelestroneDriver.TelescopeWorker;
+
     using Moq;
     using NUnit.Framework;
 

@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace CelestroneDriverTestProject
 {
-    using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
-
+    using CelestroneDriver.TelescopeWorker;
     using NUnit.Framework;
 
     public class MockTelescope

@@ -35,9 +35,6 @@ using ASCOM;
 using ASCOM.Astrometry;
 using ASCOM.Astrometry.AstroUtils;
 using ASCOM.Astrometry.Exceptions;
-using ASCOM.CelestronAdvancedBlueTooth.HandForm;
-using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
-using ASCOM.CelestronAdvancedBlueTooth.Utils;
 using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
@@ -48,7 +45,10 @@ using System.Threading;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
-    using ASCOM.CelestronAdvancedBlueTooth.HardwareWorker;
+    using CelestroneDriver.HandForm;
+    using CelestroneDriver.HardwareWorker;
+    using CelestroneDriver.TelescopeWorker;
+    using CelestroneDriver.Utils;
 
     //
     // Your driver's DeviceID is ASCOM.CelestronAdvancedBlueTooth.Telescope
@@ -78,70 +78,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
         private static string driverDescription = "Bluetooth/COM Driver for Celestron";
-        
-        internal static string comPortProfileName = "COM Port"; // Constants used for Profile persistence
-        internal static string comPortDefault = "COM1";
-        internal static string comPort; // Variables to hold the currrent device configuration
-
-        internal static string traceStateProfileName = "Trace Level";
-        internal static string traceStateDefault = "false";
-        internal static bool   traceState = true;
-
-        internal static string decimalSeparator = Thread.CurrentThread.CurrentUICulture.NumberFormat.CurrencyDecimalSeparator;
-
-        internal static string bluetoothDeviceProfileName = "BlueTooth Device";
-        internal static BluetoothAddress bluetoothDevice;
-        
-        internal static string isBluetoothProfileName = "IsBluetooth";
-        internal static bool   isBluetooth;
-
-        internal static string coordinateDefaultValue = "-1000";
-
-        internal static string longitudeProfileName = "Longitude";
-        internal static double longitude;
-        internal static string latitudeProfileName = "Latitude";
-        internal static double latitude;
-
-        internal static string elevationProfileName = "Elevation Level";
-        internal static double elevation;
-
-        internal static string hasGPSProfileName = "Telescope has GPS";
-        internal static string hasGPSDefault = "-1";
-        internal static int    hasGPS;
-
-        internal static string defaultDouble = "0";
-        internal static string appertureProfileName = "Telescope Apperture";
-        internal static double apperture;
-        
-        internal static string focalProfileName = "Telescope Focal Length";
-        internal static double focal;
-        
-        internal static string obstructionProfileName = "Telescope Obstruction Percent";
-        internal static double obstruction;
-        
-        internal static string TelescopeModelProfileName = "Telescope Model";
-        internal static string TelescopeModel;
-
-        internal static string TrackingModeProfileName = "Tracking Mode";
-        internal static int    TrackingModeDefault = -1;
-        internal static int    trackingMode;
-
-        internal static string showControlProfileName = "Show Control OnConnect";
-        internal static bool showControl = false;
-
-        internal static string ParkAltProfileName = "Park Altitude";
-        internal static double ParkAlt = 0;
-        internal static string ParkAzmProfileName = "Park Azimuth";
-        internal static double ParkAzm = 0;
-        internal static string HomeAltProfileName = "Home Altitude";
-        internal static double HomeAlt = 0;
-        internal static string HomeAzmProfileName = "Home Alzimuth";
-        internal static double HomeAzm = 0;
-        internal static string AtParkProfileName = "Is At Park";
-        internal static bool IsAtPark;
-
-
-        //internal static Coordinates target;
+        private static TelescopeSettingsProfile profile = new TelescopeSettingsProfile();
 
         private static Telescope _telescopeV3;
         public static ITelescopeV3 TelescopeV3 {get { return _telescopeV3; }}
@@ -167,9 +104,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         /// </summary>
         private TraceLogger tl;
 
-        private DriverWorker driverWorker;
+        //private DriverWorker driverWorker;
         private ITelescopeInteraction telescopeInteraction;
-        private TelescopeWorker.TelescopeWorker telescopeWorker;
+        private CelestroneDriver.TelescopeWorker.TelescopeWorker telescopeWorker;
         private TelescopeProperties telescopeProperties;
         public static TelescopeProperties TelescopeProperties {get { return _telescopeV3.telescopeProperties; }}
         /// <summary>
@@ -182,7 +119,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             _telescopeV3 = this;
 
             tl = new TraceLogger("", "CelestronAdvancedBlueTooth");
-            tl.Enabled = traceState;
+            tl.Enabled = profile.traceState;
             tl.LogMessage("Telescope", "Starting initialisation");
 
             connectedState = false; // Initialise connected to false
@@ -198,7 +135,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             tl.LogMessage("Telescope", "Completed initialisation");
             _handControl = new HandControl();
-            _handControl.SetForm(this);
+            _handControl.SetForm(telescopeWorker);
         }
 
         public void Initialize()
@@ -237,7 +174,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             if (IsConnected)
                 System.Windows.Forms.MessageBox.Show("Already connected, just press OK");
 
-            using (SetupDialogForm F = new SetupDialogForm())
+            using (SetupDialogForm F = new SetupDialogForm(profile))
             {
                 var result = F.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK)
@@ -328,7 +265,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     {
                         //Initialize();
                         StopWorking();
-                        deviceWorker = isBluetooth ? (IDeviceWorker)new BluetoothWorker() : new ComPortWorker();
+                        deviceWorker = profile.isBluetooth ? (IDeviceWorker)new BluetoothWorker() : new ComPortWorker();
                         if (deviceWorker != null)
                         {
                             //driverWorker = new DriverWorker(this.CheckConnected, deviceWorker);
@@ -337,20 +274,20 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
                         connectedState = true;
                         bool res;
-                        if (isBluetooth)
+                        if (profile.isBluetooth)
                         {
                             tl.LogMessage(
-                                "Connected Set", "Connecting to bluetooth device " + bluetoothDevice.ToString());
-                            res = this.deviceWorker.Connect(bluetoothDevice);
+                                "Connected Set", "Connecting to bluetooth device " + profile.bluetoothDevice.ToString());
+                            res = this.deviceWorker.Connect(profile.bluetoothDevice);
                         }
                         else
                         {
-                            tl.LogMessage("Connected Set", "Connecting to COM port " + comPort);
-                            res = this.deviceWorker.Connect(comPort);
+                            tl.LogMessage("Connected Set", "Connecting to COM port " + profile.comPort);
+                            res = this.deviceWorker.Connect(profile.comPort);
                         }
                         if (res)
                         {
-                            telescopeWorker = TelescopeWorker.TelescopeWorker.GetWorker(this);
+                            telescopeWorker = CelestroneDriver.TelescopeWorker.TelescopeWorker.GetWorker(profile);
                             telescopeInteraction = ATelescopeInteraction.GeTelescopeInteraction(deviceWorker);
                             telescopeWorker.TelescopeInteraction = telescopeInteraction;
                             telescopeProperties = telescopeWorker.TelescopeProperties;
@@ -362,7 +299,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                                 Thread.Sleep(100);
                                 if (telescopeProperties.IsReady) break;
                             }
-                            _handControl.ShowForm(showControl);
+                            _handControl.ShowForm(profile.showControl);
                         }
                         else
                         {
@@ -380,13 +317,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     telescopeWorker.StopWorking();
                     telescopeInteraction.isConnected = false;
                     connectedState = false;
-                    if (isBluetooth)
+                    if (profile.isBluetooth)
                     {
-                        tl.LogMessage("Connected Set", "Disconnecting from bluetooth " + bluetoothDevice.ToString());
+                        tl.LogMessage("Connected Set", "Disconnecting from bluetooth " + profile.bluetoothDevice.ToString());
                     }
                     else
                     {
-                        tl.LogMessage("Connected Set", "Disconnecting from port " + comPort);
+                        tl.LogMessage("Connected Set", "Disconnecting from port " + profile.comPort);
                     }
                     _handControl.ShowForm(false);
                     StopWorking();
@@ -559,81 +496,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         /// </summary>
         internal void ReadProfile()
         {
-            using (Profile driverProfile = new Profile())
-            {
-                driverProfile.DeviceType = "Telescope";
-                traceState = Convert.ToBoolean(driverProfile.GetValue(driverID, traceStateProfileName, string.Empty, traceStateDefault));
-                comPort = driverProfile.GetValue(driverID, comPortProfileName, string.Empty, comPortDefault);
-                var val = driverProfile.GetValue(driverID, bluetoothDeviceProfileName, string.Empty, string.Empty);
-                BluetoothAddress.TryParse(val, out bluetoothDevice);
-                val = driverProfile.GetValue(driverID, isBluetoothProfileName, string.Empty, "false");
-                bool.TryParse(val, out isBluetooth);
-                val = driverProfile.GetValue(driverID, latitudeProfileName, string.Empty, coordinateDefaultValue);
-                double.TryParse(val, out latitude);
-                val = driverProfile.GetValue(driverID, longitudeProfileName, string.Empty, coordinateDefaultValue);
-                double.TryParse(val, out longitude);
-                val = driverProfile.GetValue(driverID, TrackingModeProfileName, string.Empty, TrackingModeDefault.ToString());
-                int.TryParse(val, out trackingMode);
-                TelescopeModel = driverProfile.GetValue(driverID, TelescopeModelProfileName, string.Empty, string.Empty);
-                val = driverProfile.GetValue(driverID, hasGPSProfileName, string.Empty, hasGPSDefault);
-                int.TryParse(val, out hasGPS);
-                val = driverProfile.GetValue(driverID, elevationProfileName, string.Empty, defaultDouble);
-                double.TryParse(val, out elevation);
-                val = driverProfile.GetValue(driverID, appertureProfileName, string.Empty, defaultDouble);
-                double.TryParse(val, out apperture);
-                val = driverProfile.GetValue(driverID, focalProfileName, string.Empty, defaultDouble);
-                double.TryParse(val, out focal);
-                val = driverProfile.GetValue(driverID, obstructionProfileName, string.Empty, defaultDouble);
-                double.TryParse(val, out obstruction);
-                val = driverProfile.GetValue(driverID, showControlProfileName, string.Empty, "false");
-                bool.TryParse(val, out showControl);
-
-                var posValid = true;
-                val = driverProfile.GetValue(driverID, HomeAltProfileName, string.Empty, string.Empty);
-                posValid &= double.TryParse(val, out HomeAlt);
-                val = driverProfile.GetValue(driverID, HomeAzmProfileName, string.Empty, string.Empty);
-                posValid &= double.TryParse(val, out HomeAzm);
-                if (!posValid) 
-                {
-                    HomeAlt = 90;
-                    HomeAzm = 90;
-                }
-                posValid = true;
-                val = driverProfile.GetValue(driverID, ParkAltProfileName, string.Empty, string.Empty);
-                posValid &= double.TryParse(val, out ParkAlt);
-                val = driverProfile.GetValue(driverID, ParkAzmProfileName, string.Empty, string.Empty);
-                posValid &= double.TryParse(val, out ParkAzm);
-                if (!posValid)
-                {
-                    ParkAlt = 0;
-                    ParkAzm = 90;
-                }
-
-                val = driverProfile.GetValue(driverID, AtParkProfileName, string.Empty, defaultDouble);
-                bool.TryParse(val, out IsAtPark);
-
-            }
-#if DEBUG
-            //return;
-            if (bluetoothDevice == null && TelescopeModel.Length == 0)
-            {
-                traceState = true;
-                comPort = "COM1";
-                BluetoothAddress.TryParse("001112280143", out bluetoothDevice);
-                //bluetoothDevice = new BluetoothAddress(001112280143);
-                isBluetooth = true;
-                trackingMode = (int) TrackingMode.EQN;
-                TelescopeModel = "Advanced C8-NGT";
-                hasGPS = 0;
-                latitude = 53.9175;
-                longitude = 27.529722222;
-                elevation = 295;
-                apperture = 0.200;
-                focal = 1d;
-                obstruction = 28d;
-                showControl = true;
-            }
-#endif 
+            profile.ReadProfile(driverID);
         }
 
         /// <summary>
@@ -641,32 +504,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         /// </summary>
         public void WriteProfile()
         {
-            using (Profile driverProfile = new Profile())
-            {
-                driverProfile.DeviceType = "Telescope";
-                driverProfile.WriteValue(driverID, traceStateProfileName, traceState.ToString());
-                driverProfile.WriteValue(driverID, comPortProfileName, comPort);
-                driverProfile.WriteValue(driverID, bluetoothDeviceProfileName, bluetoothDevice != null ? bluetoothDevice.ToString() : string.Empty);
-                driverProfile.WriteValue(driverID, isBluetoothProfileName, isBluetooth.ToString());
-                driverProfile.WriteValue(driverID, TrackingModeProfileName, trackingMode.ToString());
-                driverProfile.WriteValue(driverID, TelescopeModelProfileName, TelescopeModel);
-                driverProfile.WriteValue(driverID, hasGPSProfileName, hasGPS.ToString());
-                driverProfile.WriteValue(driverID, latitudeProfileName, latitude.ToString());
-                driverProfile.WriteValue(driverID, longitudeProfileName, longitude.ToString());
-                driverProfile.WriteValue(driverID, elevationProfileName, elevation.ToString());
-                driverProfile.WriteValue(driverID, appertureProfileName, apperture.ToString());
-                driverProfile.WriteValue(driverID, focalProfileName, focal.ToString());
-                driverProfile.WriteValue(driverID, obstructionProfileName, obstruction.ToString());
-                driverProfile.WriteValue(driverID, showControlProfileName, showControl.ToString());
-
-                driverProfile.WriteValue(driverID, HomeAltProfileName, HomeAlt.ToString());
-                driverProfile.WriteValue(driverID, HomeAzmProfileName, HomeAzm.ToString());
-                driverProfile.WriteValue(driverID, ParkAltProfileName, ParkAlt.ToString());
-                driverProfile.WriteValue(driverID, ParkAzmProfileName, ParkAzm.ToString());
-                driverProfile.WriteValue(driverID, AtParkProfileName, IsAtPark.ToString());
-
-            }
-
+            profile.WriteProfile(driverID);
         }
 
         #endregion
