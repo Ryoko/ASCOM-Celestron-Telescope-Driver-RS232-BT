@@ -17,7 +17,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
         {
             InitializeComponent();
             SetUIState();
-            this.test();
+            //this.test();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -49,9 +49,14 @@ namespace ASCOM.CelestronAdvancedBluetooth
                     if (!backgroundWorker1.IsBusy)
                         backgroundWorker1.RunWorkerAsync();
                 }
-                catch
+                catch(Exception err)
                 {
-                    
+                    driver.Connected = false;
+                    MessageBox.Show(
+                        string.Format("Connection to device failed"),
+                        "Connection error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
                 }
             }
             SetUIState();
@@ -79,7 +84,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
         {
             get
             {
-                return ((this.driver != null) && (driver.Connected == true));
+                return ((this.driver != null) && driver.Connected);
             }
         }
 

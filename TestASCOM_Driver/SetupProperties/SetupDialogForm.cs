@@ -39,12 +39,15 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             SelectedComPort.Text = Telescope.comPort;
             chkTrace.Checked = Telescope.traceState;
             selDeviceAddress = Telescope.bluetoothDevice;
-            if (selDeviceAddress != null)
+            try
             {
-//                selDeviceInfo = BlueToothDiscover.GetDevice(selDeviceAddress);
-                selDeviceInfo = new BluetoothDeviceInfo(selDeviceAddress);
-                SelectedBluetooth.Text = selDeviceInfo != null ? selDeviceInfo.DeviceName : "";
-            }
+                if (selDeviceAddress != null)
+                {
+                    //                selDeviceInfo = BlueToothDiscover.GetDevice(selDeviceAddress);
+                    selDeviceInfo = new BluetoothDeviceInfo(selDeviceAddress);
+                    SelectedBluetooth.Text = selDeviceInfo != null ? selDeviceInfo.DeviceName : "";
+                }
+            }catch{}
             tabControl1.SelectedIndex = Telescope.isBluetooth ? 1 : 0;
 
             LatSuff.SelectedIndex = 0;

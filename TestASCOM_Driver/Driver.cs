@@ -324,47 +324,55 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
                 if (value)
                 {
-                    //Initialize();
-                    StopWorking();
-                    deviceWorker = isBluetooth ? (IDeviceWorker)new BluetoothWorker() : new ComPortWorker();
-                    if (deviceWorker != null)
+                    try
                     {
-                        //driverWorker = new DriverWorker(this.CheckConnected, deviceWorker);
-                        //telescopeInteraction = new CelestroneInteraction12(deviceWorker);
-                    }
-
-                    connectedState = true;
-                    bool res;
-                    if (isBluetooth)
-                    {
-                        tl.LogMessage("Connected Set", "Connecting to bluetooth device " + bluetoothDevice.ToString());
-                        res = this.deviceWorker.Connect(bluetoothDevice);
-                    }
-                    else
-                    {
-                        tl.LogMessage("Connected Set", "Connecting to COM port " + comPort);
-                        res = this.deviceWorker.Connect(comPort);
-                    }
-                    if (res)
-                    {
-                        telescopeWorker = TelescopeWorker.TelescopeWorker.GetWorker(this);
-                        telescopeInteraction = ATelescopeInteraction.GeTelescopeInteraction(deviceWorker);
-                        telescopeWorker.TelescopeInteraction = telescopeInteraction;
-                        telescopeProperties = telescopeWorker.TelescopeProperties;
-                        telescopeInteraction.isConnected = true;
-                        var tBegin = Environment.TickCount;
-                        while (true)
+                        //Initialize();
+                        StopWorking();
+                        deviceWorker = isBluetooth ? (IDeviceWorker)new BluetoothWorker() : new ComPortWorker();
+                        if (deviceWorker != null)
                         {
-                            if (tBegin + 30000 < Environment.TickCount) throw new DriverException("Unable to get telescope parameters");
-                            Thread.Sleep(100);
-                            if (telescopeProperties.IsReady) break;
+                            //driverWorker = new DriverWorker(this.CheckConnected, deviceWorker);
+                            //telescopeInteraction = new CelestroneInteraction12(deviceWorker);
                         }
-                        _handControl.ShowForm(showControl);
+
+                        connectedState = true;
+                        bool res;
+                        if (isBluetooth)
+                        {
+                            tl.LogMessage(
+                                "Connected Set", "Connecting to bluetooth device " + bluetoothDevice.ToString());
+                            res = this.deviceWorker.Connect(bluetoothDevice);
+                        }
+                        else
+                        {
+                            tl.LogMessage("Connected Set", "Connecting to COM port " + comPort);
+                            res = this.deviceWorker.Connect(comPort);
+                        }
+                        if (res)
+                        {
+                            telescopeWorker = TelescopeWorker.TelescopeWorker.GetWorker(this);
+                            telescopeInteraction = ATelescopeInteraction.GeTelescopeInteraction(deviceWorker);
+                            telescopeWorker.TelescopeInteraction = telescopeInteraction;
+                            telescopeProperties = telescopeWorker.TelescopeProperties;
+                            telescopeInteraction.isConnected = true;
+                            var tBegin = Environment.TickCount;
+                            while (true)
+                            {
+                                if (tBegin + 30000 < Environment.TickCount) throw new DriverException("Unable to get telescope parameters");
+                                Thread.Sleep(100);
+                                if (telescopeProperties.IsReady) break;
+                            }
+                            _handControl.ShowForm(showControl);
+                        }
+                        else
+                        {
+                            throw new DriverException("Error connectiong to device");
+                        }
                     }
-                    else
+                    catch(Exception err)
                     {
                         connectedState = false;
-                        throw new DriverException("Error connectiong to device");
+                        throw err;
                     }
                 }
                 else

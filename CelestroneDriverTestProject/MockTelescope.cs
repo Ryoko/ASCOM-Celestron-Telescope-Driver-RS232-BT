@@ -8,6 +8,8 @@ namespace CelestroneDriverTestProject
 {
     using ASCOM.CelestronAdvancedBlueTooth.TelescopeWorker;
 
+    using NUnit.Framework;
+
     public class MockTelescope
     {
         private double _firmwareVersion;
@@ -36,7 +38,7 @@ namespace CelestroneDriverTestProject
             return ans.ToArray();
         }
 
-        private byte[] makeVersion()
+        public byte[] makeVersion()
         {
             var v1 = (byte)_firmwareVersion;
             var v = _firmwareVersion - v1;
