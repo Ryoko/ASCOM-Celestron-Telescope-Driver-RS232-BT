@@ -1,4 +1,4 @@
-﻿namespace CelestroneDriver.Utils
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils
 {
     using System.Threading;
 
@@ -37,21 +37,24 @@
             }
         }
 
-        public DMS(decimal deg)
+        public DMS(decimal deg, bool IsRA = false)
         {
             this.Deg = deg;
+            this.isRA = IsRA;
         }
         
-        public DMS(double deg, bool isRA = false)
+        public DMS(double deg, bool IsRA = false)
         {
             this.Deg = (decimal)deg;
+            this.isRA = IsRA;
         }
 
-        public DMS(int d, int m, decimal s)
+        public DMS(int d, int m, decimal s, int sign = 0)
         {
             this.D = d;
             this.M = m;
             this.S = s;
+            this.Sign = sign;
         }
 
         public static bool TryParse(string coordinates, out DMS value)
@@ -106,6 +109,18 @@
         public string ToString(string del1, string del2)
         {
             return string.Format("{0:d2}{3}{1:d2}{4}{2,2:f1}", this.D, this.M, this.S, del1, del2);
+        }
+    }
+    public static class MyDMSExtension
+    {
+        public static DMS ToDMS(this double value, bool IsRA = false)
+        {
+            return new DMS(value, IsRA);
+        }
+
+        public static DMS ToDMS(this decimal value, bool IsRA = false)
+        {
+            return new DMS(value, IsRA);
         }
     }
 }

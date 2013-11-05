@@ -6,7 +6,7 @@ using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBluetooth
 {
-    using CelestroneDriver.Utils;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
 
     public partial class Form1 : Form
     {

@@ -7,10 +7,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HandForm
     using System.Threading;
     using System.Windows.Forms;
 
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
     using ASCOM.DeviceInterface;
-
-    using global::CelestroneDriver.TelescopeWorker;
-    using global::CelestroneDriver.Utils;
 
     public partial class HandControl : Form, IHandControl
     {

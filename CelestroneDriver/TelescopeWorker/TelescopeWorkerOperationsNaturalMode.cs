@@ -1,11 +1,10 @@
-﻿namespace CelestroneDriver.TelescopeWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using System;
 
     using ASCOM.Astrometry.Exceptions;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
     using ASCOM.DeviceInterface;
-
-    using CelestroneDriver.Utils;
 
     class TelescopeWorkerOperationsRateMode : ITelescopeWorkerOperations
     {

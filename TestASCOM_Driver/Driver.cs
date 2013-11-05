@@ -45,10 +45,11 @@ using System.Threading;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
+
     using CelestroneDriver.HandForm;
     using CelestroneDriver.HardwareWorker;
-    using CelestroneDriver.TelescopeWorker;
-    using CelestroneDriver.Utils;
 
     //
     // Your driver's DeviceID is ASCOM.CelestronAdvancedBlueTooth.Telescope

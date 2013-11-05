@@ -1,10 +1,9 @@
-﻿namespace CelestroneDriver.TelescopeWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using System;
 
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
     using ASCOM.DeviceInterface;
-
-    using CelestroneDriver.Utils;
 
     public enum SlewState { InitSlew = -1, NoSlew = 0, Slewing, SlewRest, MoveAxis };
     public enum TelescopeType { Unknown, NextStar, NextStar58, GT, Ultima }

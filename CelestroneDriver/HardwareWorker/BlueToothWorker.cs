@@ -16,8 +16,6 @@
     using System.IO;
     using System.Threading;
 
-    using global::CelestroneDriver.HardwareWorker;
-
     public class BlueToothDiscover
     {
         

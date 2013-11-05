@@ -1,4 +1,4 @@
-﻿namespace CelestroneDriver.TelescopeWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using ASCOM.DeviceInterface;
 

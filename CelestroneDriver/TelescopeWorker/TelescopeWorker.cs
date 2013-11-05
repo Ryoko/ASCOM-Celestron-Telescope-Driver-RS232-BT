@@ -1,4 +1,4 @@
-﻿namespace CelestroneDriver.TelescopeWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using System;
     using System.ComponentModel;
@@ -6,9 +6,8 @@
     using System.Threading;
 
     using ASCOM;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
     using ASCOM.DeviceInterface;
-
-    using CelestroneDriver.Utils;
 
     public enum TelescopeMode {Initial, Normal, Slewing, MovingAxis, Guiding}
     public enum TelescopeOperationMode {Natural, Rate}

@@ -1,4 +1,4 @@
-﻿namespace CelestroneDriver.TelescopeWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using System;
     using System.Linq;
@@ -6,9 +6,8 @@
     using System.Threading;
 
     using ASCOM;
-
-    using CelestroneDriver.HardwareWorker;
-    using CelestroneDriver.Utils;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
 
     [TelescopeInteraction(1.6)]
     class CelestroneInteraction16 : CelestroneInteraction12

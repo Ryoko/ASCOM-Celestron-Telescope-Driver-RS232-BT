@@ -1,8 +1,8 @@
-﻿namespace CelestroneDriver.TelescopeWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using System;
 
-    using CelestroneDriver.Utils;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
 
     public enum Direction { Positive = 6, Negative = 7};
     public enum SlewAxes { RaAzm = 16, DecAlt = 17 };

@@ -1,4 +1,4 @@
-﻿namespace CelestroneDriver.Utils
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils
 {
     public class Const
     {

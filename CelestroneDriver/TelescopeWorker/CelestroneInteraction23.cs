@@ -1,11 +1,10 @@
-﻿namespace CelestroneDriver.TelescopeWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using System;
 
     using ASCOM;
-
-    using CelestroneDriver.HardwareWorker;
-    using CelestroneDriver.Utils;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
 
     [TelescopeInteraction(2.3)]
     class CelestroneInteraction23 : CelestroneInteraction22

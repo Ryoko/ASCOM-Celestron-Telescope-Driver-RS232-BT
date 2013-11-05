@@ -1,6 +1,6 @@
 ﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HandForm
 {
-    using global::CelestroneDriver.TelescopeWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
 
     public interface IHandControl
     {

@@ -1,4 +1,4 @@
-﻿namespace CelestroneDriver.HardwareWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker
 {
     using System;
 

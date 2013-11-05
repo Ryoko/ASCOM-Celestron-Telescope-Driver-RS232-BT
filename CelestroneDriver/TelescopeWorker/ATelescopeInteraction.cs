@@ -1,4 +1,4 @@
-﻿namespace CelestroneDriver.TelescopeWorker
+﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using System;
     using System.Collections.Generic;
@@ -6,10 +6,9 @@
     using System.Reflection;
 
     using ASCOM.Astrometry.Exceptions;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
     using ASCOM.DeviceInterface;
-
-    using CelestroneDriver.HardwareWorker;
-    using CelestroneDriver.Utils;
 
     //[TelescopeInteraction(     TelescopeModels = new[]
     //{
@@ -37,7 +36,7 @@
             var low = (double)res[1];
             low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
             var ver = res[0] + low;
-            ver = 1.6;
+            //ver = 1.6;
 
             var types = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.GetCustomAttributes(typeof (TelescopeInteractionAttribute), false).Any());
             Type tver = null;

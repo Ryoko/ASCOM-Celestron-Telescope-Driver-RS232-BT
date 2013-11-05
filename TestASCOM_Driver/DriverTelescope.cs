@@ -8,8 +8,8 @@ using ASCOM.DeviceInterface;
 
 namespace ASCOM.CelestronAdvancedBlueTooth
 {
-    using CelestroneDriver.TelescopeWorker;
-    using CelestroneDriver.Utils;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
 
     public partial class Telescope : ITelescopeV3
     {
