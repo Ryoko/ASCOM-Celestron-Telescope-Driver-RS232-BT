@@ -89,7 +89,7 @@
             }
             else
             {
-                this.TrackingMode = (TrackingMode)this.profile.trackingMode;
+                this.TrackingMode = (TrackingMode)this.profile.TrackingMode;
             }
             this.IsTracking = this.TrackingMode > TrackingMode.AltAzm;
 
@@ -97,16 +97,16 @@
                 this._ti.TelescopeLocation 
                 : this._ti.CanWorkGPS ? 
                     this._ti.GPSLocation
-                    : new LatLon(this.profile.latitude, this.profile.longitude);
+                    : new LatLon(this.profile.Latitude, this.profile.Longitude);
             this.TelescopeTime = this._ti.CanWorkDateTime ? this._ti.TelescopeDateTime : DateTime.Now;
             this.HasGPS = (this._ti.CanWorkGPS) && this._ti.IsGPS;
 
             this.SlewState = this._ti.IsGoToInProgress ? SlewState.Slewing : SlewState.NoSlew;
-            this.Elevation = this.profile.elevation;
-            this.Apperture = this.profile.apperture;
-            this.FocalLength = this.profile.focal;
-            this.ObstructionPercent = this.profile.obstruction;
-            this.AppertureArea = (Math.Pow((this.Apperture / 2), 2) * Math.PI) * ((100 - this.profile.obstruction) / 100);
+            this.Elevation = this.profile.Elevation;
+            this.Apperture = this.profile.Apperture;
+            this.FocalLength = this.profile.Focal;
+            this.ObstructionPercent = this.profile.Obstruction;
+            this.AppertureArea = (Math.Pow((this.Apperture / 2), 2) * Math.PI) * ((100 - this.profile.Obstruction) / 100);
 
             this.RightAscensionRateOffset = 0;
             this.DeclinationRateOffset = 0;

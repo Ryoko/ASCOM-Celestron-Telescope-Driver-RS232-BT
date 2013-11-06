@@ -4,6 +4,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils
     using System;
     using System.Collections.Generic;
     using System.Collections;
+    using System.Diagnostics;
+    using System.Reflection;
 
     using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
     using ASCOM.Utilities;
@@ -35,6 +37,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils
             this.Value = this.Default = defaultValue;
         }
     }
+    public class ProfileRecordAttribute : Attribute
+    {
+        public bool IsStored { get; set; }
+        public string DefaultValue { get; set; }
+        public string Name { get; set; }
+
+        public ProfileRecordAttribute(string name, string Default = "", bool isStored = true)
+        {
+            Name = name;
+            IsStored = isStored;
+            DefaultValue = Default;
+        }
+    }
 
     public class TelescopeSettingsProfile : IEnumerable<string>
     {
@@ -60,187 +75,185 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils
                             {"HomeAzm", new ProfileRecord<double>("Home Azimuth", 0)},
                             {"IsAtPark", new ProfileRecord<bool>("Is At Park", false)},
                         };
-        public string comPortProfileName = "COM Port"; // Constants used for Profile persistence
-        public string comPortDefault = "COM1";
-        public string comPort; // Variables to hold the currrent device configuration
 
-        public string traceStateProfileName = "Trace Level";
-        public string traceStateDefault = "false";
-        public bool traceState = true;
+        //public ProfileRecord<string> comPort = ProfileRecord<string>("COM Port", "COM1");
+        //public ProfileRecord<bool> traceState = ProfileRecord<bool>("Trace Level", true);
+        //public ProfileRecord<BluetoothAddress> bluetoothDevice = ProfileRecord<BluetoothAddress>("BlueTooth Device", null);
+        //public ProfileRecord<bool> isBluetooth = ProfileRecord<bool>("IsBluetooth", true);
+        //public ProfileRecord<double> longitude = ProfileRecord<double>("Longitude", -1000);
+        //public ProfileRecord<double> latitude = ProfileRecord<double>("Latitude", -1000);
+        //public ProfileRecord<double> elevation = ProfileRecord<double>("Elevation Level", 0);
+        //public ProfileRecord<int> hasGPS = ProfileRecord<int>("Telescope has GPS", -1);
+        //public ProfileRecord<double> apperture = ProfileRecord<double>("Telescope Apperture", 0);
+        //public ProfileRecord<double> focal = ProfileRecord<double>("Telescope Focal Length", 0);
+        //public ProfileRecord<double> obstruction = ProfileRecord<double>("obstruction", 0);
+        //public ProfileRecord<string> TelescopeModel = ProfileRecord<string>("TelescopeModel", "");
+        //public ProfileRecord<int> TrackingMode = ProfileRecord<int>("Tracking Mode", -1);
+        //public ProfileRecord<bool> showControl = ProfileRecord<bool>("Show Control OnConnect", false);
+        //public ProfileRecord<double> ParkAlt = ProfileRecord<double>("Park Altitude", 0);
+        //public ProfileRecord<double> ParkAzm = ProfileRecord<double>("Park Azimuth", 0);
+        //public ProfileRecord<double> HomeAlt = ProfileRecord<double>("Home Altitude", 0);
+        //public ProfileRecord<double> HomeAzm = ProfileRecord<double>("Home Azimuth", 0);
+        //public ProfileRecord<bool> IsAtPark = ProfileRecord<bool>("Is At Park", false);
 
-        public string bluetoothDeviceProfileName = "BlueTooth Device";
-        public BluetoothAddress bluetoothDevice;
+        [ProfileRecord("COM Port", "COM1")]
+        public string ComPort; // Variables to hold the currrent device configuration
 
-        public string isBluetoothProfileName = "IsBluetooth";
-        public bool isBluetooth;
+        [ProfileRecord("Trace Level", "false")]
+        public bool TraceState = true;
 
-        public string coordinateDefaultValue = "-1000";
+        [ProfileRecord("BlueTooth Device")]
+        public BluetoothAddress BluetoothDevice;
 
-        public string longitudeProfileName = "Longitude";
-        public double longitude;
-        public string latitudeProfileName = "Latitude";
-        public double latitude;
+        [ProfileRecord("IsBluetooth", "false")]
+        public bool IsBluetooth;
 
-        public string elevationProfileName = "Elevation Level";
-        public double elevation;
+        [ProfileRecord("Longitude", "-1000")]
+        public double Longitude;
 
-        public string hasGPSProfileName = "Telescope has GPS";
-        public string hasGPSDefault = "-1";
-        public int hasGPS;
+        [ProfileRecord("Latitude", "-1000")]
+        public double Latitude;
 
-        public string defaultDouble = "0";
-        public string appertureProfileName = "Telescope Apperture";
-        public double apperture;
+        [ProfileRecord("Elevation Level", "0")]
+        public double Elevation;
 
-        public string focalProfileName = "Telescope Focal Length";
-        public double focal;
+        [ProfileRecord("Telescope has GPS", "-1")]
+        public int HasGps;
 
-        public string obstructionProfileName = "Telescope Obstruction Percent";
-        public double obstruction;
+        [ProfileRecord("Telescope Apperture", "0")]
+        public double Apperture;
 
-        public string TelescopeModelProfileName = "Telescope Model";
+        [ProfileRecord("Telescope Focal Length", "0")]
+        public double Focal;
+
+        [ProfileRecord("Telescope Obstruction Percent", "0")]
+        public double Obstruction;
+
+        [ProfileRecord("Telescope Model")]
         public string TelescopeModel;
 
-        public string TrackingModeProfileName = "Tracking Mode";
-        public int TrackingModeDefault = -1;
-        public int trackingMode;
+        [ProfileRecord("Tracking Mode", "-1")]
+        public int TrackingMode;
 
-        public string showControlProfileName = "Show Control OnConnect";
-        public bool showControl = false;
+        [ProfileRecord("Show Control OnConnect", "0")]
+        public bool ShowControl;
 
-        public string ParkAltProfileName = "Park Altitude";
-        public double ParkAlt = 0;
-        public string ParkAzmProfileName = "Park Azimuth";
-        public double ParkAzm = 0;
-        public string HomeAltProfileName = "Home Altitude";
-        public double HomeAlt = 0;
-        public string HomeAzmProfileName = "Home Alzimuth";
-        public double HomeAzm = 0;
-        public string AtParkProfileName = "Is At Park";
+        [ProfileRecord("Park Altitude", "90")]
+        public double ParkAlt;
+
+        [ProfileRecord("Park Azimuth", "90")]
+        public double ParkAzm;
+
+        [ProfileRecord("Home Altitude", "0")]
+        public double HomeAlt;
+
+        [ProfileRecord("Home Alzimuth", "90")]
+        public double HomeAzm;
+
+        [ProfileRecord("Is At Park", "false")]
         public bool IsAtPark;
 
-        public Coordinates target;
+        [ProfileRecord("Target Coordinates", "0", false)]
+        public Coordinates Target;
 
         public TelescopeSettingsProfile()
         {
 
         }
 
-        public void ReadProfile(string driverID)
+        public void ReadProfile(string driverId)
         {
+            //Debugger.Break();
             using (Profile driverProfile = new Profile())
             {
-                this.traceState = Convert.ToBoolean(driverProfile.GetValue(driverID, this.traceStateProfileName, string.Empty, this.traceStateDefault));
-                this.comPort = driverProfile.GetValue(driverID, this.comPortProfileName, string.Empty, this.comPortDefault);
-                var val = driverProfile.GetValue(driverID, this.bluetoothDeviceProfileName, string.Empty, string.Empty);
-                BluetoothAddress.TryParse(val, out this.bluetoothDevice);
-                val = driverProfile.GetValue(driverID, this.isBluetoothProfileName, string.Empty, "false");
-                bool.TryParse(val, out this.isBluetooth);
-                val = driverProfile.GetValue(driverID, this.latitudeProfileName, string.Empty, this.coordinateDefaultValue);
-                double.TryParse(val, out this.latitude);
-                val = driverProfile.GetValue(driverID, this.longitudeProfileName, string.Empty, this.coordinateDefaultValue);
-                double.TryParse(val, out this.longitude);
-                val = driverProfile.GetValue(driverID, this.TrackingModeProfileName, string.Empty, this.TrackingModeDefault.ToString());
-                int.TryParse(val, out this.trackingMode);
-                this.TelescopeModel = driverProfile.GetValue(driverID, this.TelescopeModelProfileName, string.Empty, string.Empty);
-                val = driverProfile.GetValue(driverID, this.hasGPSProfileName, string.Empty, this.hasGPSDefault);
-                int.TryParse(val, out this.hasGPS);
-                val = driverProfile.GetValue(driverID, this.elevationProfileName, string.Empty, this.defaultDouble);
-                double.TryParse(val, out this.elevation);
-                val = driverProfile.GetValue(driverID, this.appertureProfileName, string.Empty, this.defaultDouble);
-                double.TryParse(val, out this.apperture);
-                val = driverProfile.GetValue(driverID, this.focalProfileName, string.Empty, this.defaultDouble);
-                double.TryParse(val, out this.focal);
-                val = driverProfile.GetValue(driverID, this.obstructionProfileName, string.Empty, this.defaultDouble);
-                double.TryParse(val, out this.obstruction);
-                val = driverProfile.GetValue(driverID, this.showControlProfileName, string.Empty, "false");
-                bool.TryParse(val, out this.showControl);
-
-                var posValid = true;
-                val = driverProfile.GetValue(driverID, this.HomeAltProfileName, string.Empty, string.Empty);
-                posValid &= double.TryParse(val, out this.HomeAlt);
-                val = driverProfile.GetValue(driverID, this.HomeAzmProfileName, string.Empty, string.Empty);
-                posValid &= double.TryParse(val, out this.HomeAzm);
-                if (!posValid) 
+                foreach (var fieldInfo in this.GetType().GetFields())
                 {
-                    this.HomeAlt = 90;
-                    this.HomeAzm = 90;
+                    var at = fieldInfo.GetCustomAttributes(typeof(ProfileRecordAttribute), false);
+                    if (at.Length == 0) continue;
+                    var pra = (ProfileRecordAttribute)at[0];
+                    if (!pra.IsStored) continue;
+                    try
+                    {
+                        var value = driverProfile.GetValue(driverId, pra.Name, string.Empty, pra.DefaultValue);
+                        fieldInfo.SetValue(this, Convert.ChangeType(value, fieldInfo.FieldType));
+                    }
+                    catch{}
                 }
-                posValid = true;
-                val = driverProfile.GetValue(driverID, this.ParkAltProfileName, string.Empty, string.Empty);
-                posValid &= double.TryParse(val, out this.ParkAlt);
-                val = driverProfile.GetValue(driverID, this.ParkAzmProfileName, string.Empty, string.Empty);
-                posValid &= double.TryParse(val, out this.ParkAzm);
-                if (!posValid)
-                {
-                    this.ParkAlt = 0;
-                    this.ParkAzm = 90;
-                }
-
-                val = driverProfile.GetValue(driverID, this.AtParkProfileName, string.Empty, this.defaultDouble);
-                bool.TryParse(val, out this.IsAtPark);
 
             }
 #if DEBUG
             //return;
-            if (this.bluetoothDevice == null && this.TelescopeModel.Length == 0)
+            if (this.BluetoothDevice != null || this.TelescopeModel.Length != 0)
             {
-                this.traceState = true;
-                this.comPort = "COM1";
-                BluetoothAddress.TryParse("001112280143", out this.bluetoothDevice);
-                //bluetoothDevice = new BluetoothAddress(001112280143);
-                this.isBluetooth = true;
-                this.trackingMode = (int) TrackingMode.EQN;
-                this.TelescopeModel = "Advanced C8-NGT";
-                this.hasGPS = 0;
-                this.latitude = 53.9175;
-                this.longitude = 27.529722222;
-                this.elevation = 295;
-                this.apperture = 0.200;
-                this.focal = 1d;
-                this.obstruction = 28d;
-                this.showControl = true;
+                return;
             }
+            this.TraceState = true;
+            this.ComPort = "COM1";
+            BluetoothAddress.TryParse("001112280143", out this.BluetoothDevice);
+            //bluetoothDevice = new BluetoothAddress(001112280143);
+            this.IsBluetooth = true;
+            this.TrackingMode = (int) CelestroneDriver.TelescopeWorker.TrackingMode.EQN;
+            this.TelescopeModel = "Advanced C8-NGT";
+            this.HasGps = 0;
+            this.Latitude = 53.9175;
+            this.Longitude = 27.529722222;
+            this.Elevation = 295;
+            this.Apperture = 0.200;
+            this.Focal = 1d;
+            this.Obstruction = 28d;
+            this.ShowControl = true;
 #endif 
         }
 
         public void WriteProfile(string driverID)
         {
-            using (Profile driverProfile = new Profile())
+            using (var driverProfile = new Profile())
             {
                 driverProfile.DeviceType = "Telescope";
-                driverProfile.WriteValue(driverID, this.traceStateProfileName, this.traceState.ToString());
-                driverProfile.WriteValue(driverID, this.comPortProfileName, this.comPort);
-                driverProfile.WriteValue(driverID, this.bluetoothDeviceProfileName, this.bluetoothDevice != null ? this.bluetoothDevice.ToString() : string.Empty);
-                driverProfile.WriteValue(driverID, this.isBluetoothProfileName, this.isBluetooth.ToString());
-                driverProfile.WriteValue(driverID, this.TrackingModeProfileName, this.trackingMode.ToString());
-                driverProfile.WriteValue(driverID, this.TelescopeModelProfileName,this.TelescopeModel);
-                driverProfile.WriteValue(driverID, this.hasGPSProfileName, this.hasGPS.ToString());
-                driverProfile.WriteValue(driverID, this.latitudeProfileName, this.latitude.ToString());
-                driverProfile.WriteValue(driverID, this.longitudeProfileName, this.longitude.ToString());
-                driverProfile.WriteValue(driverID, this.elevationProfileName, this.elevation.ToString());
-                driverProfile.WriteValue(driverID, this.appertureProfileName, this.apperture.ToString());
-                driverProfile.WriteValue(driverID, this.focalProfileName, this.focal.ToString());
-                driverProfile.WriteValue(driverID, this.obstructionProfileName, this.obstruction.ToString());
-                driverProfile.WriteValue(driverID, this.showControlProfileName, this.showControl.ToString());
+                foreach (var fieldInfo in this.GetType().GetFields())
+                {
+                    var at = fieldInfo.GetCustomAttributes(typeof(ProfileRecordAttribute), false);
+                    if (at.Length == 0) continue;
+                    var pra = (ProfileRecordAttribute)at[0];
+                    if (!pra.IsStored) continue;
+                    try
+                    {
+                        driverProfile.GetValue(driverID, pra.Name, string.Empty, pra.DefaultValue);
+                        var value = fieldInfo.GetValue(this).ToString();
+                        driverProfile.WriteValue(driverID, pra.Name, value);
+                    }catch{}
+                }
 
-                driverProfile.WriteValue(driverID, this.HomeAltProfileName, this.HomeAlt.ToString());
-                driverProfile.WriteValue(driverID, this.HomeAzmProfileName, this.HomeAzm.ToString());
-                driverProfile.WriteValue(driverID, this.ParkAltProfileName, this.ParkAlt.ToString());
-                driverProfile.WriteValue(driverID, this.ParkAzmProfileName, this.ParkAzm.ToString());
-                driverProfile.WriteValue(driverID, this.AtParkProfileName, this.IsAtPark.ToString());
+                //driverProfile.WriteValue(driverID, this.traceStateProfileName, this.traceState.ToString());
+                //driverProfile.WriteValue(driverID, this.comPortProfileName, this.comPort);
+                //driverProfile.WriteValue(driverID, this.bluetoothDeviceProfileName, this.bluetoothDevice != null ? this.bluetoothDevice.ToString() : string.Empty);
+                //driverProfile.WriteValue(driverID, this.isBluetoothProfileName, this.isBluetooth.ToString());
+                //driverProfile.WriteValue(driverID, this.TrackingModeProfileName, this.trackingMode.ToString());
+                //driverProfile.WriteValue(driverID, this.TelescopeModelProfileName,this.TelescopeModel);
+                //driverProfile.WriteValue(driverID, this.hasGPSProfileName, this.hasGPS.ToString());
+                //driverProfile.WriteValue(driverID, this.latitudeProfileName, this.latitude.ToString());
+                //driverProfile.WriteValue(driverID, this.longitudeProfileName, this.longitude.ToString());
+                //driverProfile.WriteValue(driverID, this.elevationProfileName, this.elevation.ToString());
+                //driverProfile.WriteValue(driverID, this.appertureProfileName, this.apperture.ToString());
+                //driverProfile.WriteValue(driverID, this.focalProfileName, this.focal.ToString());
+                //driverProfile.WriteValue(driverID, this.obstructionProfileName, this.obstruction.ToString());
+                //driverProfile.WriteValue(driverID, this.showControlProfileName, this.showControl.ToString());
+
+                //driverProfile.WriteValue(driverID, this.HomeAltProfileName, this.HomeAlt.ToString());
+                //driverProfile.WriteValue(driverID, this.HomeAzmProfileName, this.HomeAzm.ToString());
+                //driverProfile.WriteValue(driverID, this.ParkAltProfileName, this.ParkAlt.ToString());
+                //driverProfile.WriteValue(driverID, this.ParkAzmProfileName, this.ParkAzm.ToString());
+                //driverProfile.WriteValue(driverID, this.AtParkProfileName, this.IsAtPark.ToString());
 
             }
 
         }
 
-
         public IProfileRecord this[string name]
         {
             get
             {
-                if (this.properties.ContainsKey(name)) return this.properties[name];
-                else return null;
+                return this.properties.ContainsKey(name) ? this.properties[name] : null;
             }
         }
 

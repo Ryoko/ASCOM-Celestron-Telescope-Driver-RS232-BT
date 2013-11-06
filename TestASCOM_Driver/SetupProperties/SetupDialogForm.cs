@@ -41,9 +41,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             profile = Profile;
             InitializeComponent();
             // Initialise current values of user settings from the ASCOM Profile 
-            SelectedComPort.Text = profile.comPort;
-            chkTrace.Checked = profile.traceState;
-            selDeviceAddress = profile.bluetoothDevice;
+            SelectedComPort.Text = profile.ComPort;
+            chkTrace.Checked = profile.TraceState;
+            selDeviceAddress = profile.BluetoothDevice;
             try
             {
                 if (selDeviceAddress != null)
@@ -53,32 +53,32 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     SelectedBluetooth.Text = selDeviceInfo != null ? selDeviceInfo.DeviceName : "";
                 }
             }catch{}
-            tabControl1.SelectedIndex = profile.isBluetooth ? 1 : 0;
+            tabControl1.SelectedIndex = profile.IsBluetooth ? 1 : 0;
 
             LatSuff.SelectedIndex = 0;
-            if (profile.latitude > -1000)
+            if (profile.Latitude > -1000)
             {
-                var latitude = new DMS(profile.latitude);
+                var latitude = new DMS(profile.Latitude);
                 Latitude.Text = latitude.ToString();
                 LatSuff.SelectedIndex = latitude.Sign > 0 ? 0 : 1;
             }
             LonSuff.SelectedIndex = 0;
-            if (profile.longitude > -1000)
+            if (profile.Longitude > -1000)
             {
-                var longitude = new DMS(profile.longitude);
+                var longitude = new DMS(profile.Longitude);
                 Longitude.Text = longitude.ToString();
                 LonSuff.SelectedIndex = longitude.Sign > 0 ? 0 : 1;
             }
-            Elevation.Value = (decimal)profile.elevation;
+            Elevation.Value = (decimal)profile.Elevation;
 
-            Apperture.Value = (decimal)profile.apperture * 1000;
-            Focal.Value = (decimal)profile.focal * 1000;
-            Obstruction.Value = (decimal)profile.obstruction;
+            Apperture.Value = (decimal)profile.Apperture * 1000;
+            Focal.Value = (decimal)profile.Focal * 1000;
+            Obstruction.Value = (decimal)profile.Obstruction;
 
-            TrackingMode.SelectedIndex = profile.trackingMode;
-            HasGPS.CheckState = profile.hasGPS < 0 ? CheckState.Indeterminate : profile.hasGPS > 0 ? CheckState.Checked : CheckState.Unchecked;
+            TrackingMode.SelectedIndex = profile.TrackingMode;
+            HasGPS.CheckState = profile.HasGps < 0 ? CheckState.Indeterminate : profile.HasGps > 0 ? CheckState.Checked : CheckState.Unchecked;
 
-            ShowHandControl.Checked = profile.showControl;
+            ShowHandControl.Checked = profile.ShowControl;
 
             ScopeSelection.Items.Clear();
             foreach (var model in models)
@@ -100,25 +100,25 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 throw new Exception("Error(s) in value(s)");
             }
-            profile.comPort = ts.ComPort; // Update the state variables with results from the dialogue
-            profile.traceState = chkTrace.Checked;
+            profile.ComPort = ts.ComPort; // Update the state variables with results from the dialogue
+            profile.TraceState = chkTrace.Checked;
 
-            profile.bluetoothDevice = ts.BluetoothAddr;
-            profile.isBluetooth = ts.IsBluetooth;
+            profile.BluetoothDevice = ts.BluetoothAddr;
+            profile.IsBluetooth = ts.IsBluetooth;
 
-            profile.latitude = ts.Latitude;
-            profile.longitude = ts.Longitude;
-            profile.elevation = ts.Elevation;
+            profile.Latitude = ts.Latitude;
+            profile.Longitude = ts.Longitude;
+            profile.Elevation = ts.Elevation;
 
-            profile.apperture = ts.Apperture;
-            profile.focal = ts.FocalRate;
-            profile.obstruction = ts.Obstruction;
+            profile.Apperture = ts.Apperture;
+            profile.Focal = ts.FocalRate;
+            profile.Obstruction = ts.Obstruction;
 
             profile.TelescopeModel = ts.ModelName;
-            profile.trackingMode = ts.TrackingMode;
-            profile.hasGPS = ts.HasGPS;
+            profile.TrackingMode = ts.TrackingMode;
+            profile.HasGps = ts.HasGPS;
 
-            profile.showControl = ts.ShowHandControl;
+            profile.ShowControl = ts.ShowHandControl;
         }
 
         private void cmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
@@ -196,8 +196,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         private void SelectedBluetooth_Click(object sender, EventArgs e)
         {
             selDeviceInfo = BlueToothDiscover.GetDeviceDialog();
-            SelectedBluetooth.Text = selDeviceInfo.DeviceName;
-            setButtons();
+            if (selDeviceInfo != null)
+            {
+                SelectedBluetooth.Text = selDeviceInfo.DeviceName;
+                setButtons();
+            }
         }
 
         private void tabControl1_Selected(object sender, TabControlEventArgs e)
@@ -230,8 +233,8 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             panel1.Enabled = false;
             panel2.Enabled = false;
 
-            profile.bluetoothDevice = selDeviceInfo.DeviceAddress;
-            profile.isBluetooth = tabControl1.SelectedIndex == 1 && selDeviceInfo != null;
+            profile.BluetoothDevice = selDeviceInfo != null ? selDeviceInfo.DeviceAddress : null;
+            profile.IsBluetooth = tabControl1.SelectedIndex == 1 && selDeviceInfo != null;
             
             bgWorker = new BackgroundWorker();
             bgWorker.DoWork += bgWorker_DoWork;
@@ -316,7 +319,6 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 set.Latitude = (double)lat.Deg;
                 lon.Sign = LonSuff.SelectedIndex > 0 ? -1 : 1;
                 set.Longitude = (double)lon.Deg;
-                res &= set.Latitude > 0 && set.Longitude > 0;
             }
             else
             {

@@ -489,7 +489,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             {
                 tl.LogMessage("SiteElevation Set", value.ToString());
                 telescopeProperties.Elevation = value;
-                profile.elevation = (int)value;
+                profile.Elevation = (int)value;
                 WriteProfile();
             }
         }
@@ -512,7 +512,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     telescopeInteraction.TelescopeLocation = telescopeProperties.Location;
                 }
                 tl.LogMessage("SiteLatitude Set", new DMS(value).ToString(":"));
-                profile.latitude = value;
+                profile.Latitude = value;
                 WriteProfile();
             }
         }
@@ -535,7 +535,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     telescopeInteraction.TelescopeLocation = telescopeProperties.Location;
                 }
                 tl.LogMessage("SiteLongitude Set", new DMS(value).ToString(":"));
-                profile.longitude = value;
+                profile.Longitude = value;
                 WriteProfile();
             }
         }

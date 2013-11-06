@@ -59,7 +59,7 @@
 
         public static bool TryParse(string coordinates, out DMS value)
         {
-            value = new DMS(0m);
+            value = new DMS(-1000m);
             decimal val;
 
             //Regex r = new Regex(@"(\d+)[°\s]+(\d+)['\s]+(\d+)[\.\,]?(\d*)['\s]*");

@@ -29,6 +29,8 @@ obj/
 [Bb]in
 [Dd]ebug*/
 [Rr]elease*/
+output/
+output/
 Ankh.NoLoad
 
 #MonoDevelop
