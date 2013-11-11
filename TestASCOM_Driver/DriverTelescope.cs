@@ -15,10 +15,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
     {
         #region ITelescope Implementation
 
-        public void AbortSlew()
+        public void AbortSlew() 
         {
             tl.LogMessage("AbortSlew", "set");
-            telescopeInteraction.CancelGoTo();
+            telescopeWorker.AbortSlew();
         }
 
         public AlignmentModes AlignmentMode
@@ -470,8 +470,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
+                DateTime dt = telescopeWorker.TelescopeDateTime;
+                
                 double siderealTime = (18.697374558 +
-                                       24.065709824419081*(utilities.DateLocalToJulian(DateTime.Now) - 2451545.0))%24.0;
+                                       24.065709824419081*(utilities.DateLocalToJulian(dt) - 2451545.0))%24.0;
                 tl.LogMessage("SiderealTime", "Get - " + siderealTime.ToString());
                 return siderealTime;
             }
@@ -638,7 +640,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             telescopeWorker.CheckPark();
             if (telescopeInteraction.CanSyncAltAzm)
             {
-                telescopeInteraction.SyncAltAz(new AltAzm(Altitude, Azimuth));
+                telescopeWorker.Sync(new AltAzm(Altitude, Azimuth));
             }
             else
             {
@@ -654,7 +656,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             telescopeWorker.CheckPark();
             if (telescopeInteraction.CanSyncRaDec)
             {
-                telescopeInteraction.SyncRaDec(new Coordinates(RightAscension, Declination));
+                telescopeWorker.Sync(new Coordinates(RightAscension, Declination));
             }
             else
             {
@@ -672,7 +674,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
             if (telescopeInteraction.CanSyncRaDec)
             {
-                telescopeInteraction.SyncRaDec(new Coordinates((double)telescopeProperties.Target.Ra.Deg, (double)telescopeProperties.Target.Dec.Deg));
+                telescopeWorker.Sync(new Coordinates((double)telescopeProperties.Target.Ra.Deg, (double)telescopeProperties.Target.Dec.Deg));
             }
             else
             {
@@ -777,11 +779,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             get
             {
                 DateTime utcDate;
-                if (telescopeInteraction.CanWorkDateTime)
+                if (telescopeInteraction.CanWorkGPS || telescopeInteraction.CanGetRTC || telescopeInteraction.CanWorkDateTime )
                 {
                     try
                     {
-                        utcDate = telescopeInteraction.TelescopeDateTime.ToUniversalTime();
+                        utcDate =  telescopeWorker.TelescopeDateTime.ToUniversalTime();
                         tl.LogMessage("Telescope UTCDate", "Get - " + utcDate.ToString("MM/dd/yy HH:mm:ss"));
                         return utcDate;
                     }
@@ -798,11 +800,11 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             set
             {
                 
-                if (telescopeInteraction.CanWorkDateTime)
+                if (telescopeInteraction.CanWorkDateTime || telescopeInteraction.CanSetRTC)
                 {
                     try
                     {
-                        telescopeInteraction.TelescopeDateTime = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+                        telescopeWorker.TelescopeDateTime = DateTime.SpecifyKind(value, DateTimeKind.Utc);
                         tl.LogMessage("Telescope UTCDate", "Set - " + value.ToString("MM/dd/yy HH:mm:ss"));
                         return;
                     }

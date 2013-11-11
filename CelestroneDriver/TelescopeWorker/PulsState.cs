@@ -6,22 +6,24 @@
 
     class Puls
     {
-        int TimeBegin { get; set; }
+        public int TimeEnd { get; private set; }
+//        int TimeBegin { get; set; }
         int Duration { get; set; }
         GuideDirections Direction { get; set; }
 
         public Puls(GuideDirections dir, int timeNow, int duration)
         {
             this.Direction = dir;
-            this.TimeBegin = timeNow;
+//            this.TimeBegin = timeNow;
             this.Duration = duration;
+            this.TimeEnd = timeNow + duration;
         }
 
-        public bool isExpired 
+        public bool  isExpired 
         {
             get
             {
-                return this.TimeBegin + this.Duration < Environment.TickCount;
+                return this.TimeEnd < Environment.TickCount;
             }
         }
     }
