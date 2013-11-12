@@ -31,8 +31,7 @@
         {
             get
             {
-                var com = new[] { (byte)'h' };
-                var res = this.SendBytes(com);
+                var res = this.SendCommand(GeneralCommands.GET_TIME);
                 if (res.Length < 6) throw new DriverException("Wrong answer");
                 var dt = new DateTime(res[5] + 2000, res[3], res[4], res[0], res[1], res[2], DateTimeKind.Unspecified);
                 var offset = res[6] < 100 ? res[6] : 256 - res[6];
@@ -41,8 +40,6 @@
             }
             set
             {
-//                var tz = (int)(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalHours + 0.5);
-//                var dlst = TimeZone.CurrentTimeZone.IsDaylightSavingTime(DateTime.Now) ? 1 : 0;
                 DateTime dt = value;
                 if (value.Kind == DateTimeKind.Utc)
                 {
@@ -54,7 +51,7 @@
                 if (tz < 0) tz = 256 + tz;
                 var com = new byte[]
                 {
-                    (byte)'H',
+                    (byte)GeneralCommands.SET_TIME,
                     (byte)dt.Hour, (byte)dt.Minute, (byte)dt.Second,
                     (byte)dt.Month, (byte)dt.Day, (byte)(dt.Year - 2000),
                     (byte)tz, (byte)dlst

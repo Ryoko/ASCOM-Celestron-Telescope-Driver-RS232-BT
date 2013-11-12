@@ -214,6 +214,36 @@
             throw new System.NotImplementedException();
         }
 
+        public virtual void SetHome()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void GoHome()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual SiteOfPier GetSiteOfPier()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public virtual SiteOfPier GetDestinationSiteOfPier(Coordinates coord)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void Hibernate()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public virtual void WakeUp()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public virtual bool CanWorkPosition
         {
             get { return false; }
@@ -290,6 +320,21 @@
         }
 
         public virtual bool CanSlewHighRate
+        {
+            get { return false; }
+        }
+
+        public virtual bool CanGetSiteOfPier
+        {
+            get { return false; }
+        }
+
+        public virtual bool CanHibernate
+        {
+            get { return false; }
+        }
+
+        public virtual bool CanWorkHome
         {
             get { return false; }
         }
@@ -421,6 +466,13 @@
             if (val < 0) val += 360;
             while (val > 360) val -= 360;
             return val;
+        }
+
+        protected byte[] SendCommand(GeneralCommands command, params byte[] par)
+        {
+            var com = new List<byte>(new[]{(byte)command});
+            com.AddRange(par);
+            return this.SendBytes(com.ToArray());
         }
     }
 }

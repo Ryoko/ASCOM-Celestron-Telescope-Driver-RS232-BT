@@ -140,6 +140,8 @@
     <Compile Include="HardwareWorker\FakeWorker.cs" />
     <Compile Include="HardwareWorker\IDeviceWorker.cs" />
     <Compile Include="HardwareWorker\MockTelescope.cs" />
+    <Compile Include="TelescopeWorker\CelestroneInteraction414.cs" />
+    <Compile Include="TelescopeWorker\CelestroneInteraction421.cs" />
     <Compile Include="Utils\Const.cs" />
     <Compile Include="Utils\DMS.cs" />
     <Compile Include="Utils\Kalman.cs" />

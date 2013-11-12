@@ -187,12 +187,4 @@
             return new byte[]{v1, v2};
         }
     }
-
-    public static class Myextensions
-    {
-        public static byte[] ToBytes(this string val)
-        {
-            return val.Select((c, i) => (byte)c).ToArray();
-        }
-    }
 }

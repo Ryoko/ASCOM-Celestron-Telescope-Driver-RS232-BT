@@ -123,4 +123,13 @@
         public double Lat { get; set; }
         public double Lon { get; set; }
     }
+
+    public static class Myextensions
+    {
+        public static byte[] ToBytes(this string val)
+        {
+            return val.Select((c, i) => (byte)c).ToArray();
+        }
+    }
+
 }

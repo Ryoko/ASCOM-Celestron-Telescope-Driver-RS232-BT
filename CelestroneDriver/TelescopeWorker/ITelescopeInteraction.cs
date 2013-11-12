@@ -10,6 +10,8 @@
     public enum TelescopeModel { Unknown = 0, GPSSeries = 1, iSeries = 3, iSeriesSE, CGE, AdvancedGT, SLT, CPC = 9, GT, SE45, SE68 }
     public enum TrackingMode { Unknown = -1, Off = 0, AltAzm, EQN, EQS }
 
+    public enum SiteOfPier {Unknown = -1, East = 0, West}
+
     public enum DeviceCommands
     {
         MC_GET_POSITION = 1, //    n/a    24 bits
@@ -66,6 +68,63 @@
 
     }
 
+    public enum GeneralCommands
+    {
+        CR = 0xD,			    // Carriage return
+        COMMA = 0x2C,			// comma
+        QUESTION = 0x3F,			// ? command initialise for NS 5 and 8
+        TERMINATOR = 0x23,		// # command terminator
+
+        _0 = 0x30,			    // "0"
+        _1 = 0x31,			    // "1"
+        _9 = 0x39,			    // "9"
+        _A = 0x41,			    // "A"
+        _E = 0x45,			    // "E"
+        _F = 0x46,			    // "F"
+        _W = 0x57,			    // "W"
+
+        SET_ALTAZ = 0x41,		// A Slew AltAz, Nexstar 5 and 8 only
+        SET_ALTAZ_LP = 0x42,	// B Slew AltAz Low precision
+        SET_CONFIG_ITEM = 0x43,	// C Set configuration item
+        GET_RADEC_LP = 0x45,	// E Get Ra Dec Low precision
+        SYNC = 0x46,			// F Sync, Ultima2K only
+        SET_TIME = 0x48,		// H Set local time
+        SET_TIME_NEW = 0x49,	// I Set local time, 4.21 onwards
+        IS_ALIGNED = 0x4A,		// J get scope aligned state
+        ECHO_CMD = 0x4B,		// K echo command
+        IS_SLEWING = 0x4C,		// L get slewing state
+        ABORT_SLEW = 0x4D,		// M Abort Slew
+        SET_RADEC_LP = 0x52,	// R set Ra Dec Low precision
+        SYNC_LP = 0x53,			// S sync low precision
+        SET_TRACKING = 0x54,	// T Set Tracking
+        GET_VERSION = 0x56,		// V get Version command
+        AUX_CMD = 0x50,			// P Aux command
+        SET_LOCATION = 0x57,	// W set Location
+        LAST_ALIGN = 0x59,		// Y Last Align or Quick Align
+        GET_ALTAZ_LP = 0x5A,	// Z Get AltAz Low precision
+
+        SET_ALTAZ_HP = 0x62,	// b Slew AltAz high precision
+        GET_CONFIG_ITEM = 0x63,	// c Get Confguration item
+        GET_RADEC_HP = 0x65,	// e Get Ra Dec high precision
+
+        GET_DEST_PIER_SIDE = 0x67,	    // g Get the destination side of pier
+        GET_TIME = 0x68,			    // h get local time
+        GET_TIME_NEW = 0x69,			// i get local time, 4.21 onwards
+        GET_LST = 0x6C,			        // l get local sidereal time
+        GET_MODEL = 0x6D,			    // m Get scope model
+        SET_HOME = 0x6E,			    // n Set home position, 4.21 onwards
+        GOTO_HOME = 0x6F,			    // o goto home position, 4.21 onwards
+        GET_PIER_SIDE = 0x70,		    // p Get Pier Side      4.14
+        SET_RADEC_HP = 0x72,			// r set Ra Dec High precision
+        SYNC_HP = 0x73,			        // s sync high precision
+        GET_TRACKING = 0x74,			// t get Tracking state
+        UNDO_SYNC = 0x75,			    // u undo sync
+        GET_LOCATION = 0x77,			// w Get location
+        HIBERNATE = 0x78,			    // x Hibernate, 4.21 onwards
+        WAKEUP = 0x79,			        // y Wake up, parameter 0 or 1, 4.21 onwards
+        GET_ALTAZ_HP = 0x7A,			// z Get Alt Az High precision
+    }
+
     //public enum DeviceIds { Main = 1, HC = 4, AzmDrive = 16, AltDrive = 17, GPS = 176, RTC = 0xB2 }
     public interface ITelescopeInteraction
     {
@@ -111,6 +170,14 @@
         /// </summary>
         /// <returns>{Azm, Alt}</returns>
         AltAzm GetPosition();
+        void SetHome();
+        void GoHome();
+
+        SiteOfPier GetSiteOfPier();
+        SiteOfPier GetDestinationSiteOfPier(Coordinates coord);
+
+        void Hibernate();
+        void WakeUp();
 
         bool IsSlewDone(DeviceID deviceId);
 
@@ -130,6 +197,10 @@
         bool CanSetTrackingRates { get; }
         bool CanSlewHighRate { get; }
         bool CanWorkPosition { get; }
+        bool CanGetSiteOfPier { get; }
+        bool CanHibernate { get; }
+        bool CanWorkHome { get; }
+
         byte[] SendCommandToDevice(DeviceID DeviceId, DeviceCommands Command, byte NoOfAnsvers, params byte[] args);
 
         bool CommandBool(string command, bool raw);

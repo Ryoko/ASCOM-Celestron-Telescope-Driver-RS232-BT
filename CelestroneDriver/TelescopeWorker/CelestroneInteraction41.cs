@@ -1,6 +1,7 @@
 ﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker
 {
     using System;
+    using System.Collections.Generic;
 
     using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker;
     using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
@@ -13,8 +14,9 @@
 
         public override void SyncRaDec(Coordinates coordinates)
         {
-            if (this.CommandBool(string.Format("s{0},{1}#",
-                Utils.Deg2HEX32(coordinates.Ra), Utils.Deg2HEX32(coordinates.Dec)), false))
+            if (this.CommandBool(string.Format("{0}{1}{2}{3}#",
+                GeneralCommands.SYNC_HP, Utils.Deg2HEX32(coordinates.Ra),
+                GeneralCommands.COMMA, Utils.Deg2HEX32(coordinates.Dec)), false))
             {
                 return;
             }
