@@ -88,10 +88,10 @@
                 case (byte)'r':
                     return "#".ToBytes();
                 case (byte)'t':
-                    return new byte[]{(byte)_tracking, (byte)'#'};
+                    return new byte[]{(byte)_tracking, (byte)(char)GeneralCommands.TERMINATOR};
                 case (byte)'T':
                     _tracking = (TrackingMode)input[1];
-                    return new byte[] { (byte)'#' };
+                    return new byte[] { (byte)(char)GeneralCommands.TERMINATOR };
                 case (byte)'P':
                     return this.SendCommand(input[1], (DeviceID)input[2], (DeviceCommands)input[3], input.Skip(4).ToArray());
                 case (byte)'w':
@@ -102,7 +102,7 @@
                         return new byte[]
                                    {
                                        (byte)lat.D, (byte)lat.M, (byte)lat.S, (byte)(lat.Sign > 0 ? 0 : 1), (byte)lon.D,
-                                       (byte)lon.M, (byte)lon.S, (byte)(lon.Sign > 0 ? 0 : 1), (byte)'#'
+                                       (byte)lon.M, (byte)lon.S, (byte)(lon.Sign > 0 ? 0 : 1), (byte)(char)GeneralCommands.TERMINATOR
                                    };
                     }
                 case (byte)'W':
@@ -120,7 +120,7 @@
                         return new byte[]
                                    {
                                        (byte)tm.Hour, (byte)tm.Minute, (byte)tm.Second, (byte)tm.Month, (byte)tm.Day,
-                                       (byte)(tm.Year - 2000), (byte)tz, (byte)dlst, (byte)'#'
+                                       (byte)(tm.Year - 2000), (byte)tz, (byte)dlst, (byte)(char)GeneralCommands.TERMINATOR
                                    };
                     }
                 case (byte)'H':
@@ -129,7 +129,7 @@
                     return "#".ToBytes();
             }
 
-            ans.Add((byte)'#');
+            ans.Add((byte)(char)GeneralCommands.TERMINATOR);
             return ans.ToArray();
         }
 
@@ -154,7 +154,7 @@
                 case DeviceCommands.GET_VER:
                     return "12#".ToBytes();
                 case DeviceCommands.MC_GET_POSITION:
-                    return new byte[] { 0, 1, 2, 4, (byte)'#' };
+                    return new byte[] { 0, 1, 2, 4, (byte)(char)GeneralCommands.TERMINATOR };
                 case DeviceCommands.MC_GOTO_FAST:
                 case DeviceCommands.MC_GOTO_SLOW:
                     return "#".ToBytes();
@@ -169,9 +169,9 @@
                 case DeviceCommands.MC_SET_AUTOGUIDE_RATE:
                     return "#".ToBytes();
                 case DeviceCommands.MC_GET_AUTOGUIDE_RATE:
-                    return new byte[] { 0x0, 0x1, 0x2, 0x3, (byte)'#' };
+                    return new byte[] { 0x0, 0x1, 0x2, 0x3, (byte)(char)GeneralCommands.TERMINATOR };
                 case DeviceCommands.MC_SLEW_DONE:
-                    return new byte[] { 0xff, (byte)'#' };
+                    return new byte[] { 0xff, (byte)(char)GeneralCommands.TERMINATOR };
                 default:
                     return "#".ToBytes();
             }

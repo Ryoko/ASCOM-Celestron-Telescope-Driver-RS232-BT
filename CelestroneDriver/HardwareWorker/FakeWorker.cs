@@ -6,6 +6,7 @@ using System.Text;
 namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker
 {
     using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
 
     public class FakeWorker : IDeviceWorker
     {
@@ -54,6 +55,12 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker
         {
             return _telescope.exchange(send);
         }
+
+        public byte[] Transfer(GeneralCommands command)
+        {
+            return Transfer(command.ToBytes());
+        }
+
 
         public bool IsConnected
         {

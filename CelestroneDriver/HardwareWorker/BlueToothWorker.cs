@@ -5,6 +5,9 @@
     using System.Linq;
     using System.Text;
 
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
+
     using InTheHand.Net.Sockets;
 
     using System.Windows.Forms;
@@ -58,6 +61,7 @@
         private Stream peerStream;
         private BluetoothDeviceInfo di;
         private object lockObj = new object();
+
         public bool IsConnected { get; private set; }
 
         public bool Connect(object connectionInfo)
@@ -116,6 +120,11 @@
             }
             //Debug.WriteLine(string.Format("Send:{0} Recived:{1}", Utils.Utils.Bytes2Dump(send), Utils.Utils.Bytes2Dump(receive.Take(offset))));
             return receive.Take(offset).ToArray();
+        }
+
+        public byte[] Transfer(GeneralCommands command)
+        {
+            return Transfer(command.ToBytes());
         }
 
         public void CheckConnected(string message)

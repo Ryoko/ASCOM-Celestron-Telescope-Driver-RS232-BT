@@ -16,14 +16,16 @@
         {
             get
             {
-                var com = new[] { (byte)'t' };
-                var res = this.SendBytes(com);
+                //var com = new[] { (byte)'t' };
+                //var res = this.SendBytes(com);
+                var res = this.SendCommand(GeneralCommands.GET_TRACKING);
                 return (TrackingMode) res[0];
             }
             set
             {
-                var com = new[] { (byte)'T', (byte)value };
-                this.SendBytes(com);
+                //var com = new[] { (byte)'T', (byte)value };
+                //this.SendBytes(com);
+                this.SendCommand(GeneralCommands.SET_TRACKING, (byte)value);
             }
         }
 
@@ -64,8 +66,9 @@
         {
             get
             {
-                var com = new[] { (byte)'w' };
-                var res = this.SendBytes(com);
+                //var com = new[] { (byte)'w' };
+                //var res = this.SendBytes(com);
+                var res = this.SendCommand(GeneralCommands.GET_LOCATION);
                 if (res.Length < 8) return null;
                 var lat = new DMS(res[0], res[1], res[2]) { Sign = res[3] == 0 ? 1 : -1 };
                 var lon = new DMS(res[4], res[5], res[6]) { Sign = res[7] == 0 ? 1 : -1 };
@@ -77,7 +80,7 @@
                 var lon = new DMS((decimal) value.Lon);
                 var com = new[]
                 {
-                    (byte)'W', 
+                    (byte)GeneralCommands.SET_LOCATION, 
                     (byte)lat.D, (byte)lat.M, (byte)(lat.S + .5M), (byte)(lat.Sign > 0 ? 0 : 1),
                     (byte)lon.D, (byte)lon.M, (byte)(lon.S + .5M), (byte)(lon.Sign > 0 ? 0 : 1)
                 };

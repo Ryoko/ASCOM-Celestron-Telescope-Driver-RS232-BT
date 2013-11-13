@@ -29,7 +29,7 @@
             par.Add((byte)GeneralCommands.COMMA);
             par.AddRange(this.DoubleToBytes(coord.Dec));
 
-            var res = this.SendCommand(GeneralCommands.GET_PIER_SIDE, par.ToArray());
+            var res = this.SendCommand(GeneralCommands.GET_DEST_PIER_SIDE, par.ToArray());
             if (res.Length < 2)
                 throw new Exception("Error setting parameters");
             return this.DecodePierSite(res[0]);

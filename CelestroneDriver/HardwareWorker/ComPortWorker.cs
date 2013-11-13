@@ -3,6 +3,8 @@
     using System;
     using System.Linq;
 
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
     using ASCOM.Utilities;
 
     public class ComPortWorker : IDeviceWorker
@@ -80,13 +82,18 @@
             try
             {
                 this._port.TransmitBinary(send);
-                var res = this._port.ReceiveTerminatedBinary(new[]{(byte)'#'});
+                var res = this._port.ReceiveTerminatedBinary(new[]{(byte)GeneralCommands.TERMINATOR});
                 return res;
             }
             catch (Exception err)
             {
                 return new byte[0];
             }
+        }
+
+        public byte[] Transfer(GeneralCommands command)
+        {
+            return Transfer(command.ToBytes());
         }
 
         public void CheckConnected(string message)

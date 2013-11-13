@@ -22,7 +22,7 @@
             {
                 try
                 {
-                    var res = this.GetValues("z", 6);
+                    var res = this.GetValues(GeneralCommands.GET_ALTAZ_HP, 6);
                     var alt = res[0];
                     var azm = res[1];
                     if (alt > 180) alt -= 360;
@@ -41,7 +41,7 @@
                 {
                     var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
                     var al = (value.Alt < 0) ? value.Alt + 360 : value.Alt;
-                    this.SetValues("b", new[] { az, al }, 6, 8);
+                    this.SetValues(GeneralCommands.SET_ALTAZ_HP, new[] { az, al }, 6, 8);
                 }
                 catch (Exception err)
                 {
@@ -54,8 +54,9 @@
         {
             get
             {
-                var com = new[] { (byte)'m' };
-                var res = this.DeviceWorker.Transfer("m");//SendBytes(com);
+//                var com = new[] { (byte)'m' };
+//                var res = this.DeviceWorker.Transfer("m");//SendBytes(com);
+                var res = this.SendCommand(GeneralCommands.GET_MODEL);
                 this._telescopeModel = (TelescopeModel) res[0];
                 return this._telescopeModel;
             }

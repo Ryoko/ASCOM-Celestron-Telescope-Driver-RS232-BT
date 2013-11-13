@@ -19,27 +19,32 @@
             set
             {
 
-                var com = new byte[]
-                {
-                    (byte) 'P', 3, 178, 131,
-                    (byte)value.Month, (byte)value.Day, 0, 0
-                };
-                this.SendBytes(com);
-                
-                com = new byte[]
-                {
-                    (byte) 'P', 3, 178, 132,
-                    (byte)(value.Year / 256), (byte)(value.Year % 256), 0, 0
-                };
-                this.SendBytes(com);
+                //var com = new byte[]
+                //{
+                //    (byte) 'P', 3, 178, 131,
+                //    (byte)value.Month, (byte)value.Day, 0, 0
+                //};
+                //this.SendBytes(com);
+                this.SendCommandToDevice(
+                    DeviceID.RTC, DeviceCommands.RTS_SET_DATE, 0, (byte)value.Month, (byte)value.Day);
 
-                com = new byte[]
-                {
-                    (byte) 'P', 4, 178, 179,
-                    (byte)value.Hour, (byte)value.Minute, (byte)value.Second, 0
-                };
-                this.SendBytes(com);
+                //com = new byte[]
+                //{
+                //    (byte) 'P', 3, 178, 132,
+                //    (byte)(value.Year / 256), (byte)(value.Year % 256), 0, 0
+                //};
+                //this.SendBytes(com);
+                this.SendCommandToDevice(
+                    DeviceID.RTC, DeviceCommands.RTS_SET_YEAR, 0, (byte)(value.Year / 256), (byte)(value.Year % 256));
 
+                //com = new byte[]
+                //{
+                //    (byte) 'P', 4, 178, 179,
+                //    (byte)value.Hour, (byte)value.Minute, (byte)value.Second, 0
+                //};
+                //this.SendBytes(com);
+                this.SendCommandToDevice(
+                    DeviceID.RTC, DeviceCommands.RTS_SET_TIME, 0, (byte)value.Hour, (byte)value.Minute, (byte)value.Second);
             }
         }
 

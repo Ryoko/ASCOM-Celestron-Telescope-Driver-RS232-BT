@@ -284,8 +284,20 @@ namespace ASCOM.CelestronAdvancedBlueTooth
 
         public PierSide DestinationSideOfPier(double RightAscension, double Declination)
         {
-            tl.LogMessage("DestinationSideOfPier Get", "Not implemented");
-            throw new ASCOM.PropertyNotImplementedException("DestinationSideOfPier", false);
+            PierSide ps;
+            if (telescopeInteraction.CanGetSiteOfPier)
+            {
+                ps = (PierSide)telescopeWorker.GetDestinationSiteOfPier(new Coordinates(RightAscension, Declination));
+            }
+            else
+            {
+                var nowLst = Utils.NowLST(telescopeProperties.Location) - RightAscension;
+                nowLst -= (int)(nowLst / 24) * 24;
+                while (nowLst < 0) nowLst += 24;
+                ps = nowLst < 12 ? PierSide.pierEast : PierSide.pierWest;
+            }
+            tl.LogMessage("DestinationSideOfPier Get", ps.ToString());
+            return ps;
         }
 
         public bool DoesRefraction
@@ -456,11 +468,22 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                tl.LogMessage("SideOfPier Get", "Not implemented");
-                throw new ASCOM.PropertyNotImplementedException("SideOfPier", false);
+                PierSide ps;
+                if (telescopeInteraction.CanGetSiteOfPier)
+                {
+                    ps = (PierSide)telescopeWorker.GetSiteOfPier();
+                }
+                else
+                {
+                    var pos = telescopeProperties.Position;
+                    ps = pos.Azm < 90 ? PierSide.pierWest : PierSide.pierWest;
+                }
+                tl.LogMessage("SideOfPier Get", ps.ToString());
+                return ps;
             }
             set
             {
+
                 tl.LogMessage("SideOfPier Set", "Not implemented");
                 throw new ASCOM.PropertyNotImplementedException("SideOfPier", true);
             }
@@ -470,10 +493,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
+
                 DateTime dt = telescopeWorker.TelescopeDateTime;
-                
-                double siderealTime = (18.697374558 +
-                                       24.065709824419081*(utilities.DateLocalToJulian(dt) - 2451545.0))%24.0;
+
+                double siderealTime = Utils.ToSiderealTime(dt);
                 tl.LogMessage("SiderealTime", "Get - " + siderealTime.ToString());
                 return siderealTime;
             }

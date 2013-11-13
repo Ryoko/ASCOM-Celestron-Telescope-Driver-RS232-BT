@@ -4,6 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using ASCOM.Astrometry;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
+
     public class MovmentStatistic
     {
         private const int BufferSize = 1000;
@@ -20,7 +23,7 @@
         }
     }
 
-    class Utils
+    public class Utils
     {
         static public string Deg2HEX32(double val)
         {
@@ -82,6 +85,26 @@
             return res;
         }
 
+        static public double NowLST(LatLon location)
+        {
+            var nov = new Astrometry.NOVAS.NOVAS31();
+            var ast = new Astrometry.AstroUtils.AstroUtils();
+            var currJD = ast.JulianDateUT1(0);
+            double lstNow = 0;
+            var res = nov.SiderealTime(
+                currJD, 0d, 0, GstType.GreenwichApparentSiderealTime, Method.EquinoxBased, Accuracy.Full, ref lstNow);
+            if (res != 0) throw new ArgumentOutOfRangeException("Error getting Local Apparent Sidereal time");
+            return lstNow;
+        }
+
+        public static double ToSiderealTime(DateTime dt)
+        {
+            var utilities = new Utilities.Util();
+            double siderealTime = (18.697374558 + 24.065709824419081 * (utilities.DateLocalToJulian(dt) - 2451545.0))
+                                  % 24.0;
+            return siderealTime;
+        }
+
         static public string Bytes2Dump(IEnumerable<byte> buf)
         {
             return buf.Aggregate("", (current, b) => current + string.Format(" {0:x}", b));
@@ -129,6 +152,16 @@
         public static byte[] ToBytes(this string val)
         {
             return val.Select((c, i) => (byte)c).ToArray();
+        }
+
+        public static byte[] ToBytes(this GeneralCommands val)
+        {
+            return new byte[]{(byte)val};
+        }
+
+        public static string AsString(this GeneralCommands val)
+        {
+            return new string((char)val, 1);
         }
     }
 

@@ -2,6 +2,9 @@
 {
     using System;
 
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.TelescopeWorker;
+    using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
+
     internal interface IDriverWorker
     {
         DriverWorker.CheckConnectedDelegate CheckConnected { get; set; }
@@ -75,8 +78,8 @@
         {
             val1 = val2 = 0;
             var r = this.CommandString(command, false);
-            if (!r.EndsWith("#")) return false;
-            var val = r.TrimEnd('#').Split(new[] { ',' });
+            if (!r.EndsWith(GeneralCommands.TERMINATOR.AsString())) return false;
+            var val = r.TrimEnd((char)GeneralCommands.TERMINATOR).Split(new[] { ',' });
             try
             {
                 val1 = Convert.ToInt32(val[0], 16);

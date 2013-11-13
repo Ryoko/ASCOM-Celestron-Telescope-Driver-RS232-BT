@@ -14,6 +14,20 @@
         public CelestroneInteraction12(IDeviceWorker deviceWorker) : base(deviceWorker)
         {}
 
+        public override double FirmwareVersion
+        {
+            get
+            {
+                //var com = new[] {(byte) 'V'};
+                var res = this.DeviceWorker.Transfer(GeneralCommands.GET_VERSION); //Transfer("V");// SendBytes(com);
+                if (res.Length < 2) throw new Exception("Wrong answer");
+                var low = (double)res[1];
+                low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
+                this._firmwareVersion = res[0] + low;
+                return this._firmwareVersion;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the alt azm.
         /// </summary>
@@ -25,7 +39,7 @@
             {
                 try
                 {
-                    var res = this.GetValues("Z", 4);
+                    var res = this.GetValues(GeneralCommands.GET_ALTAZ_LP, 4);
                     var alt = res[0];
                     var azm = res[1];
                     if (alt > 180) alt -= 360;
@@ -44,7 +58,7 @@
                 {
                     var az = (value.Azm > 180) ? value.Azm - 360 : value.Azm;
                     var al = (value.Alt < 0) ? value.Alt + 360 : value.Alt;
-                    this.SetValues("B", new[]{az, al}, 4);
+                    this.SetValues(GeneralCommands.SET_ALTAZ_LP, new[]{az, al}, 4);
                 }
                 catch (Exception err)
                 {
@@ -64,7 +78,7 @@
             {
                 try
                 {
-                    var res = this.GetValues("E", 4);
+                    var res = this.GetValues(GeneralCommands.GET_RADEC_LP, 4);
                     var ra = res[0]/15d;
                     var dec = res[1];
 
@@ -83,7 +97,7 @@
                 {
                     var ra = value.Ra * 15d;
                     var dec = value.Dec < 0 ? value.Dec + 360 : value.Dec;
-                    this.SetValues("R", new []{ra, dec}, 4);
+                    this.SetValues(GeneralCommands.SET_RADEC_LP, new []{ra, dec}, 4);
                 }
                 catch (Exception err)
                 {
@@ -97,7 +111,7 @@
             get
             {
                 //var com = new[] {(byte) 'J'};
-                var res = this.DeviceWorker.Transfer("J");//SendBytes(com);
+                var res = this.DeviceWorker.Transfer(GeneralCommands.IS_ALIGNED);//SendBytes(com);
                 return res[0] == 1;
             }
         }
@@ -107,7 +121,7 @@
             get
             {
                 //var com = new[] {(byte) 'L'};
-                var res = this.DeviceWorker.Transfer("L");//SendBytes(com);
+                var res = this.DeviceWorker.Transfer(GeneralCommands.IS_SLEWING);//SendBytes(com);
                 return res[0] == (byte) '1';
             }
         }
@@ -115,7 +129,7 @@
         public override void CancelGoTo()
         {
             //var com = new[] {(byte) 'M'};
-            this.DeviceWorker.Transfer("M");//SendBytes(com);
+            this.DeviceWorker.Transfer(GeneralCommands.ABORT_SLEW);//SendBytes(com);
         }
 
         public override double VersionRequired

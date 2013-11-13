@@ -30,8 +30,8 @@
 
         public static ITelescopeInteraction GeTelescopeInteraction(IDeviceWorker deviceWorker)
         {
-         
-            var res = deviceWorker.Transfer("V");// SendBytes(com);
+
+            var res = deviceWorker.Transfer(GeneralCommands.GET_VERSION);// Transfer("V");// SendBytes(com);
             if (res.Length < 2) throw new Exception("Wrong answer");
             var low = (double)res[1];
             low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
@@ -153,19 +153,7 @@
             set { throw new System.NotImplementedException(); }
         }
 
-        public virtual double FirmwareVersion
-        {
-            get
-            {
-                //var com = new[] {(byte) 'V'};
-                var res = this.DeviceWorker.Transfer("V");// SendBytes(com);
-                if (res.Length < 2) throw new Exception("Wrong answer");
-                var low = (double)res[1];
-                low = low / (low < 10 ? 10 : low < 100 ? 100 : 1000);
-                this._firmwareVersion = res[0] + low;
-                return this._firmwareVersion;
-            }
-        }
+        public abstract double FirmwareVersion { get; }
 
         public virtual double GetDeviceVersion(DeviceID device)
         {
@@ -343,7 +331,7 @@
         {
             this.DeviceWorker.CheckConnected("CommandBool");
             string ret = this.DeviceWorker.Transfer(command);
-            return ret.EndsWith("#");
+            return ret.EndsWith(GeneralCommands.TERMINATOR.ToString());
         }
 
         public void CommandBlind(string command, bool raw)
@@ -369,7 +357,7 @@
         protected byte[] SendBytes(byte[] com)
         {
             var res = this.DeviceWorker.Transfer(com);// CommandString(Encoding.ASCII.GetString(com), false);
-            if (res.Length == 0 || res[res.Length - 1] != '#')
+            if (res.Length == 0 || res[res.Length - 1] != (char)GeneralCommands.TERMINATOR)
             {
                 throw new Exception("Error in protocol");
             }
@@ -377,15 +365,15 @@
             return res; //  res.ToCharArray().Cast<byte>().ToArray();
         }
 
-        protected double[] GetValues(string command, int nOfDigits)
+        protected double[] GetValues(GeneralCommands command, int nOfDigits)
         {
-            var res = this.DeviceWorker.Transfer(command);
-            if (res.Length == 0 || !res[res.Length - 1].Equals('#'))
+            var res = this.DeviceWorker.Transfer(command.AsString());
+            if (res.Length == 0 || !res[res.Length - 1].Equals((char)GeneralCommands.TERMINATOR))
             {
                 throw new Exception("Error in protocol");
             }
 
-            var vals = res.TrimEnd('#').Split(new[] { ',' });
+            var vals = res.TrimEnd((char)GeneralCommands.TERMINATOR).Split(new[] { ',' });
             if (vals.Length != 2)
             {
                 throw new Exception("Error in protocol");
@@ -400,7 +388,7 @@
         {
             var argLen = (byte)(args.Length + 1);
             if (argLen > 4) argLen = 4;
-            var argums = new byte[] {(byte) 'P', 0, (byte) DeviceId, (byte) Command, 0, 0, 0, NoOfAnsvers};
+            var argums = new byte[] {(byte)GeneralCommands.AUX_CMD, 0, (byte) DeviceId, (byte) Command, 0, 0, 0, NoOfAnsvers};
             for (var i = 0; i < 3; i++)
             {
                 if (args.Length <= i) continue;
@@ -414,18 +402,18 @@
             return res;
         }
 
-        protected void SetValues(string command, IEnumerable<double> values, int nOfDigits, int nDigitsInParam = 0)
+        protected void SetValues(GeneralCommands command, IEnumerable<double> values, int nOfDigits, int nDigitsInParam = 0)
         {
-            string com = command;
+            string com = command.AsString();
             foreach (var val in values)
             {
                 var iVal = (int)(val*(Math.Pow(2, nOfDigits*4)/360) + 0.5);
                 var format = string.Format("{{0:X{0}}}", nOfDigits);
                 var v = string.Format(format, iVal);
                 if (nDigitsInParam > nOfDigits) v += new string('0', nDigitsInParam - nOfDigits);
-                com += com.Length > command.Length ? "," + v : v;
+                com += com.Length > 1 ? "," + v : v;
             }
-            com += "#";
+            com += GeneralCommands.TERMINATOR.ToString();
             this.DeviceWorker.Transfer(com);
         }
 

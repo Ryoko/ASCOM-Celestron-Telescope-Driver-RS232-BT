@@ -63,6 +63,11 @@
         GPS_TIME_VALID = 0x36, //   n/a     8 bits  0=False, 1=True
         GPS_LINKED = 0x37, //   n/a     8 bits  0=False, 1=True
 
+//   RTS commands
+        RTS_SET_DATE = 0x83,
+        RTS_SET_YEAR = 0x84,
+        RTS_SET_TIME = 0xB3,
+
 //   All modules
         GET_VER = 0xFE, //   n/a     16 bits major|minor
 

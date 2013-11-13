@@ -26,7 +26,7 @@
             {
                 try
                 {
-                    var res = this.GetValues("e", 6);
+                    var res = this.GetValues(GeneralCommands.GET_RADEC_HP, 6);
                     var ra = res[0] / 15d;
                     var dec = res[1];
 
@@ -45,7 +45,7 @@
                 {
                     var ra = value.Ra * 15d;
                     var dec = value.Dec < 0 ? value.Dec + 360 : value.Dec;
-                    this.SetValues("r", new[] { ra, dec }, 6, 8);
+                    this.SetValues(GeneralCommands.SET_RADEC_HP, new[] { ra, dec }, 6, 8);
                 }
                 catch (Exception err)
                 {
@@ -59,7 +59,7 @@
             get { throw new System.NotImplementedException(); }
             set
             {
-                var com = new[] {(byte)'T', (byte)value};
+                var com = new[] {(byte)GeneralCommands.GET_TRACKING, (byte)value};
                 this.SendBytes(com);
             }
         }
@@ -130,9 +130,10 @@
         {
             get
             {
-                var com = new byte[] { (byte)'P', 1, 176, 55, 0, 0, 0, 1 };
-                var res = this.SendBytes(com);
-                if (res.Length < 2 || res[res.Length - 1] != '#') throw new ProtocolViolationException("Error receiving isGPS property");
+                //var com = new byte[] { (byte)'P', 1, 176, 55, 0, 0, 0, 1 };
+                var res = this.SendCommandToDevice(DeviceID.GPSUnit, DeviceCommands.GPS_LINKED, 1);
+                //var res = this.SendBytes(com);
+                if (res.Length < 2 || res[res.Length - 1] != (char)GeneralCommands.TERMINATOR) throw new ProtocolViolationException("Error receiving isGPS property");
                 return res[0] > 0;
             }
         }
@@ -141,18 +142,20 @@
         {
             get
             {
-                var com = new byte[] { (byte)'P', 1, 176, 3, 0, 0, 0, 2 };
-                var res = this.SendBytes(com); 
+//                var com = new byte[] { (byte)'P', 1, 176, 3, 0, 0, 0, 2 };
+//                var res = this.SendBytes(com);
+                var res = this.SendCommandToDevice(DeviceID.GPSUnit, DeviceCommands.GPS_GET_DATE, 2);
                 var month = (int)res[0];
                 var day = (int)res[1];
 
-                com = new byte[] { (byte)'P', 1, 176, 4, 0, 0, 0, 2 };
-                res = this.SendBytes(com); 
+//                com = new byte[] { (byte)'P', 1, 176, 4, 0, 0, 0, 2 };
+//                res = this.SendBytes(com); 
+                res = this.SendCommandToDevice(DeviceID.GPSUnit, DeviceCommands.GPS_GET_YEAR, 2);
                 var year = (int)res[0] * 256 + res[1];
 
-                com = new byte[] { (byte)'P', 1, 176, 51, 0, 0, 0, 3 };
-                res = this.SendBytes(com);
-
+//                com = new byte[] { (byte)'P', 1, 176, 51, 0, 0, 0, 3 };
+//                res = this.SendBytes(com);
+                res = this.SendCommandToDevice(DeviceID.GPSUnit, DeviceCommands.GPS_GET_TIME, 3);
                 return new DateTime(year, month, day, res[2], res[1], res[0]);
             }
         }
@@ -161,14 +164,16 @@
         {
             get
             {
-                var com = new byte[] { (byte)'P', 1, 176, 1, 0, 0, 0, 3 };
-                var res = this.SendBytes(com);
+//                var com = new byte[] { (byte)'P', 1, 176, 1, 0, 0, 0, 3 };
+//                var res = this.SendBytes(com);
+                var res = this.SendCommandToDevice(DeviceID.GPSUnit, DeviceCommands.GPS_GET_LAT, 3);
                 var lat = ((
                     ((double) res[0])*65536 +
                     ((double) res[1])*256 +
                     res[2])/Math.Pow(2, 24))*360;
-                com[3] = 2;
-                res = this.SendBytes(com);
+//                com[3] = 2;
+//                res = this.SendBytes(com);
+                res = this.SendCommandToDevice(DeviceID.GPSUnit, DeviceCommands.GPS_GET_LONG, 3);
                 var lon = ((
                     ((double)res[0]) * 65536 +
                     ((double)res[1]) * 256 +
@@ -181,18 +186,20 @@
         {
             get
             {
-                var com = new byte[] { (byte)'P', 1, 178, 3, 0, 0, 0, 2 };
-                var res = this.SendBytes(com); 
+//                var com = new byte[] { (byte)'P', 1, 178, 3, 0, 0, 0, 2 };
+//                var res = this.SendBytes(com); 
+                var res = this.SendCommandToDevice(DeviceID.RTC, DeviceCommands.GPS_GET_DATE, 2);
                 var month = (int)res[0];
                 var day = (int)res[1];
 
-                com = new byte[] { (byte)'P', 1, 178, 4, 0, 0, 0, 2 };
-                res = this.SendBytes(com); 
+//                com = new byte[] { (byte)'P', 1, 178, 4, 0, 0, 0, 2 };
+//                res = this.SendBytes(com); 
+                res = this.SendCommandToDevice(DeviceID.RTC, DeviceCommands.GPS_GET_YEAR, 2);
                 var year = (int)res[0] * 256 + res[1];
 
-                com = new byte[] { (byte)'P', 1, 178, 51, 0, 0, 0, 3 };
-                res = this.SendBytes(com);
-
+//                com = new byte[] { (byte)'P', 1, 178, 51, 0, 0, 0, 3 };
+//                res = this.SendBytes(com);
+                res = this.SendCommandToDevice(DeviceID.RTC, DeviceCommands.GPS_GET_TIME, 3);
                 return new DateTime(year, month, day, res[2], res[1], res[0]);
             }
             set { throw new System.NotImplementedException(); }

@@ -318,6 +318,25 @@
             }
         }
 
+        public SiteOfPier GetSiteOfPier()
+        {
+            if (!ti.CanGetSiteOfPier) throw new NotSupportedException("Device is not capable to get SiteOfPier");
+            lock (_sync)
+            {
+                return ti.GetSiteOfPier();
+            }
+        }
+
+        public SiteOfPier GetDestinationSiteOfPier(Coordinates coord)
+        {
+            if (!ti.CanGetSiteOfPier) throw new NotSupportedException("Device is not capable to get SiteOfPier");
+            lock (_sync)
+            {
+                return ti.GetDestinationSiteOfPier(coord);
+            }
+        }
+
+
         private void WaitGoPosition()
         {
             var tBeginPark = Environment.TickCount;
