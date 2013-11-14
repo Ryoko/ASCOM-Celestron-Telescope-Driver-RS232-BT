@@ -4,8 +4,8 @@
 ;
 [Setup]
 AppID={{c6d51f87-8627-45bb-a761-c766e5831eb9}
-AppName=ASCOM CelestroneTelescope Telescope Driver
-AppVerName=ASCOM CelestroneTelescope Telescope Driver 1.0.0
+AppName=ASCOM BT/RS Celestrone Telescope Driver
+AppVerName=BT/RS Celestrone Telescope Driver 1.0.0
 AppVersion=1.0.0
 AppPublisher=Ryoko Arisugawa <gakuen@gmail.com>
 AppPublisherURL=mailto:gakuen@gmail.com
@@ -41,6 +41,10 @@ Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\Output\x64\CelestroneDriver.d
 Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\Output\x86\CelestroneDriver.dll"; DestDir: "{app}"; Check: not IsWin64
 Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\Output\x64\InTheHand.Net.Personal.dll"; DestDir: "{app}"; Check: IsWin64
 Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\Output\x86\InTheHand.Net.Personal.dll"; DestDir: "{app}"; Check: not IsWin64
+Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\Output\x64\SlimDX.dll"; DestDir: "{app}"; Check: IsWin64
+Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\Output\x86\SlimDX.dll"; DestDir: "{app}"; Check: not IsWin64
+Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\Output\x64\InputControl.dll"; DestDir: "{app}"; Check: IsWin64
+Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\Output\x86\InputControl.dll"; DestDir: "{app}"; Check: not IsWin64
 ; Require a read-me HTML to appear after installation, maybe driver's Help doc
 Source: "D:\work\ASCOM-Bluetooth-Celestrone-Driver\TestASCOM_Driver\ReadMe.htm"; DestDir: "{app}"; Flags: isreadme
 ; TODO: Add other files needed by your driver here (add subfolders above)

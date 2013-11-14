@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestASCOM_Driver", "TestASCOM_Driver\TestASCOM_Driver.csproj", "{64308775-BD4A-469C-BCAB-3ED830B811AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{406A5174-21D7-45FC-8DD5-00869104E68D} = {406A5174-21D7-45FC-8DD5-00869104E68D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDriverForm", "TestDriverForm\TestDriverForm.csproj", "{8E8D406C-1838-4914-867D-AB602D0EAF3E}"
 EndProject
@@ -26,6 +29,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CelestroneDriver", "CelestroneDriver\CelestroneDriver.csproj", "{91317B6F-7B1A-4CD4-8AA1-7DC0B449E691}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InputControl", "InputControl\InputControl.csproj", "{406A5174-21D7-45FC-8DD5-00869104E68D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Install", "Install", "{C554A18C-3F91-4390-80B8-B4DA84EEE24B}"
+	ProjectSection(SolutionItems) = preProject
+		CelestroneTelescope Setup.iss = CelestroneTelescope Setup.iss
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,13 +113,16 @@ Global
 		{406A5174-21D7-45FC-8DD5-00869104E68D}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{406A5174-21D7-45FC-8DD5-00869104E68D}.Debug|x64.ActiveCfg = Debug|x64
 		{406A5174-21D7-45FC-8DD5-00869104E68D}.Debug|x64.Build.0 = Debug|x64
-		{406A5174-21D7-45FC-8DD5-00869104E68D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{406A5174-21D7-45FC-8DD5-00869104E68D}.Debug|x86.ActiveCfg = Debug|x86
+		{406A5174-21D7-45FC-8DD5-00869104E68D}.Debug|x86.Build.0 = Debug|x86
 		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|x64.ActiveCfg = Release|Any CPU
-		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|x86.ActiveCfg = Release|Any CPU
+		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|x64.ActiveCfg = Release|x64
+		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|x64.Build.0 = Release|x64
+		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|x86.ActiveCfg = Release|x86
+		{406A5174-21D7-45FC-8DD5-00869104E68D}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
