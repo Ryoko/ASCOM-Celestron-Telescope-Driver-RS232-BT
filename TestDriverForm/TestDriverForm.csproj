@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ASCOM.CelestronAdvancedBluetooth</RootNamespace>
     <AssemblyName>ASCOM.CelestronAdvancedBluetooth.Test</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -27,6 +27,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -140,6 +141,10 @@
     <ProjectReference Include="..\CelestroneDriver\CelestroneDriver.csproj">
       <Project>{91317b6f-7b1a-4cd4-8aa1-7dc0b449e691}</Project>
       <Name>CelestroneDriver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InputControl\InputControl.csproj">
+      <Project>{406a5174-21d7-45fc-8dd5-00869104e68d}</Project>
+      <Name>InputControl</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestASCOM_Driver\TestASCOM_Driver.csproj">
       <Project>{64308775-bd4a-469c-bcab-3ed830b811af}</Project>

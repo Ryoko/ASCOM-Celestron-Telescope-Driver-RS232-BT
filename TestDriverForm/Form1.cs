@@ -8,15 +8,21 @@ namespace ASCOM.CelestronAdvancedBluetooth
 {
     using ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils;
 
+    using InputControl;
+
     public partial class Form1 : Form
     {
 
         private ASCOM.DriverAccess.Telescope driver;
+        private AInputcontrol pad;
+
 
         public Form1()
         {
             InitializeComponent();
             SetUIState();
+            pad = new GamePad();
+            pad.OnUpdate += OnUpdate;
             //this.test();
         }
 
@@ -259,6 +265,19 @@ namespace ASCOM.CelestronAdvancedBluetooth
             var jd = trf.JulianDateTT;
             console.Text += string.Format("JD value = {0}\n", jd);
         }
+
+
+        private void useGamePad_CheckedChanged(object sender, EventArgs e)
+        {
+            pad.Active = useGamePad.Checked;
+        }
+
+        private void OnUpdate(ControllerState controllerState)
+        {
+            gamepadX.Text = controllerState.X.ToString();
+            gamepadY.Text = controllerState.Y.ToString();
+        }
+
     }
 
 }

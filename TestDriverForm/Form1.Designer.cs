@@ -58,6 +58,11 @@
             this.Dec_n = new System.Windows.Forms.Button();
             this.Dec_p = new System.Windows.Forms.Button();
             this.console = new System.Windows.Forms.TextBox();
+            this.useGamePad = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.gamepadX = new System.Windows.Forms.TextBox();
+            this.gamepadY = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.Coordinates.SuspendLayout();
             this.ControlButtons.SuspendLayout();
             this.SuspendLayout();
@@ -372,17 +377,67 @@
             // console
             // 
             this.console.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.console.Location = new System.Drawing.Point(0, 305);
+            this.console.Location = new System.Drawing.Point(0, 333);
             this.console.Multiline = true;
             this.console.Name = "console";
-            this.console.Size = new System.Drawing.Size(409, 147);
+            this.console.Size = new System.Drawing.Size(409, 119);
             this.console.TabIndex = 5;
+            // 
+            // useGamePad
+            // 
+            this.useGamePad.AutoSize = true;
+            this.useGamePad.Location = new System.Drawing.Point(13, 294);
+            this.useGamePad.Name = "useGamePad";
+            this.useGamePad.Size = new System.Drawing.Size(92, 17);
+            this.useGamePad.TabIndex = 6;
+            this.useGamePad.Text = "UseGamePad";
+            this.useGamePad.UseVisualStyleBackColor = true;
+            this.useGamePad.CheckedChanged += new System.EventHandler(this.useGamePad_CheckedChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(112, 294);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(17, 13);
+            this.label5.TabIndex = 7;
+            this.label5.Text = "X:";
+            // 
+            // gamepadX
+            // 
+            this.gamepadX.Location = new System.Drawing.Point(132, 291);
+            this.gamepadX.Name = "gamepadX";
+            this.gamepadX.ReadOnly = true;
+            this.gamepadX.Size = new System.Drawing.Size(41, 20);
+            this.gamepadX.TabIndex = 8;
+            // 
+            // gamepadY
+            // 
+            this.gamepadY.Location = new System.Drawing.Point(201, 291);
+            this.gamepadY.Name = "gamepadY";
+            this.gamepadY.ReadOnly = true;
+            this.gamepadY.Size = new System.Drawing.Size(41, 20);
+            this.gamepadY.TabIndex = 10;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(179, 294);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(17, 13);
+            this.label7.TabIndex = 9;
+            this.label7.Text = "Y:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(409, 452);
+            this.Controls.Add(this.gamepadY);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.gamepadX);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.useGamePad);
             this.Controls.Add(this.console);
             this.Controls.Add(this.ControlButtons);
             this.Controls.Add(this.Coordinates);
@@ -433,6 +488,11 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button Park;
+        private System.Windows.Forms.CheckBox useGamePad;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox gamepadX;
+        private System.Windows.Forms.TextBox gamepadY;
+        private System.Windows.Forms.Label label7;
     }
 }
 
