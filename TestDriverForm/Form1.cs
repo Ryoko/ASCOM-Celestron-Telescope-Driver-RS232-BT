@@ -274,8 +274,18 @@ namespace ASCOM.CelestronAdvancedBluetooth
 
         private void OnUpdate(ControllerState controllerState)
         {
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<ControllerState>(OnUpdate), controllerState);
+                return;
+            }
             gamepadX.Text = controllerState.X.ToString();
             gamepadY.Text = controllerState.Y.ToString();
+            var rateX = ((int) (controllerState.X*9)) * 10;
+            var rateY = ((int) (controllerState.Y*9)) * 10;
+            if (driver == null || !driver.Connected) return;
+            driver.MoveAxis(TelescopeAxes.axisPrimary, rateX);
+            driver.MoveAxis(TelescopeAxes.axisSecondary, rateY);
         }
 
     }

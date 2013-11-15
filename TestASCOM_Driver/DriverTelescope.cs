@@ -391,7 +391,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             telescopeWorker.CheckPark();
             SlewAxes axs = Axis == TelescopeAxes.axisPrimary ? SlewAxes.RaAzm : SlewAxes.DecAlt;
-            if (Math.Abs(Rate) > 10)
+            if (Math.Abs(Rate) >= 10)
             {
                 var rate = (int) (Rate/10);
                 var absRate = Math.Abs(rate);

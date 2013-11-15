@@ -84,11 +84,25 @@
         }
     }
 
-    public class ControllerState
+    public class ControllerState : IEquatable<ControllerState>
     {
         public double X { get; set; }
         public double Y { get; set; }
         public bool[] Buttons { get; set; }
         public bool Active { get; set; }
+
+        public bool Equals(ControllerState other)
+        {
+            if (other == null) return false;
+            if (!this.X.Equals(other.X)) return false;
+            if (!this.Y.Equals(other.Y)) return false;
+            if (this.Active != other.Active) return false;
+            if (this.Buttons.Length != other.Buttons.Length) return false;
+            for (int i = 0; i < Buttons.Length; i++)
+            {
+                if (this.Buttons[i] != other.Buttons[i]) return false;
+            }
+            return true;
+        }
     }
 }

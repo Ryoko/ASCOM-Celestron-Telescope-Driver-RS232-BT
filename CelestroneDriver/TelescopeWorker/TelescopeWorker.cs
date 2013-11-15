@@ -28,7 +28,7 @@
         private ITelescopeWorkerOperations two;
         private KalmanFilterSimple1D kfilt;
         private TelescopeSettingsProfile profile;
-        private object _sync;
+        private readonly object _sync = new object();
 
         private TelescopeWorker(TelescopeSettingsProfile Profile /*ITelescopeV3 driver*/)
         {
@@ -230,7 +230,7 @@
         public void SetTrackingRate(DriveRates rate, TrackingMode mode)
         {
             if (mode > TrackingMode.AltAzm) this.tp.IsAtHome = false;
-            lock (_sync)
+            //lock (_sync)
             {
                 this.two.SetTrackingRate(rate, mode);
             }
@@ -238,7 +238,7 @@
 
         public void SetTrackingDec()
         {
-            lock (_sync)
+            //lock (_sync)
             {
                 this.two.SetTrackingDec();
             }
@@ -246,7 +246,7 @@
 
         private void CheckRateTrackingState()
         {
-            lock (_sync)
+            //lock (_sync)
             {
                 this.two.CheckRateTrackingState();
             }

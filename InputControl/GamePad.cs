@@ -48,11 +48,16 @@
                 newState.Y = (joyState.Y / 5000d);
                 newState.Buttons = joyState.GetButtons();
             }
-            this.State = newState;
 
-            if (this.OnUpdate != null)
+            if (!newState.Equals(this.State))
             {
-                this.OnUpdate.Invoke(this.State);
+
+                this.State = newState;
+
+                if (this.OnUpdate != null)
+                {
+                    this.OnUpdate.Invoke(this.State);
+                }
             }
         }
 
