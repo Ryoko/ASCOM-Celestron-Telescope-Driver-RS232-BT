@@ -93,7 +93,7 @@
             double lstNow = 0;
             var res = nov.SiderealTime(
                 currJD, 0d, 0, GstType.GreenwichApparentSiderealTime, Method.EquinoxBased, Accuracy.Full, ref lstNow);
-            if (res != 0) throw new ArgumentOutOfRangeException("Error getting Local Apparent Sidereal time");
+            if (res != 0) throw new InvalidValueException("Error getting Local Apparent Sidereal time");
             return lstNow;
         }
 

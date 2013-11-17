@@ -27,8 +27,8 @@ namespace CelestroneDriverTestProject
             //byte[] buff;
             dMock = new Mock<IDeviceWorker>();
             dMock.Setup(x => x.Connect(It.IsAny<object>())).Returns(true);
-            dMock.Setup(x => x.Transfer(It.IsAny<byte[]>())).Returns((byte[] buff) => _telescope.exchange(buff));// ((byte[] buff) => buff);
-            dMock.Setup(x => x.Transfer(It.IsAny<string>())).Returns((string buff) => _telescope.exchange(buff));
+            dMock.Setup(x => x.Transfer(It.IsAny<byte[]>(), It.IsAny<int>())).Returns((byte[] buff) => _telescope.exchange(buff));// ((byte[] buff) => buff);
+            dMock.Setup(x => x.Transfer(It.IsAny<string>(), It.IsAny<int>())).Returns((string buff) => _telescope.exchange(buff));
             dMock.Setup(x => x.CheckConnected(It.IsAny<string>()));
             dMock.Setup(x => x.Disconnect());
             dMock.Setup(x => x.IsConnected).Returns(true);
@@ -47,7 +47,7 @@ namespace CelestroneDriverTestProject
         {
             this.SetTelescopeInteraction(ver);
             var altAzm = _ti.AltAzm;
-            dMock.Verify((x) =>x.Transfer(val));
+            dMock.Verify((x) =>x.Transfer(val, -1));
         }
 
         [TestCase(new object[] { 1.2, "E" })]
@@ -56,7 +56,7 @@ namespace CelestroneDriverTestProject
         {
             this.SetTelescopeInteraction(ver);
             var RaDec = _ti.RaDec;
-            dMock.Verify((x) => x.Transfer(val));
+            dMock.Verify((x) => x.Transfer(val, -1));
         }
 
     }

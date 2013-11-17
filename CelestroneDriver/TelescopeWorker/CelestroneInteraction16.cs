@@ -226,7 +226,7 @@
             if (pos.Azm < 10 || pos.Azm > 170)//Unsafe Azm position
             {
                 if (pos.Alt < 90 || pos.Alt > 270)
-                    throw new ArgumentOutOfRangeException("Azimuth position is out of safety range");
+                    throw new InvalidValueException("Azimuth position is out of safety range");
                 
                 // Move Alt axis to safe position before moving Azm axis to unsafe position
                 this.SendCommandToDevice(DeviceID.DecAltMotor, DeviceCommands.MC_GOTO_FAST, 0, buf);

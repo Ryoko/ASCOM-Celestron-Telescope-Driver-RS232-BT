@@ -12,18 +12,18 @@
     public enum TelescopeMode {Initial, Normal, Slewing, MovingAxis, Guiding}
     public enum TelescopeOperationMode {Natural, Rate}
 
-    public class TelescopeWorker
+    public class TelescopeWorker : IDisposable
     {
         private static TelescopeWorker _worker;
         private BackgroundWorker bgWorker = new BackgroundWorker();
         //private TelescopeWorker tw;
         //private Queue<ITelescopeOperator> 
-        private TelescopeMode telescopeMode = TelescopeMode.Initial;
+        private volatile TelescopeMode telescopeMode = TelescopeMode.Initial;
         private ITelescopeInteraction ti = null;
         private TelescopeProperties tp;
         public static int CoordinatesGetInterval = 200;
         private int lastGetCoordiante = 0;
-        private bool lastGetCoordinateMode = false;
+        private int lastGetCoordinateMode = 0;
         //private ITelescopeV3 _driver;
         private ITelescopeWorkerOperations two;
         private KalmanFilterSimple1D kfilt;
@@ -50,7 +50,7 @@
         {
             get
             {
-                return this.TelescopeInteraction != null && this.TelescopeProperties != null && this.TelescopeInteraction.isConnected && this.TelescopeProperties.IsReady;
+                return this.TelescopeInteraction != null && this.TelescopeProperties != null && this.TelescopeProperties.IsReady;
             }
         }
 
@@ -73,8 +73,8 @@
         {
             set
             {
-                this.ti = value;
                 this.tp = new TelescopeProperties(value, this.profile);
+                this.ti = value;
                 this.two.SegProperties(this.tp, this.ti);
             }
             get
@@ -108,6 +108,7 @@
             }
         }
 
+        public EventWaitHandle SlewWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         public bool Slew(Coordinates coord)
         {
             this.CheckPark();
@@ -115,8 +116,10 @@
             this.tp.IsAtHome = false;
             lock (_sync)
             {
+                SlewWaitHandle.Reset();
                 this.ti.RaDec = coord;
                 this.telescopeMode = TelescopeMode.Slewing;
+                Thread.Sleep(300);
             }
             return true;
         }
@@ -128,8 +131,10 @@
             this.tp.IsAtHome = false;
             lock (_sync)
             {
+                SlewWaitHandle.Reset();
                 this.ti.AltAzm = coord;
                 this.telescopeMode = TelescopeMode.Slewing;
+                Thread.Sleep(300);
             }
             return true;
         }
@@ -148,8 +153,8 @@
             {
                 lock (_sync)
                 {
-                    if (ti.CanWorkGPS) return ti.GpsDateTime;
-                    if (ti.CanGetRTC) return ti.RTCDateTime;
+                    if (ti.CanWorkGPS && tp.HasGPS) return ti.GpsDateTime;
+                    if (ti.CanGetRTC && tp.HasRTC) return ti.RTCDateTime;
                     if (ti.CanWorkDateTime) return ti.TelescopeDateTime;
                     return DateTime.Now;
                 }
@@ -191,31 +196,37 @@
 
         public void SetTracking(bool value)
         {
+            lock (_sync)
+            {
+                this.setTracking(value);
+            }    
+        }
+
+
+        private void setTracking(bool value)
+        {
             if (value) this.CheckPark();
             if (!this.ti.CanSetTrackingRates) throw new NotSupportedException("Setting tracking rate is not supported");
             if (this.telescopeMode == TelescopeMode.MovingAxis) return;
 
-            lock (_sync)
+            if (this.tp.TrackingMode > TrackingMode.Off) this.tp.DefaultTrackingMode = this.tp.TrackingMode;
+            if (value)
             {
-
-                if (this.tp.TrackingMode > TrackingMode.Off) this.tp.DefaultTrackingMode = this.tp.TrackingMode;
-                if (value)
-                {
-                    this.tp.IsAtHome = false;
-                    if (this.tp.TrackingMode > TrackingMode.Off) return;
-                    //ti.TrackingMode = tp.DefaultTrackingMode;
-                    this.SetTrackingRate(this.tp.TrackingRate, this.tp.DefaultTrackingMode);
-                    this.tp.TrackingMode = this.tp.DefaultTrackingMode;
-                }
-                else
-                {
-                    if (this.tp.TrackingMode < TrackingMode.AltAzm) return;
-                    //ti.TrackingMode = TrackingMode.Off;
-                    this.SetTrackingRate(this.tp.TrackingRate, TrackingMode.Off);
-                    this.tp.TrackingMode = TrackingMode.Off;
-                }
+                this.tp.IsAtHome = false;
+                if (this.tp.TrackingMode > TrackingMode.Off) return;
+                //ti.TrackingMode = tp.DefaultTrackingMode;
+                this.setTrackingRate(this.tp.TrackingRate, this.tp.DefaultTrackingMode);
+                this.tp.TrackingMode = this.tp.DefaultTrackingMode;
+            }
+            else
+            {
+                if (this.tp.TrackingMode < TrackingMode.AltAzm) return;
+                //ti.TrackingMode = TrackingMode.Off;
+                this.setTrackingRate(this.tp.TrackingRate, TrackingMode.Off);
+                this.tp.TrackingMode = TrackingMode.Off;
             }
         }
+
         /// <summary>
         /// Get rate on Azm axis in (deg/sec)
         /// </summary>
@@ -229,27 +240,35 @@
 
         public void SetTrackingRate(DriveRates rate, TrackingMode mode)
         {
-            if (mode > TrackingMode.AltAzm) this.tp.IsAtHome = false;
-            //lock (_sync)
+            lock (_sync)
             {
-                this.two.SetTrackingRate(rate, mode);
+                setTrackingRate(rate, mode);
             }
+        }
+
+        private void setTrackingRate(DriveRates rate, TrackingMode mode)
+        {
+            if (mode > TrackingMode.AltAzm) this.tp.IsAtHome = false;
+            this.two.SetTrackingRate(rate, mode);
         }
 
         public void SetTrackingDec()
         {
-            //lock (_sync)
+            lock (_sync)
             {
-                this.two.SetTrackingDec();
+                setTrackingDec();
             }
         }
 
-        private void CheckRateTrackingState()
+        private void setTrackingDec()
         {
-            //lock (_sync)
-            {
-                this.two.CheckRateTrackingState();
-            }
+            this.two.SetTrackingDec();
+        }
+
+
+        private void checkRateTrackingState()
+        {
+            this.two.CheckRateTrackingState();
         }
 
         private PulsState ps = new PulsState();
@@ -265,12 +284,27 @@
             }
         }
 
+        public double SiderealTime
+        {
+            get
+            {
+                if (!ti.CanGetLST) throw new NotSupportedException("Getting siderial time not supported");
+                lock (_sync)
+                {
+                    return ti.GetLST();
+                }
+            }
+        }
+
         public bool IsPulsGuiding()
         {
             return this.telescopeMode == TelescopeMode.Guiding;
         }
 
         private TrackingMode moveAxisTrackingMode = TrackingMode.Unknown;
+
+
+
         /// <summary>
         /// MoveAxis with fixed or variable rate
         /// </summary>
@@ -279,41 +313,47 @@
         /// <param name="isFixed"></param>
         public void MoveAxis(SlewAxes axis, double rate, bool isFixed = false)
         {
+            lock (_sync)
+            {
+                moveAxis(axis, rate, isFixed);
+            }
+        }
+
+        private void moveAxis(SlewAxes axis, double rate, bool isFixed = false)
+        {
             this.CheckPark();
             if (this.telescopeMode != TelescopeMode.Normal && this.telescopeMode != TelescopeMode.MovingAxis) return;
 
-            lock (_sync)
+            this.tp.IsAtHome = false;
+            if (axis == SlewAxes.DecAlt) this.tp.MovingAltAxes = !rate.Equals(0);
+            if (axis == SlewAxes.RaAzm) this.tp.MovingAzmAxes = !rate.Equals(0);
+            if (!rate.Equals(0))
             {
-                this.tp.IsAtHome = false;
-                if (axis == SlewAxes.DecAlt) this.tp.MovingAltAxes = !rate.Equals(0);
-                if (axis == SlewAxes.RaAzm) this.tp.MovingAzmAxes = !rate.Equals(0);
-                if (!rate.Equals(0))
+                if (axis == SlewAxes.RaAzm)
                 {
-                    if (axis == SlewAxes.RaAzm)
-                    {
-                        if (this.telescopeMode != TelescopeMode.MovingAxis) this.moveAxisTrackingMode = this.tp.TrackingMode;
-                        this.CheckRateTrackingState();
-                        //SetTracking(TrackingMode.Off);
-                        //tp.TrackingMode = TrackingMode.Off;
-                    }
-                    this.two.MoveAxis(axis, rate, isFixed);
-                    this.telescopeMode = TelescopeMode.MovingAxis;
+                    if (this.telescopeMode != TelescopeMode.MovingAxis)
+                        this.moveAxisTrackingMode = this.tp.TrackingMode;
+                    this.checkRateTrackingState();
+                    //SetTracking(TrackingMode.Off);
+                    //tp.TrackingMode = TrackingMode.Off;
                 }
-                else // rate == 0
+                this.two.MoveAxis(axis, rate, isFixed);
+                this.telescopeMode = TelescopeMode.MovingAxis;
+            }
+            else // rate == 0
+            {
+                if (axis == SlewAxes.RaAzm)
                 {
-                    if (axis == SlewAxes.RaAzm)
-                    {
-                        this.SetTrackingRate(this.tp.TrackingRate, this.moveAxisTrackingMode);
-                        this.tp.TrackingMode = this.moveAxisTrackingMode;
-                    }
-                    else
-                    {
-                        this.SetTrackingDec();
-                    }
-                    if (!this.tp.MovingAltAxes && !this.tp.MovingAzmAxes)
-                    {
-                        this.telescopeMode = TelescopeMode.Normal;
-                    }
+                    this.setTrackingRate(this.tp.TrackingRate, this.moveAxisTrackingMode);
+                    this.tp.TrackingMode = this.moveAxisTrackingMode;
+                }
+                else
+                {
+                    this.setTrackingDec();
+                }
+                if (!this.tp.MovingAltAxes && !this.tp.MovingAzmAxes)
+                {
+                    this.telescopeMode = TelescopeMode.Normal;
                 }
             }
         }
@@ -337,7 +377,7 @@
         }
 
 
-        private void WaitGoPosition()
+        private void waitGoPosition()
         {
             var tBeginPark = Environment.TickCount;
             bool isAltSlewDone = false, isAzmSlewDone = false;
@@ -364,8 +404,8 @@
             {
                 var pos = this.tp.HomePozition;
                 this.ti.GoToPosition(pos);
-                this.WaitGoPosition();
-                this.SetTracking(false);
+                this.waitGoPosition();
+                this.setTracking(false);
                 this.tp.IsAtPark = true;
             }
         }
@@ -376,8 +416,8 @@
             {
                 var pos = this.tp.HomePozition;
                 this.ti.GoToPosition(pos);
-                this.WaitGoPosition();
-                this.SetTracking(false);
+                this.waitGoPosition();
+                this.setTracking(false);
                 this.tp.IsAtHome = true;
             }
         }
@@ -398,26 +438,28 @@
             }
         }
 
-        public void StopWorking()
+        private void stopWorking()
         {
-            lock (_sync)
+            if (tp == null) return;
+            if (this.tp.MovingAltAxes)
             {
-                if (this.tp.MovingAltAxes)
-                {
-                    this.MoveAxis(SlewAxes.DecAlt, 0);
-                }
-                if (this.tp.MovingAzmAxes)
-                {
-                    this.MoveAxis(SlewAxes.RaAzm, 0);
-                }
-                this.two.StopWorking();
+                this.moveAxis(SlewAxes.DecAlt, 0);
             }
+            if (this.tp.MovingAzmAxes)
+            {
+                this.moveAxis(SlewAxes.RaAzm, 0);
+            }
+            this.two.StopWorking();
         }
 
         public void Disconnect()
         {
-            this.ti = null;
-            this.telescopeMode = TelescopeMode.Initial;
+            lock (_sync)
+            {
+                this.stopWorking();
+                this.ti = null;
+                this.telescopeMode = TelescopeMode.Initial;
+            }
         }
 
         private void BgWorkerOnRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs runWorkerCompletedEventArgs)
@@ -442,9 +484,9 @@
         {
             while (!this.bgWorker.CancellationPending)
             {
-                if (this.ti != null && this.ti.isConnected && !this.tp.IsAtPark)
+                lock (_sync)
                 {
-                    lock (_sync)
+                    if (this.ti != null && !this.tp.IsAtPark)
                     {
 
                         switch (this.telescopeMode)
@@ -487,13 +529,13 @@
             if (this.ps.Ra != null && this.ps.Ra.isExpired)
             {
                 this.ps.Ra = null;
-                this.SetTrackingRate(this.tp.TrackingRate, this.tp.TrackingMode);
+                this.setTrackingRate(this.tp.TrackingRate, this.tp.TrackingMode);
             }
 
             if (this.ps.Dec != null && this.ps.Dec.isExpired)
             {
                 this.ps.Dec = null;
-                this.SetTrackingDec();
+                this.setTrackingDec();
             }
 
             if (this.ps.Dec == null && this.ps.Ra == null)
@@ -504,12 +546,12 @@
 
         private void MovingAxisMode()
         {
-            this.CheckCoordinates();
+            this.checkCoordinates();
         }
 
         private void NormalMode()
         {
-            this.CheckCoordinates();
+            this.checkCoordinates();
         }
 
         private void InitialMode()
@@ -530,10 +572,10 @@
                 Thread.Sleep(1000);    
             }
             if (!isReady) throw new DriverException("Can't get propertyes of telescope");
-            this.CheckCoordinates(true);
+            this.checkCoordinates(true);
             this.telescopeMode = this.tp.SlewState == SlewState.Slewing ? TelescopeMode.Slewing : TelescopeMode.Normal;
-            this.CheckRateTrackingState();
-            this.SetTrackingRate(this.tp.TrackingRate, this.tp.TrackingMode);
+            this.checkRateTrackingState();
+            this.setTrackingRate(this.tp.TrackingRate, this.tp.TrackingMode);
         }
 
         private int slewEndTime = int.MinValue;
@@ -542,18 +584,26 @@
         {
             if (!this.isSlewSetteled)
             {
-                if (!this.ti.IsGoToInProgress)
+                try
                 {
-                    this.slewEndTime = Environment.TickCount;
-                    this.isSlewSetteled = true;
+                    if (!this.ti.IsGoToInProgress)
+                    {
+                        this.slewEndTime = Environment.TickCount;
+                        this.isSlewSetteled = true;
+                    }
+                }
+                catch
+                {
+                    return;
                 }
             } 
-            else if (this.slewEndTime + this.tp.SlewSteeleTime < Environment.TickCount)
+            else if (this.slewEndTime + this.tp.SlewSteeleTime <= Environment.TickCount)
             {
                 this.isSlewSetteled = false;
+                SlewWaitHandle.Set();
                 this.telescopeMode = TelescopeMode.Normal;
             }
-            this.CheckCoordinates();
+            this.checkCoordinates();
         }
 
         private double dRateRa = 0, dRateDec = 0, sRa = 0;
@@ -574,7 +624,7 @@
                 this.sRa = Math.Abs(RaRate + ra);
                 if (this.tp.TrackingMode > TrackingMode.AltAzm && Math.Abs(ra) < 0.0003)
                 {
-                    this.SetTrackingRate(this.tp.TrackingRate, this.tp.TrackingMode);
+                    this.setTrackingRate(this.tp.TrackingRate, this.tp.TrackingMode);
 //                    sRa = 0;
                 }
 
@@ -592,11 +642,11 @@
 
         }
 
-        private void CheckCoordinates(bool now = false)
+        private void checkCoordinates(bool now = false)
         {
             if (!now && this.lastGetCoordiante + CoordinatesGetInterval > Environment.TickCount) return;
             
-            if (now || this.lastGetCoordinateMode)
+            if (now || this.lastGetCoordinateMode == 0)
             {
                 try
                 {
@@ -611,11 +661,11 @@
                 }
                 catch (Exception err)
                 {
-                    this.tp.RaDec = new Coordinates(double.NaN, double.NaN);
+                    //this.tp.RaDec = new Coordinates(double.NaN, double.NaN);
                 }
             }
 
-            if (now || !this.lastGetCoordinateMode)
+            if (now || this.lastGetCoordinateMode == 1)
             {
                 try
                 {
@@ -625,10 +675,10 @@
                 }
                 catch (Exception err)
                 {
-                    this.tp.AltAzm = new AltAzm(double.NaN, double.NaN);
+                    //this.tp.AltAzm = new AltAzm(double.NaN, double.NaN);
                 }
             }
-            if (this.telescopeMode == TelescopeMode.Normal)
+            if (now || telescopeMode == TelescopeMode.Normal || this.lastGetCoordinateMode == 2)
             {
                 try
                 {
@@ -638,11 +688,25 @@
                 }
                 catch (Exception err)
                 {
-                    this.tp.Position = new AltAzm(double.NaN, double.NaN);
+                    //this.tp.Position = new AltAzm(double.NaN, double.NaN);
                 }
             }
-            this.lastGetCoordinateMode = !this.lastGetCoordinateMode;
+            this.lastGetCoordinateMode = this.lastGetCoordinateMode == 2 ? 0 : this.lastGetCoordinateMode + 1;
             this.lastGetCoordiante = Environment.TickCount;
+        }
+
+        public AltAzm Position
+        {
+            get
+            {
+                if (tp.Position != null) return tp.Position;
+                lock (_sync)
+                {
+                    var pos = this.ti.GetPosition();
+                    tp.Position = pos;
+                    return pos;
+                }
+            }
         }
 
         private void setFilter()
@@ -663,7 +727,8 @@
                 this.AzmValues.Add(azm, Const.TRACKRATE_SIDEREAL - RaRate);
 //                var azmf = kfilt.Correct(azm);
                 if (azm.Equals(0d)) 
-                    this.SetTrackingRate(this.tp.TrackingRate, this.tp.TrackingMode);
+                    this.setTrackingRate(this.tp.TrackingRate, this.tp.TrackingMode);
+               
                 Debug.WriteLine(string.Format("[{0}] azm={1,-12} azmVal={2,9:f6} sco={3,9:f6} sMed={4,9:f6} sSco={5,9:f6} med={6,9:f6}", DateTime.Now,
                     DMS.FromDeg(newVal.Azm).ToString(":"), 
                     azm, this.AzmValues.sco, this.AzmValues.cMed, this.AzmValues.cSco , this.AzmValues.Median));
@@ -681,5 +746,12 @@
             
         }
 
+        public void Dispose()
+        {
+            if (bgWorker.IsBusy)
+            {
+                bgWorker.CancelAsync();
+            }
+        }
     }
 }

@@ -222,6 +222,11 @@
             throw new NotImplementedException();
         }
 
+        public virtual double GetLST()
+        {
+            throw new NotImplementedException();
+        }
+
         public virtual void Hibernate()
         {
             throw new System.NotImplementedException();
@@ -327,6 +332,8 @@
             get { return false; }
         }
 
+        public virtual bool CanGetLST { get { return false; } }
+
         public bool CommandBool(string command, bool raw)
         {
             this.DeviceWorker.CheckConnected("CommandBool");
@@ -354,7 +361,7 @@
             }
         }
 
-        protected byte[] SendBytes(byte[] com)
+        protected byte[] SendBytes(byte[] com, int rLen = -1)
         {
             var res = this.DeviceWorker.Transfer(com);// CommandString(Encoding.ASCII.GetString(com), false);
             if (res.Length == 0 || res[res.Length - 1] != (char)GeneralCommands.TERMINATOR)
@@ -367,7 +374,8 @@
 
         protected double[] GetValues(GeneralCommands command, int nOfDigits)
         {
-            var res = this.DeviceWorker.Transfer(command.AsString());
+            var rLen = nOfDigits == 8 ? 18 : nOfDigits*2 + 2; 
+            var res = this.DeviceWorker.Transfer(command.AsString(), rLen);
             if (res.Length == 0 || !res[res.Length - 1].Equals((char)GeneralCommands.TERMINATOR))
             {
                 throw new Exception("Error in protocol");
@@ -393,16 +401,20 @@
             {
                 if (args.Length <= i) continue;
                 argums[i + 4] = args[i];
-                if (args[i] == 0x3B) argLen = 4;
+                //if (args[i] == 0x3B) argLen = 4;
             }
             argums[1] = argLen;
-            var res = this.SendBytes(argums);
-            if (res.Length < NoOfAnsvers + 1) 
-                throw new Exception(string.Format("Error in protocol: {0} bytes reply expected, {1} bytes recived", NoOfAnsvers, res.Length - 1));
-            return res;
+            var res = new byte[0];
+            for (int i = 0; i < 3; i++)
+            {
+                res = this.SendBytes(argums, NoOfAnsvers + 1);
+                if (res.Length >= NoOfAnsvers + 1) return res;
+            }
+            throw new Exception(string.Format("Error in protocol: {0} bytes reply expected, {1} bytes recived",
+                NoOfAnsvers, res.Length - 1));
         }
 
-        protected void SetValues(GeneralCommands command, IEnumerable<double> values, int nOfDigits, int nDigitsInParam = 0)
+        protected string SetValues(GeneralCommands command, IEnumerable<double> values, int nOfDigits, int nDigitsInParam = 0)
         {
             string com = command.AsString();
             foreach (var val in values)
@@ -414,9 +426,9 @@
                 com += com.Length > 1 ? "," + v : v;
             }
             com += GeneralCommands.TERMINATOR.ToString();
-            this.DeviceWorker.Transfer(com);
+            return this.DeviceWorker.Transfer(com);
         }
-
+        
         protected DeviceID GetDeviceId(SlewAxes axis)
         {
             if (axis == SlewAxes.DecAlt) return DeviceID.DecAltMotor;

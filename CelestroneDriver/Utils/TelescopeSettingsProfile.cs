@@ -144,7 +144,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils
         [ProfileRecord("Park Azimuth", "90")]
         public double ParkAzm;
 
-        [ProfileRecord("Home Altitude", "0")]
+        [ProfileRecord("Home Altitude", "90")]
         public double HomeAlt;
 
         [ProfileRecord("Home Alzimuth", "90")]
@@ -177,7 +177,10 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.Utils
                         var value = driverProfile.GetValue(driverId, pra.Name, string.Empty, pra.DefaultValue);
                         fieldInfo.SetValue(this, Convert.ChangeType(value, fieldInfo.FieldType));
                     }
-                    catch{}
+                    catch
+                    {
+                        
+                    }
                 }
 
             }

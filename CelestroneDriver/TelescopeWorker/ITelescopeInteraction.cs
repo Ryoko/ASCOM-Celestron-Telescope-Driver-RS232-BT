@@ -8,7 +8,7 @@
     public enum SlewAxes { RaAzm = 16, DecAlt = 17 };
     public enum DeviceID { Main = 1, HC = 4, RaAzmMotor = 16, DecAltMotor = 17, GPSUnit = 176, RTC = 178 }
     public enum TelescopeModel { Unknown = 0, GPSSeries = 1, iSeries = 3, iSeriesSE, CGE, AdvancedGT, SLT, CPC = 9, GT, SE45, SE68 }
-    public enum TrackingMode { Unknown = -1, Off = 0, AltAzm, EQN, EQS }
+    public enum TrackingMode { Unknown = -1, Off = 0, AltAzm, EQN, EQS, LENGTH }
 
     public enum SiteOfPier {Unknown = -1, East = 0, West}
 
@@ -134,7 +134,7 @@
     public interface ITelescopeInteraction
     {
         //ICelestroneTelescopeWorker(IDeviceWorker dw);
-        bool isConnected { get; set; }
+        //bool isConnected { get; set; }
         AltAzm AltAzm { get; set; }
         Coordinates RaDec { get; set; }
         void SyncAltAz(AltAzm coordinates);
@@ -181,6 +181,7 @@
         SiteOfPier GetSiteOfPier();
         SiteOfPier GetDestinationSiteOfPier(Coordinates coord);
 
+        double GetLST();
         void Hibernate();
         void WakeUp();
 
@@ -205,6 +206,7 @@
         bool CanGetSiteOfPier { get; }
         bool CanHibernate { get; }
         bool CanWorkHome { get; }
+        bool CanGetLST { get; }
 
         byte[] SendCommandToDevice(DeviceID DeviceId, DeviceCommands Command, byte NoOfAnsvers, params byte[] args);
 

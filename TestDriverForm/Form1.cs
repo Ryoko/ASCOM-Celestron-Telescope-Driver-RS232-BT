@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
 using ASCOM.CelestronAdvancedBlueTooth;
@@ -14,23 +15,26 @@ namespace ASCOM.CelestronAdvancedBluetooth
     {
 
         private ASCOM.DriverAccess.Telescope driver;
-        private AInputcontrol pad;
-
+        //private AInputcontrol pad;
 
         public Form1()
         {
             InitializeComponent();
             SetUIState();
-            pad = new GamePad();
-            pad.OnUpdate += OnUpdate;
+            SetActions();
+            //pad = new GamePad();
+            //pad.OnUpdate += OnUpdate;
             //this.test();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            backgroundWorker1.CancelAsync();
             if (IsConnected)
                 driver.Connected = false;
-
+            driver.Dispose();
+            driver = null;
+            //pad = null;
             Properties.Settings.Default.Save();
         }
 
@@ -79,6 +83,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
                 park = driver.AtPark;
             }
             Coordinates.Enabled = IsConnected;
+            actions.Enabled = IsConnected;
             ControlButtons.Enabled = IsConnected && !park;
             Park.Text = park ? "Unpark" : "Park";
             goHome.Enabled = !park;
@@ -118,6 +123,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
         private bool isSetting;
         private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
+            if (backgroundWorker1.CancellationPending) return;
             if (e.ProgressPercentage == 50)
             {
                 try
@@ -129,7 +135,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
                     Azm.Text = new DMS(driver.Azimuth).ToString();
                     positionAzm.Text = new DMS(pAzm).ToString();
                     positionAlt.Text = new DMS(pAlt).ToString();
-
+                    slewState.Text = driver.Slewing ? "Slewing" : "";
 
                     var mode = driver.Action("GetTrackingMode", "");
                     int trMode;
@@ -269,7 +275,7 @@ namespace ASCOM.CelestronAdvancedBluetooth
 
         private void useGamePad_CheckedChanged(object sender, EventArgs e)
         {
-            pad.Active = useGamePad.Checked;
+            //pad.Active = useGamePad.Checked;
         }
 
         private void OnUpdate(ControllerState controllerState)
@@ -288,6 +294,45 @@ namespace ASCOM.CelestronAdvancedBluetooth
             driver.MoveAxis(TelescopeAxes.axisSecondary, rateY);
         }
 
+        private List<string> actList = new List<string>() {"SlewSync", "SiteOfPier", "Destination SiteOfPier"}; 
+
+        private void SetActions()
+        {
+            actionList.Items.Clear();
+            actionList.Items.AddRange(actList.ToArray());
+            actionList.SelectedIndex = 0;
+        }
+
+        private void slewTo_Click(object sender, EventArgs e)
+        {
+            if (driver.Connected)
+            {
+                switch (actionList.SelectedIndex)
+                {
+                    case 0:
+                        ConsoleAdd(string.Format("Value: {0}", "Slewing"));
+                        driver.SlewToCoordinates(12, 45);
+                        ConsoleAdd(string.Format("Value: {0}", "Slewed"));
+                        return;
+                    case 1:
+                        var res = driver.SideOfPier;
+                        ConsoleAdd(string.Format("SOP: {0}", res.ToString()));
+                        return;
+                    case 2:
+                        ConsoleAdd(string.Format("Dest SOP: {0}", driver.DestinationSideOfPier(15, 12)));
+                        return;
+
+                }
+                //var sop = driver.SideOfPier; //driver.DestinationSideOfPier(90.55555, 90.555555);
+            }
+        }
+
+        private void ConsoleAdd(string val)
+        {
+            var l = new List<string>(console.Lines);
+            l.Add(string.Format("[{0}] {1}", DateTime.Now.TimeOfDay.ToString("t"), val));
+            console.Lines = l.ToArray();
+        }
     }
 
 }

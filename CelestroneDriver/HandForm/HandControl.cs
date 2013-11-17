@@ -49,9 +49,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HandForm
         {
             while (!this.bgw.CancellationPending)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(300);
                 if (this.bgw.CancellationPending) return;
-                if (this._tw != null && this._tw.TelescopeInteraction != null && this._tw.TelescopeProperties != null && this._tw.TelescopeInteraction.isConnected)
+                if (this._tw != null && this._tw.TelescopeInteraction != null && this._tw.TelescopeProperties != null)
                 {
                     if (!this._connectionState)
                     {

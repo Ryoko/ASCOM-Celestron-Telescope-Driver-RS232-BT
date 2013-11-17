@@ -262,7 +262,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 isInit = false;
                 Latitude.Text = new DMS(prop.Location.Lat).ToString();
                 Longitude.Text = new DMS(prop.Location.Lon).ToString();
-                TrackingMode.SelectedIndex = (int)prop.TrackingMode;
+                TrackingMode.SelectedIndex = (byte)prop.TrackingMode;
                 HasGPS.Checked = prop.HasGPS;
                 isInit = true;
                 setButtons();

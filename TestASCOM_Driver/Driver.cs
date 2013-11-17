@@ -138,7 +138,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             tl.LogMessage("Telescope", "Completed initialisation");
             _handControl = new HandControl();
-            _handControl.SetForm(telescopeWorker);
+            //_handControl.SetForm(telescopeWorker);
         }
 
         public void Initialize()
@@ -214,7 +214,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     return "";
                 }
                 case "GetPosition":
-                    var res = telescopeInteraction.GetPosition();
+                    var res = telescopeWorker.Position;
                     return string.Format("{0};{1}", res.Azm, res.Alt);
             }
             throw new ASCOM.ActionNotImplementedException("Action " + actionName + " is not implemented by this driver");
@@ -239,6 +239,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             // Clean up the tracelogger and util objects
             StopWorking();
+            if (telescopeWorker != null) telescopeWorker.Dispose();
             tl.Enabled = false;
             tl.Dispose();
             tl = null;
@@ -271,11 +272,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                         deviceWorker = profile.IsBluetooth ? (IDeviceWorker)new BluetoothWorker() : new ComPortWorker();
                         if (deviceWorker != null)
                         {
+#if DEBUG                            
+                            deviceWorker.TraceLogger = tl;
+#endif
                             //driverWorker = new DriverWorker(this.CheckConnected, deviceWorker);
                             //telescopeInteraction = new CelestroneInteraction12(deviceWorker);
                         }
 
-                        connectedState = true;
                         bool res;
                         if (profile.IsBluetooth)
                         {
@@ -294,14 +297,17 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                             telescopeInteraction = ATelescopeInteraction.GeTelescopeInteraction(deviceWorker);
                             telescopeWorker.TelescopeInteraction = telescopeInteraction;
                             telescopeProperties = telescopeWorker.TelescopeProperties;
-                            telescopeInteraction.isConnected = true;
+                            //telescopeInteraction.isConnected = true;
                             var tBegin = Environment.TickCount;
                             while (true)
                             {
-                                if (tBegin + 30000 < Environment.TickCount) throw new DriverException("Unable to get telescope parameters");
+                                if (tBegin + 30000 < Environment.TickCount) 
+                                    throw new DriverException("Unable to get telescope parameters");
                                 Thread.Sleep(100);
                                 if (telescopeProperties.IsReady) break;
                             }
+                            connectedState = true;
+                            _handControl.SetForm(telescopeWorker);
                             _handControl.ShowForm(profile.ShowControl);
                         }
                         else
@@ -317,9 +323,13 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 }
                 else
                 {
-                    telescopeWorker.StopWorking();
-                    telescopeInteraction.isConnected = false;
+                    _handControl.ShowForm(false);
+                    _handControl.SetForm(null);
                     connectedState = false;
+                    //telescopeWorker.StopWorking();
+                    //telescopeInteraction.isConnected = false;
+                    StopWorking();
+
                     if (profile.IsBluetooth)
                     {
                         tl.LogMessage("Connected Set", "Disconnecting from bluetooth " + profile.BluetoothDevice.ToString());
@@ -328,8 +338,6 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                     {
                         tl.LogMessage("Connected Set", "Disconnecting from port " + profile.ComPort);
                     }
-                    _handControl.ShowForm(false);
-                    StopWorking();
                 }
             }
         }

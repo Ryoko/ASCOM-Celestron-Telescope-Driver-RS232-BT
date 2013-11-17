@@ -1,4 +1,7 @@
-﻿namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker
+﻿using System.Diagnostics;
+using ASCOM.Utilities;
+
+namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker
 {
     using System;
     using System.Collections.Generic;
@@ -61,6 +64,7 @@
         private Stream peerStream;
         private BluetoothDeviceInfo di;
         private object lockObj = new object();
+        private TraceLogger tl = null;
 
         public bool IsConnected { get; private set; }
 
@@ -86,6 +90,7 @@
                 this.cli = new BluetoothClient();
                 this.cli.Connect(this.ep);
                 this.peerStream = this.cli.GetStream();
+                //if (peerStream.CanTimeout) this.peerStream.ReadTimeout = TIMEOUT;
             }
             catch (Exception err)
             {
@@ -95,7 +100,7 @@
             return true;
         }
 
-        public byte[] Transfer(byte[] send)
+        public byte[] Transfer(byte[] send, int rLength = -1)
         {
 
             if (this.peerStream == null) return new byte[0];
@@ -105,26 +110,43 @@
 
             lock (this.lockObj)
             {
-                this.peerStream.Write(send, 0, send.Length);
-                var begin = -1;
-                for (int i = 0; i < 10; i++)
-                {
-                    Thread.Sleep(10);
-                    var lenRepl = this.peerStream.Read(receive, offset, 1024 - offset);
-                    offset += lenRepl;
-                    if (receive[offset - 1] == 35) break;
+//                for (int j = 0; j < 3; j++)
+//                {
+                    this.peerStream.Write(send, 0, send.Length);
+                    var begin = -1;
+                    for (int i = 0; i < 10; i++)
+                    {
+                        Thread.Sleep(10);
+                        int lenRepl = 0;
+                        try
+                        {
+                            lenRepl = this.peerStream.Read(receive, offset, 1024 - offset);
+                        }
+                        catch
+                        {
+                            
+                        }
+                        offset += lenRepl;
 
-                    if (begin < 0) begin = Environment.TickCount;
-                    if (Environment.TickCount > begin + TIMEOUT) break;
-                }
+                        if ( (rLength > 0 && offset >= rLength) || ( /*rLength < 0 &&*/ offset > 0 && receive[offset - 1] == (byte) GeneralCommands.TERMINATOR) )
+                        {
+                            if (tl != null)
+                                tl.LogMessage("Bluetooth transmit", string.Format("Send:{0} Recived:{1}", Utils.Bytes2Dump(send), Utils.Bytes2Dump(receive.Take(offset))));
+                            return receive.Take(offset).ToArray();
+                        }
+                        //if (rLength > 0 && offset >= rLength) return receive.Take(offset).ToArray();
+
+                        if (begin < 0) begin = Environment.TickCount;
+                        if (Environment.TickCount > begin + TIMEOUT) break;
+                    }
+//                }
             }
-            //Debug.WriteLine(string.Format("Send:{0} Recived:{1}", Utils.Utils.Bytes2Dump(send), Utils.Utils.Bytes2Dump(receive.Take(offset))));
-            return receive.Take(offset).ToArray();
+            throw new Exception("Error send command to device");
         }
 
-        public byte[] Transfer(GeneralCommands command)
+        public byte[] Transfer(GeneralCommands command, int rLen = -1)
         {
-            return Transfer(command.ToBytes());
+            return Transfer(command.ToBytes(), rLen);
         }
 
         public void CheckConnected(string message)
@@ -135,11 +157,19 @@
             }
         }
 
-        public string Transfer(string command)
+        public TraceLogger TraceLogger
+        {
+            set
+            {
+                tl = value;
+            }
+        }
+
+        public string Transfer(string command, int rLen = -1)
         {
             try{
                 var send = Encoding.ASCII.GetBytes(command);
-                var receive = this.Transfer(send);
+                var receive = this.Transfer(send, rLen);
                 return Encoding.ASCII.GetString(receive, 0, receive.Length);
             }
             catch (Exception err)

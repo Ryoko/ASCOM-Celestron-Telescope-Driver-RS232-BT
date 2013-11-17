@@ -63,12 +63,13 @@
             this.IsConnected = false;
         }
 
-        public string Transfer(string command)
+        public string Transfer(string command, int rLen = -1)
         {
             try
             {
                 this._port.Transmit(command);
-                var res = this._port.ReceiveTerminated("#");
+
+                var res = rLen < 0 ? this._port.ReceiveTerminated(GeneralCommands.TERMINATOR.ToString()) : this._port.ReceiveCounted(rLen);
                 return res;
             }
             catch (Exception err)
@@ -77,12 +78,13 @@
             }
         }
 
-        public byte[] Transfer(byte[] send)
+        public byte[] Transfer(byte[] send, int rLen = -1)
         {
             try
             {
                 this._port.TransmitBinary(send);
-                var res = this._port.ReceiveTerminatedBinary(new[]{(byte)GeneralCommands.TERMINATOR});
+                var res = rLen < 0 ? this._port.ReceiveTerminatedBinary(new[]{(byte)GeneralCommands.TERMINATOR}) :
+                    this._port.ReceiveCountedBinary(rLen);
                 return res;
             }
             catch (Exception err)
@@ -91,9 +93,9 @@
             }
         }
 
-        public byte[] Transfer(GeneralCommands command)
+        public byte[] Transfer(GeneralCommands command, int rLen = -1)
         {
-            return Transfer(command.ToBytes());
+            return Transfer(command.ToBytes(), rLen);
         }
 
         public void CheckConnected(string message)
@@ -103,5 +105,7 @@
                 throw new ASCOM.NotConnectedException(message);
             }
         }
+
+        public TraceLogger TraceLogger { set; private get; }
     }
 }

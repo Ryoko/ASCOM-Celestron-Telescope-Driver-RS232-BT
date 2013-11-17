@@ -50,6 +50,14 @@
         //    }
         //}
 
+        public override double GetLST()
+        {
+            var res = this.SendCommand(GeneralCommands.GET_LST);
+            var r = new string(res.Select(x => (char) x).Take(6).ToArray());
+            var val = (double)Convert.ToInt32(r, 16) * 24d / Math.Pow(2, 6 * 4);
+            return val;
+        }
+
         public override void Hibernate()
         {
             this.SendCommand(GeneralCommands.HIBERNATE);
@@ -89,6 +97,11 @@
         public override double VersionRequired
         {
             get { return 4.21; }
+        }
+
+        public override bool CanGetLST
+        {
+            get { return true; }
         }
     }
 }

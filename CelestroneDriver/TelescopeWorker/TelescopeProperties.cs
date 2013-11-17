@@ -64,6 +64,7 @@
         public AltAzm Position { get; set; }
         public Coordinates SyncRaDecOffset { get; set; }
         public AltAzm SyncAltAzmOffset { get; set; }
+        public bool HasRTC { get; private set; }
 
         private TelescopeSettingsProfile profile;
         //public static TelescopeProperties Properties { get { return _properties; } }
@@ -86,6 +87,8 @@
             if (this._ti.CanGetTracking)
             {
                 this.TrackingMode = this._ti.TrackingMode;
+                if (this.TrackingMode >= TrackingMode.LENGTH)
+                    this.TrackingMode = (TrackingMode) this.profile.TrackingMode;
             }
             else
             {
@@ -100,7 +103,16 @@
                     : new LatLon(this.profile.Latitude, this.profile.Longitude);
             this.TelescopeTime = this._ti.CanWorkDateTime ? this._ti.TelescopeDateTime : DateTime.Now;
             this.HasGPS = (this._ti.CanWorkGPS) && this._ti.IsGPS;
-
+            if (this.HasGPS)
+                try
+                {
+                    var gpsVer = _ti.GetDeviceVersion(DeviceID.GPSUnit);
+                    this.HasGPS = gpsVer > 0;
+                }
+                catch
+                {
+                    this.HasGPS = false;
+                }
             this.SlewState = this._ti.IsGoToInProgress ? SlewState.Slewing : SlewState.NoSlew;
             this.Elevation = this.profile.Elevation;
             this.Apperture = this.profile.Apperture;
@@ -114,6 +126,15 @@
             this.HomePozition = new AltAzm(this.profile.HomeAlt, this.profile.HomeAzm);
             this.ParkPosition = this.profile.ParkAlt.Equals(double.NaN) || this.profile.ParkAzm.Equals(double.NaN) ? null : new AltAzm(this.profile.ParkAlt, this.profile.ParkAzm);
             this.IsAtPark = this.profile.IsAtPark;
+            try
+            {
+                var rtc = _ti.GetDeviceVersion(DeviceID.RTC);
+                this.HasRTC = rtc > 0;
+            }
+            catch
+            {
+                this.HasRTC = false;
+            }
             this.IsReady = true;
             this.SyncAltAzmOffset = new AltAzm(0, 0);
             this.SyncRaDecOffset = new Coordinates(0, 0);

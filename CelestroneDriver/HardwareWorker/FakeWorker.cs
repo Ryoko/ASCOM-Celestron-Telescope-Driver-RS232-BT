@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ASCOM.Utilities;
 
 namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker
 {
@@ -46,17 +47,17 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker
             _connected = false;
         }
 
-        public string Transfer(string command)
+        public string Transfer(string command, int rLen = -1)
         {
             return _telescope.exchange(command);
         }
 
-        public byte[] Transfer(byte[] send)
+        public byte[] Transfer(byte[] send, int rLen = -1)
         {
             return _telescope.exchange(send);
         }
 
-        public byte[] Transfer(GeneralCommands command)
+        public byte[] Transfer(GeneralCommands command, int rLen = -1)
         {
             return Transfer(command.ToBytes());
         }
@@ -78,5 +79,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth.CelestroneDriver.HardwareWorker
         {
             if (!_connected) throw new NotConnectedException(message);
         }
+
+        public TraceLogger TraceLogger { set; private get; }
     }
 }

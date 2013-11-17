@@ -145,7 +145,12 @@
                 if (this.ti.CanSetTracking && this.ti.CanSlewHighRate)
                 {
                     this.ti.SlewHighRate(SlewAxes.RaAzm, 0);
-                    this.ti.TrackingMode = this.tp.TrackingMode;
+                    if (this.tp.TrackingMode < TrackingMode.LENGTH)
+                        this.ti.TrackingMode = this.tp.TrackingMode;
+                    else
+                    {
+                        
+                    }
                     this.tp.IsRateTracked = false;
                 }
             }

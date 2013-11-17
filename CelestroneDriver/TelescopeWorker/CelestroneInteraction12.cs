@@ -122,7 +122,8 @@
             {
                 //var com = new[] {(byte) 'L'};
                 var res = this.DeviceWorker.Transfer(GeneralCommands.IS_SLEWING);//SendBytes(com);
-                return res[0] == (byte) '1';
+                if (res.Length != 2) throw new DriverException("Wrong answer");
+                return res[0] != (byte) GeneralCommands._0;
             }
         }
 

@@ -10,7 +10,7 @@
     //    AInputcontrol GetInstance { get; }
     //}
 
-    public class AInputcontrol// : IInputControl
+    public class AInputcontrol
     {
         protected bool active;
         protected readonly Thread workThread;
@@ -59,6 +59,12 @@
             this.Active = false;
             this.workThread = new Thread(this.DoWork);
             this.workThread.Start();
+        }
+
+        ~AInputcontrol()
+        {
+            workThread.Abort();
+            autoReset.Set();
         }
 
         private void DoWork()

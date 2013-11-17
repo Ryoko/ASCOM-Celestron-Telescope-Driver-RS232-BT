@@ -346,7 +346,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             set
             {
                 var rate = telescopeProperties.DeclinationRateOffset + value;
-                if (!CheckRate(TelescopeAxes.axisPrimary, rate)) throw new ArgumentOutOfRangeException("value for Dec guide rate out of range");
+                if (!CheckRate(TelescopeAxes.axisPrimary, rate)) throw new InvalidValueException("value for Dec guide rate out of range");
                 tl.LogMessage("GuideRateDeclination Set", (value).ToString());
                 telescopeProperties.PulseRateAlt = value;
             }
@@ -365,7 +365,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 var rate =
                     telescopeWorker.GetRateRa(telescopeProperties.TrackingRate, telescopeProperties.TrackingMode) +
                     value;
-                if (!CheckRate(TelescopeAxes.axisPrimary, rate)) throw new ArgumentOutOfRangeException("value for RA guide rate out of range");
+                if (!CheckRate(TelescopeAxes.axisPrimary, rate)) throw new InvalidValueException("value for RA guide rate out of range");
                 tl.LogMessage("GuideRateRightAscension Set", (value).ToString());
                 telescopeProperties.PulseRateAzm = value;
             }
@@ -396,14 +396,14 @@ namespace ASCOM.CelestronAdvancedBlueTooth
                 var rate = (int) (Rate/10);
                 var absRate = Math.Abs(rate);
                 if (absRate > 9)
-                    throw new ArgumentOutOfRangeException("Fixed rate " + absRate + " for MovingRate is Out of range");
+                    throw new InvalidValueException("Fixed rate " + absRate + " for MovingRate is Out of range");
                 telescopeWorker.MoveAxis(axs, rate, true);
                 tl.LogMessage("MoveAxis ", Axis + "to fixed rate " + rate);
             }
             else
             {
                 if (!CheckRate(Axis, Math.Abs(Rate)))
-                    throw new ArgumentOutOfRangeException("Rate " + Rate.ToString() + " for MovingRate is Out of range");
+                    throw new InvalidValueException("Rate " + Rate.ToString() + " for MovingRate is Out of range");
                 telescopeWorker.MoveAxis(axs, Rate);
                 tl.LogMessage("MoveAxis ", Axis + "to rate " + Rate);
             }
@@ -493,10 +493,16 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-
-                DateTime dt = telescopeWorker.TelescopeDateTime;
-
-                double siderealTime = Utils.ToSiderealTime(dt);
+                double siderealTime;
+                if (telescopeInteraction.CanGetLST)
+                {
+                   siderealTime = telescopeWorker.SiderealTime;
+                }
+                else
+                {
+                    DateTime dt = telescopeWorker.TelescopeDateTime;
+                    siderealTime = Utils.ToSiderealTime(dt.ToUniversalTime());
+                }
                 tl.LogMessage("SiderealTime", "Get - " + siderealTime.ToString());
                 return siderealTime;
             }
@@ -512,6 +518,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
+                if (value > 10000 || value < -300) throw new InvalidValueException("Elevation out of range -300m < elevation < 10000m");
                 tl.LogMessage("SiteElevation Set", value.ToString());
                 telescopeProperties.Elevation = value;
                 profile.Elevation = (int)value;
@@ -530,6 +537,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
+                if (value < -90 || value > 90) throw new InvalidValueException("Latitude out of range (-90 < latitude < 90");
                 if (telescopeInteraction.CanWorkLocation)
                 {
                     if (telescopeProperties == null || telescopeProperties.Location == null) return;
@@ -553,6 +561,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
+                if (value < -180 || value > 180) throw new InvalidValueException("Longitude out of range (-180 < latitude < 180");
                 if (telescopeInteraction.CanWorkLocation)
                 {
                     if (telescopeProperties == null || telescopeProperties.Location == null) return;
@@ -575,6 +584,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
+                if (value < 0) throw new InvalidValueException("Settle time less than 0");
                 telescopeProperties.SlewSteeleTime = value*1000;
                 tl.LogMessage("SlewSettleTime Set", value.ToString());
             }
@@ -584,16 +594,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             telescopeWorker.CheckPark();
             SlewToAltAzAsync(Azimuth, Altitude);
-            while (true)
-            {
-                Thread.Sleep(100);
-                if (!telescopeWorker.IsSlewing) break;
-            }
+            telescopeWorker.SlewWaitHandle.WaitOne(90000);
+            //while (true)
+            //{
+            //    Thread.Sleep(100);
+            //    if (!telescopeWorker.IsSlewing) break;
+            //}
             tl.LogMessage("SlewingToAltAz", string.Format("Alt:{0}, Azm:{1}", Altitude, Azimuth));
         }
 
         public void SlewToAltAzAsync(double Azimuth, double Altitude)
         {
+            CheckAlt(Altitude);
+            CheckAzm(Azimuth);
             telescopeWorker.CheckPark();
             var altaz = new AltAzm(Altitude + telescopeProperties.SyncAltAzmOffset.Alt, Azimuth + telescopeProperties.SyncAltAzmOffset.Azm);
             if (telescopeWorker.Slew(altaz))
@@ -610,16 +623,19 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             telescopeWorker.CheckPark();
             SlewToCoordinatesAsync(RightAscension, Declination);
-            while (true)
-            {
-                Thread.Sleep(100);
-                if(!telescopeWorker.IsSlewing) break;
-            }
+            telescopeWorker.SlewWaitHandle.WaitOne(90000);
+            //while (true)
+            //{
+            //    Thread.Sleep(200);
+            //    if(!telescopeWorker.IsSlewing) break;
+            //}
             tl.LogMessage("Slewed ToToCoordinates Complete", string.Format("RA:{0}, Dec:{1}", new DMS(RightAscension).ToString(), new DMS(Declination).ToString()));
         }
 
         public void SlewToCoordinatesAsync(double RightAscension, double Declination)
         {
+            CheckRA(RightAscension);
+            CheckDec(Declination);
             telescopeWorker.CheckPark();
             var coord = new Coordinates(RightAscension + telescopeProperties.SyncRaDecOffset.Ra, Declination + telescopeProperties.SyncRaDecOffset.Dec);
             if (telescopeWorker.Slew(coord))
@@ -654,7 +670,9 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         {
             get
             {
-                return telescopeWorker.IsSlewing;
+                var res = telescopeWorker.IsSlewing;
+                tl.LogMessage("Slewing state Get", res.ToString());
+                return res;
             }
         }
 
@@ -718,6 +736,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
+                if (value < -90 || value > 90) throw new InvalidValueException("Target declination out of range");
                 var val = new DMS(value);
                 tl.LogMessage("TargetDeclination Set - ", val.ToString(":"));
                 telescopeProperties.Target.Dec =  val;
@@ -734,6 +753,7 @@ namespace ASCOM.CelestronAdvancedBlueTooth
             }
             set
             {
+                if (value < 0 || value > 24) throw new InvalidValueException("Target Right Ascension out of range");
                 var val = new DMS(value, true);
                 tl.LogMessage("TargetRightAscension Set", val.ToString(":"));
                 telescopeProperties.Target.Ra = val;
@@ -970,6 +990,26 @@ namespace ASCOM.CelestronAdvancedBlueTooth
         }
 
         #endregion
+
+        private void CheckRA(double value)
+        {
+            if (value < 0 || value > 24) throw new InvalidValueException("Right Ascention out of range");
+        }
+        private void CheckDec(double value)
+        {
+            if (value < -90 || value > 90) throw new InvalidValueException("Declination out of range");
+        }
+
+        private void CheckAlt(double value)
+        {
+            if (value < -90 || value > 90) throw new InvalidValueException("Altitude out of range");
+        }
+        private void CheckAzm(double value)
+        {
+            if (value < 0 || value > 360) throw new InvalidValueException("Azimuth out of range");
+        }
+
+
         /// <summary>
         /// Check rate on specified axis (deg/sec)
         /// </summary>
